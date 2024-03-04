@@ -65,9 +65,21 @@
         alt="/images/profile.jpeg"
         title="/images/profile.jpeg" /></a></div><div class="home-subtitle"><div id="id-1" class="typeit"></div></div><div class="links"><a href="https://github.com/goodyoung" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github fa-fw" aria-hidden="true"></i></a><a href="mailto:goodyoung.goh@gmail.com" title="Email" rel="me"><i class="far fa-envelope fa-fw" aria-hidden="true"></i></a><a href="/index.xml" title="RSS" target="_blank" rel="noopener noreffer me"><i class="fas fa-rss fa-fw" aria-hidden="true"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/my_first/">My_first</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-publish">published on <time datetime="2024-03-03">2024-03-03</time></span></div><div class="content"></div><div class="post-footer">
-        <a href="/posts/my_first/">Read More</a></div>
+        <a href="/posts/my_first/">Hugo 블로그 구축하다 -1</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-publish">published on <time datetime="2024-03-04">2024-03-04</time></span>&nbsp;<span class="post-category">included in <a href="/categories/tech/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>tech</a></span></div><div class="content">개요 맥북 유저인 내가 공부 자료 정리를 위해 깃헙 블로그를 구축하려고 한다. 깃헙 블로그로 Hugo를 선택한 이유는 큰 이유 없이 다른 static site generator들 보다 가장 빌딩 시간이 빠른 프레임워크라고 한다. Step 1: 기본 구축 맥북에 Hugo 설치를 위하여 brew를 이용하여 설치를 시켜줬다.
+블로그 파일들을 로컬 컴퓨터에서 관리를 하기 위해 맥북에 Hugo를 설치를 해주었다.
+$ brew install hugo $ hugo help # hugo 설치가 잘 되었는지 확인 brew가 없다면 공식 문서를 통해 설치를 한 후 실행 한다.
+또한 블로그 구축을 위해 GitHub 레포지토리가 있어야 한다. 레포지토리를 만들어보겠다.
+레포지토리 이름은 username.github.io로 해야한다. 본인의 username을 모르겠다면 본인 깃헙을 들어갔을 때 github.com 뒤에 있는 인자가 본인의 username이라고 생각하면 쉽다. 예를 들어 나의 경우 url이 https://github.com/goodyoung 인데 나의 username은 goodyoung이 되는 것이다. 구축이 어렵다면 공식 문서를 통해 구축하는 것을 추천 한다.
+Step 2: Hugo Site 구축 Hugo 명령어를 사용해 Site 구축을 한다. $ hugo new site my_blog # my_blog라는 폴더가 생성이 된다. 원하는 블로그의 테마를 추가한다.
+$ cd my_blog # 생성 폴더로 이동 $ git init # 깃 초기화 $ git submodule add {theme github link} themes/{theme name} # 테마 가져오기 $ echo &#34;theme = &#39;{theme name}&#39;&#34; &gt;&gt; hugo.toml # config 파일 수정 해당 명령어를 작성하면 themes 폴더 안에 테마 폴더가 생성이 된 것을 확인 할 수 있게 된다. 블로그의 여러 테마는 공식 사이트에서 찾을 수 있다.
+임시로 로컬에서 사이트 실행을 해본다. $ hugo server 원하는 테마가 나오면 성공이다. 블로그 글 작성 후 업로드 시켜보려고 한다.
+$ hugo new content posts/{post name}.md $ vi posts/{post name}.md Hugo 명렁어로 블로그 포스트를 생성 시킨다. vim 편집기로 해당 블로그 포스트에 대한 내용을 수정한다. +++ title = &#39;My First Post&#39; date = 2024-01-14T07:07:07+01:00 draft = true +++ 잘 실행했다면 위의 형태로 나온다. draft가 default로 true로 되어있다. 하지만 Hugo는 draft가 true인 게시물을 빌딩 시 제외 시킨다. 따라서 Step 3: 배포 단계를 실행할 때 주의하면 될 것 같다. 글을 배포를 하고 싶으면 draft 줄을 삭제하던가 false로 바꾸면 된다. 수정 내용을 확인 하기 위해 서버를 재가동을 한다. (두개 중 하나만 실행해도 된다.)
+$ hugo server --buildDrafts $ hugo server -D 인자 --buildDrafts나 -D는 초안 상태의 페이지를 보여주는 옵션이다. Step 3: 배포 해당 사이트를 정적 웹페이지로 변환을 하기 위해 다음의 명령을 실행시켜야한다.
+$ hugo # site 경로로 간 다음 실행 해당 명령을 실행하면 public 폴더에 정적 페이지들이 자동적으로 생성이 된다. 테마 별 실행 하고 싶다면 hugo -t {theme name} 빌딩 파일 업로드를 위한 깃헙 레포지토리랑 연결을 해야한다.
+다른 레퍼런스들의 대부분은 레포지토리를(소스파일 | 배포파일) 두개를 만들고 push를 두번하는 방식을 선택하고 있다. 난 그런 것이 복잡하여 배포파일만(public) github에 올리는 방식으로 했다. $ cd public # public 폴더로 이동 $ git init # git 초기화 $ git remote add origin {github repo} # 4번에서 만든 github 레포지토리 $ git remote -v # 연결 확인 연결이 되었다면 깃에 올리고 확인 해보면 된다. $ git add . $ git commit -m &#34;Update: first commit:&#34; $ git push origin master # master 브랜치로 푸시 (변경해도 무관하다.) 푸시를 하면 master 브랜치가 생성이 된다. 사이트 배포를 위한 마지막 단계로 자신의 레포지토리 깃헙 설정만 하면 배포가 완료 된다. 레포지토리 Settings &gt; General &gt; Default branch로 이동을 한다. 깃헙 default branch 변경 main 브랜치를 master 브랜치로 변경 Settings &gt; Pages &gt; Build and deployment로 이동을 한다.</div><div class="post-footer">
+        <a href="/posts/my_first/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/hugo/">hugo</a>,&nbsp;<a href="/tags/blog/">blog</a></div></div>
 </article></div></div>
             </main><footer class="footer">
         <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.121.2">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
