@@ -7,10 +7,10 @@
             <atom:link href="https://goodyoung.github.io/index.xml" rel="self" type="application/rss+xml" />
         <item>
     <title>Hugo 블로그 구축기 -1 With Mac</title>
-    <link>https://goodyoung.github.io/posts/my_first/</link>
+    <link>https://goodyoung.github.io/posts/blog-construct/hugo_blog_1/</link>
     <pubDate>Mon, 04 Mar 2024 13:57:13 &#43;0900</pubDate>
     <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/posts/my_first/</guid>
+    <guid>https://goodyoung.github.io/posts/blog-construct/hugo_blog_1/</guid>
     <description><![CDATA[개요 맥북 유저인 내가 공부 자료 정리를 위해 깃헙 블로그를 구축하려고 한다. 깃헙 블로그로 Hugo를 선택한 이유는 큰 이유 없이 다른 static site generator들 보다 가장 빌딩 시간이 빠른 프레임워크이기 때문이다. Step 1: 기본 구축 Hugo 설치를 위하여 brew를 이용하여 설치를 했다.
 블로그 파일들을 로컬 컴퓨터에서 관리를 하기 위해 맥북에 Hugo를 설치를 했다.
 $ brew install hugo $ hugo help # hugo 설치가 잘 되었는지 확인 brew가 없다면 공식 문서를 통해 설치를 한 후 실행 한다.
