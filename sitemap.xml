@@ -2,11 +2,12 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
-            <loc>https://goodyoung.github.io/tags/blog/</loc><lastmod>2024-03-04T13:57:13&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/</loc><lastmod>2024-03-04T13:57:13&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/</loc><lastmod>2024-03-04T13:57:13&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/hugo/</loc><lastmod>2024-03-04T13:57:13&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/posts/blog-construct/hugo_blog_1/</loc><lastmod>2024-03-04T13:57:13&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/posts/</loc><lastmod>2024-03-04T13:57:13&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/</loc><lastmod>2024-03-04T13:57:13&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/tech/</loc><lastmod>2024-03-04T13:57:13&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url></urlset>
+            <loc>https://goodyoung.github.io/tags/blog/</loc><lastmod>2024-03-05T20:42:00&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/</loc><lastmod>2024-03-05T20:42:00&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/</loc><lastmod>2024-03-05T20:42:00&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/hugo/</loc><lastmod>2024-03-05T20:42:00&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/posts/blog-construct/hugo_blog_2/</loc><lastmod>2024-03-05T20:42:00&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/posts/</loc><lastmod>2024-03-05T20:42:00&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/</loc><lastmod>2024-03-05T20:42:00&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/tech/</loc><lastmod>2024-03-05T20:42:00&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/posts/blog-construct/hugo_blog_1/</loc><lastmod>2024-03-04T13:57:13&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url></urlset>

@@ -3,7 +3,16 @@
         <title>hugo - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/hugo/</link>
         <description>hugo - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 04 Mar 2024 13:57:13 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/hugo/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 05 Mar 2024 20:42:00 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/hugo/" rel="self" type="application/rss+xml" /><item>
+    <title>Hugo 블로그 구축기 -2 With Mac</title>
+    <link>https://goodyoung.github.io/posts/blog-construct/hugo_blog_2/</link>
+    <pubDate>Tue, 05 Mar 2024 20:42:00 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/blog-construct/hugo_blog_2/</guid>
+    <description><![CDATA[개요 Hugo 블로그 구축기 -1에서 블로그 기본적인 토대를 만들었다면 해당 글에선 본격적으로 블로그를 내 입맛에 맞게 꾸미려고 한다. 그 방법으로 hugo.toml 변경, shell을 이용한 git update 자동화 방법을 소개하려고 한다. Step 1: 구성 파일 변경 hugo에서는 블로그 구성 파일을 hugo.toml로 관리를 하게 된다. 여기서 블로그 구성 파일이란 블로그 웹의 기본 설정(메뉴 설정, 테마, 포스트 및 페이지 등)을 구성할 수 있게 하는 파일이다. 이제 hugo.toml을 Vim 편집기를 사용하여 수정하려고 한다.
+$ cd my_blog # 생성 폴더로 이동 $ vi hugo.toml # vim 편집기로 구성 파일 편집 자신이 정한 테마의 Github에 config.toml or hugo.toml에 가이드라인을 보고 참고하여 추가하면 된다. 테마의 Github에 내용이 없거나, 좀 어려운 경우는 자신의 테마의 Github이 아니라 자신이 정한 테마를 사용한 블로그를 운영하는 사람의 github.io 레포지토리를 들어가서 파일을 참고하는 방법도 추천한다. Step 2: 배포 파일 설정 Hugo 블로그 구축기 -1 Step 3에서 배포 파일을 담을 레포지토리 하나만 관리하게 구성하였다고 하였다. 레포지토리가 하나라고 해도 블로그의 변경사항을 Github Pages에 적용하려면 은근히 직접 치기 귀찮다. 따라서 수정 사항을 한 번에 Github에 올릴 수 있는 배포 파일을 만들 것 이다. # 기존 배포 시 실행 코드 $ hugo $ cd public $ git add . $ git commit -m &#34;Update: {commit message}&#34; $ git push origin master $ cd .. 리눅스 쉘 스크립트를 활용하여 배포 파일을 만들면 된다. $ cd my_blog # 생성 폴더로 이동 $ touch deploy.sh # 배포 쉘 스크립트 파일 생성 $ chmod 777 deploy.sh # 파일 실행 권한 부여 배포 파일을 만들었으면 스크립트를 작성하면 된다. $ #!/bin/bash $ echo -e &#34;\033[0;32mDeploying updates to GitHub...\033[0m&#34; # Build the project. $ hugo -t loveit # hugo -t &lt;여러분의 테마&gt; # Go To Public folder, sub module commit $ cd public # Add changes to git. $ git add . # Commit changes. $ msg=&#34;rebuilding site `date +%y-%m-%d`&#34; $ if [ $# -eq 1 ] # 호출 시 인자를 하나 받았는지 아닌지 $ then msg=&#34;$1&#34; $ fi $ git commit -m &#34;$msg&#34; # Push source and build repos. $ git push origin master # Come Back up to the Project Root $ cd .. $ echo &#34;Finish blog deploy...&#34; 해당 배포 파일은 돌아다니는 레퍼런스를 참고하여 만들었다. 하지만 우린 하나의 레포지토리만 사용하므로 public 폴더로 이동 후 한 번만 push하도록 수정했다. 마지막으로 배포 파일을 실행 하려면 아래와 같은 코드로 실행 하면 된다. $ ./deploy.sh &#34;{commit msg}&#34; # 메세지가 없어도 된다. Reference https://minyeamer.github.io/blog/hugo-blog-1/ ]]></description>
+</item>
+<item>
     <title>Hugo 블로그 구축기 -1 With Mac</title>
     <link>https://goodyoung.github.io/posts/blog-construct/hugo_blog_1/</link>
     <pubDate>Mon, 04 Mar 2024 13:57:13 &#43;0900</pubDate>
