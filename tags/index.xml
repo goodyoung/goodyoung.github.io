@@ -3,12 +3,36 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 20 Mar 2024 22:03:00 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 02 Apr 2024 13:53:37 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>basic</title>
+    <link>https://goodyoung.github.io/tags/basic/</link>
+    <pubDate>Tue, 02 Apr 2024 13:53:37 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/basic/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
     <title>computer vision</title>
     <link>https://goodyoung.github.io/tags/computer-vision/</link>
-    <pubDate>Wed, 20 Mar 2024 22:03:00 &#43;0900</pubDate>
+    <pubDate>Tue, 02 Apr 2024 13:53:37 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/computer-vision/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>DL</title>
+    <link>https://goodyoung.github.io/tags/dl/</link>
+    <pubDate>Tue, 02 Apr 2024 13:53:37 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/dl/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>image preprocessing</title>
+    <link>https://goodyoung.github.io/tags/image-preprocessing/</link>
+    <pubDate>Tue, 02 Apr 2024 13:53:37 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/image-preprocessing/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>

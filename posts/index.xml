@@ -3,7 +3,21 @@
         <title>All Posts - Good Young</title>
         <link>https://goodyoung.github.io/posts/</link>
         <description>All Posts | Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 20 Mar 2024 22:03:00 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/posts/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 02 Apr 2024 13:53:37 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>[DL]Image Segmentation 2</title>
+    <link>https://goodyoung.github.io/posts/blog-construct/segmentation-2/</link>
+    <pubDate>Tue, 02 Apr 2024 13:53:37 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/blog-construct/segmentation-2/</guid>
+    <description><![CDATA[개요 이전 segmentation 관련 글에 대해 조사를 해보니 segmentation을 위한 다양한(전통적인) 이미지 방법론(전처리)이 많은 사실을 알게 되었다. 따라서 이에 대해 정리를 해보려고 한다. Image segmentation은 접근 방법에 따라 3가지로 나뉜다. 픽셀 기반 방법 thresholding에 기반한 방식으로 threshold에 따라 픽셀 별로 이진화를 할 때 많이 사용한다. 전역, 지역으로 적용하는 영역에 따른 구분도 가능하고, 적응적, 고정 방식으로 경계값을 설정하는 방식으로도 구분 가능하다. Thresholding 방식 등이 있다. Edge 기반 방법 Edge를 추출하는 필터 등을 사용하여 영상으로부터 경계를 추출하는 방법이다. Edge Detection 방법 등이 있다. 영역 기반 방법 위 두 방식은 데이터 noise에 민감하다. 영역 기반 방법은 동질성에 기반하여 다른 데이터 보다 의미있는 영역으로 나누는데 적합하지만 동질성을 규정하는 rule을 어떻게 정할 것인가는 문제이다. region growing, region merging 방법 등이 있다. 따라서 Image segmentation의 기본적인 방법론 픽셀 기반 방법에 대해 설명하고자 한다. Thresholding 영상 처리에서 Thresholding은 영상(Image)을 분할하는 가장 간단한 방법이다. Thresholding은 말 그대로 특정 임계값을 정하고 그보다 작으면 0, 크면 1로 이진화를 하는 간단한 방법이다. T(Threshold)가 한개만 적용한 경우
+T(Threshold)가 두개 적용한 경우
+그럼 T의 값은 어떻게 결정할까? 다음으로 T의 값을 설정하는 3가지 방법에 대해서 알아볼 것이다. Global Thresholding 첫번째 방법으로는 Global Thresholding 방법이 있다. 이 방법은 영상 픽셀값의 누적 분포를 알 수 있는 히스토그램을 사용한다.
+히스토그램의 peak(정점)의 분포를 확인하여 적절한 임계값을 찾아내는 방식이다. 아래는 임계값을 찾는 예시이다. [그림 1] Gray Scale Image [그림 1]을 보면 Gray Image가 있는 것을 확인 할 수 있다. 우리는 이 Image의 픽셀을 히스토그램으로 시각화 하여 peak를 찾을 것이다. [그림 2] Gray Scale Image Histogram [그림 2]를 보게 되면 [그림 1]의 픽셀을 빈도수 별로 나누어 히스토그램을 그린 것 이다. Peak가 크게 2개 있는 것을 확인이 가능하고 우리는 그 사이 값으로 임계값을 설정하면 된다. [그림 3] Final Image [그림 3]은 임계값을 225으로 잡고 Thresholding을 적용시킨 Image이다. 영상속 모양을 가진 물체들을 잘 탐지한 것을 볼 수 있게 된다.
+관련 코드는 GITHUB에 있다. Otsu Thresholding 두번째 방법으로는 Otsu Thresholding 방법이 있다. 이 방법은 peak의 경계가 명확하지 않고, peak 근처에 데이터가 몰려있지 않은 경우, 즉 히스토그램만 분석해서 잘 안나오는 영상에 대해서 최적의 T를 결정하는 방법이다. Otsu Thresholding방법은 오츠의 이진화 알고리즘을 이용하여 자동으로 T의 값을 찾는 방법으로 알려져있다. 영상에서 임의의 T값을 기준으로 하여 T보다 작은 픽셀 (T보다 어두운 픽셀)과 T와 같거나 큰 픽셀을 각각 다른 2개의 그룹으로 나누어 각각의 평균과 표준편차를 구한다. Otsu Thresholding은 2개 그룹 사이의 그룹 내 분산을 최소화 하거나 혹은 그룹 간 분산을 최대로 하는 방향으로 T를 정하면, 가장 적절한 임계값을 자동으로 얻을 수 있게 된다. 왜냐하면 그룹 내로는 비슷한 분포를(분산 최소) 보이고, 그룹 간으로 다른 성격을 띄는(분산이 최대) 분포를 보이면 그 T값이 우리가 위에서(Thresholding) 정한 histogram에서 peak을 보고 T를 정한 것이랑 같기 때문이다. 위 그림을 Otsu Thresholding을 사용하여 처리하는 과정을 나타낸 예시이다.
+[그림 4] Otsu Thresholding Histogram 16. 원본 그림의 픽셀 분포를 나타낸 것이며, Otsu Thresholding을 통해 가장 적절한 T의 값을 찾은 것이다. [그림 4]에 있는 그래프를 봤을 때 Thresholding방식으로 바로 적절한 T의 값을 찾기란 번거로웠을 것이다. [그림 5] Otsu Thresholding Output [그림 5]는 T값을 기준으로 이진 변환을 한 결과이다. 관련 코드는 GITHUB에 있다.
+Thresholding이나 Otsu Thresholding방식은 전역 임계값을 사용한 것이다. 전역 임계값은 단순성과 효율성에서 이점이 있지만 조명이나 특정 noise, pixel 분포가 복잡한 영상에 상당한 변화가 있는 영상에는 적합하지 않을 수도 있다.]]></description>
+</item>
+<item>
     <title>[DL] Image Segmentation</title>
     <link>https://goodyoung.github.io/posts/blog-construct/segmentation/</link>
     <pubDate>Wed, 20 Mar 2024 22:03:00 &#43;0900</pubDate>

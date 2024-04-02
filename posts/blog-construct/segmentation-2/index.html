@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[DL]Image Segmentation 2 - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[DL]Image Segmentation 2" />
+<meta property="og:description" content="개요 이전 segmentation 관련 글에 대해 조사를 해보니 segmentation을 위한 다양한(전통적인) 이미지 방법론(전처리)이 많은 사실을 알게 되었다. 따라서 이에 대해 정리를 해보려고 한다. Image segmentation은 접근 방법에 따라 3가지로 나뉜다. 픽셀 기반 방법 thresholding에 기반한 방식으로 threshold에 따라 픽셀 별로 이진화를 할 때 많이 사용한다. 전역, 지역으로 적용하는 영역에 따른 구분도 가능하고, 적응적, 고정 방식으로 경계값을 설정하는 방식으로도 구분 가능하다. Thresholding 방식 등이 있다. Edge 기반 방법 Edge를 추출하는 필터 등을 사용하여 영상으로부터 경계를 추출하는 방법이다. Edge Detection 방법 등이 있다. 영역 기반 방법 위 두 방식은 데이터 noise에 민감하다. 영역 기반 방법은 동질성에 기반하여 다른 데이터 보다 의미있는 영역으로 나누는데 적합하지만 동질성을 규정하는 rule을 어떻게 정할 것인가는 문제이다. region growing, region merging 방법 등이 있다. 따라서 Image segmentation의 기본적인 방법론 픽셀 기반 방법에 대해 설명하고자 한다. Thresholding 영상 처리에서 Thresholding은 영상(Image)을 분할하는 가장 간단한 방법이다. Thresholding은 말 그대로 특정 임계값을 정하고 그보다 작으면 0, 크면 1로 이진화를 하는 간단한 방법이다. T(Threshold)가 한개만 적용한 경우
+T(Threshold)가 두개 적용한 경우
+그럼 T의 값은 어떻게 결정할까? 다음으로 T의 값을 설정하는 3가지 방법에 대해서 알아볼 것이다. Global Thresholding 첫번째 방법으로는 Global Thresholding 방법이 있다. 이 방법은 영상 픽셀값의 누적 분포를 알 수 있는 히스토그램을 사용한다.
+히스토그램의 peak(정점)의 분포를 확인하여 적절한 임계값을 찾아내는 방식이다. 아래는 임계값을 찾는 예시이다. [그림 1] Gray Scale Image [그림 1]을 보면 Gray Image가 있는 것을 확인 할 수 있다. 우리는 이 Image의 픽셀을 히스토그램으로 시각화 하여 peak를 찾을 것이다. [그림 2] Gray Scale Image Histogram [그림 2]를 보게 되면 [그림 1]의 픽셀을 빈도수 별로 나누어 히스토그램을 그린 것 이다. Peak가 크게 2개 있는 것을 확인이 가능하고 우리는 그 사이 값으로 임계값을 설정하면 된다. [그림 3] Final Image [그림 3]은 임계값을 225으로 잡고 Thresholding을 적용시킨 Image이다. 영상속 모양을 가진 물체들을 잘 탐지한 것을 볼 수 있게 된다.
+관련 코드는 GITHUB에 있다. Otsu Thresholding 두번째 방법으로는 Otsu Thresholding 방법이 있다. 이 방법은 peak의 경계가 명확하지 않고, peak 근처에 데이터가 몰려있지 않은 경우, 즉 히스토그램만 분석해서 잘 안나오는 영상에 대해서 최적의 T를 결정하는 방법이다. Otsu Thresholding방법은 오츠의 이진화 알고리즘을 이용하여 자동으로 T의 값을 찾는 방법으로 알려져있다. 영상에서 임의의 T값을 기준으로 하여 T보다 작은 픽셀 (T보다 어두운 픽셀)과 T와 같거나 큰 픽셀을 각각 다른 2개의 그룹으로 나누어 각각의 평균과 표준편차를 구한다. Otsu Thresholding은 2개 그룹 사이의 그룹 내 분산을 최소화 하거나 혹은 그룹 간 분산을 최대로 하는 방향으로 T를 정하면, 가장 적절한 임계값을 자동으로 얻을 수 있게 된다. 왜냐하면 그룹 내로는 비슷한 분포를(분산 최소) 보이고, 그룹 간으로 다른 성격을 띄는(분산이 최대) 분포를 보이면 그 T값이 우리가 위에서(Thresholding) 정한 histogram에서 peak을 보고 T를 정한 것이랑 같기 때문이다. 위 그림을 Otsu Thresholding을 사용하여 처리하는 과정을 나타낸 예시이다.
+[그림 4] Otsu Thresholding Histogram 16. 원본 그림의 픽셀 분포를 나타낸 것이며, Otsu Thresholding을 통해 가장 적절한 T의 값을 찾은 것이다. [그림 4]에 있는 그래프를 봤을 때 Thresholding방식으로 바로 적절한 T의 값을 찾기란 번거로웠을 것이다. [그림 5] Otsu Thresholding Output [그림 5]는 T값을 기준으로 이진 변환을 한 결과이다. 관련 코드는 GITHUB에 있다.
+Thresholding이나 Otsu Thresholding방식은 전역 임계값을 사용한 것이다. 전역 임계값은 단순성과 효율성에서 이점이 있지만 조명이나 특정 noise, pixel 분포가 복잡한 영상에 상당한 변화가 있는 영상에는 적합하지 않을 수도 있다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/blog-construct/segmentation-2/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-04-02T13:53:37+09:00" />
+<meta property="article:modified_time" content="2024-04-02T13:53:37+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[DL]Image Segmentation 2"/>
+<meta name="twitter:description" content="개요 이전 segmentation 관련 글에 대해 조사를 해보니 segmentation을 위한 다양한(전통적인) 이미지 방법론(전처리)이 많은 사실을 알게 되었다. 따라서 이에 대해 정리를 해보려고 한다. Image segmentation은 접근 방법에 따라 3가지로 나뉜다. 픽셀 기반 방법 thresholding에 기반한 방식으로 threshold에 따라 픽셀 별로 이진화를 할 때 많이 사용한다. 전역, 지역으로 적용하는 영역에 따른 구분도 가능하고, 적응적, 고정 방식으로 경계값을 설정하는 방식으로도 구분 가능하다. Thresholding 방식 등이 있다. Edge 기반 방법 Edge를 추출하는 필터 등을 사용하여 영상으로부터 경계를 추출하는 방법이다. Edge Detection 방법 등이 있다. 영역 기반 방법 위 두 방식은 데이터 noise에 민감하다. 영역 기반 방법은 동질성에 기반하여 다른 데이터 보다 의미있는 영역으로 나누는데 적합하지만 동질성을 규정하는 rule을 어떻게 정할 것인가는 문제이다. region growing, region merging 방법 등이 있다. 따라서 Image segmentation의 기본적인 방법론 픽셀 기반 방법에 대해 설명하고자 한다. Thresholding 영상 처리에서 Thresholding은 영상(Image)을 분할하는 가장 간단한 방법이다. Thresholding은 말 그대로 특정 임계값을 정하고 그보다 작으면 0, 크면 1로 이진화를 하는 간단한 방법이다. T(Threshold)가 한개만 적용한 경우
+T(Threshold)가 두개 적용한 경우
+그럼 T의 값은 어떻게 결정할까? 다음으로 T의 값을 설정하는 3가지 방법에 대해서 알아볼 것이다. Global Thresholding 첫번째 방법으로는 Global Thresholding 방법이 있다. 이 방법은 영상 픽셀값의 누적 분포를 알 수 있는 히스토그램을 사용한다.
+히스토그램의 peak(정점)의 분포를 확인하여 적절한 임계값을 찾아내는 방식이다. 아래는 임계값을 찾는 예시이다. [그림 1] Gray Scale Image [그림 1]을 보면 Gray Image가 있는 것을 확인 할 수 있다. 우리는 이 Image의 픽셀을 히스토그램으로 시각화 하여 peak를 찾을 것이다. [그림 2] Gray Scale Image Histogram [그림 2]를 보게 되면 [그림 1]의 픽셀을 빈도수 별로 나누어 히스토그램을 그린 것 이다. Peak가 크게 2개 있는 것을 확인이 가능하고 우리는 그 사이 값으로 임계값을 설정하면 된다. [그림 3] Final Image [그림 3]은 임계값을 225으로 잡고 Thresholding을 적용시킨 Image이다. 영상속 모양을 가진 물체들을 잘 탐지한 것을 볼 수 있게 된다.
+관련 코드는 GITHUB에 있다. Otsu Thresholding 두번째 방법으로는 Otsu Thresholding 방법이 있다. 이 방법은 peak의 경계가 명확하지 않고, peak 근처에 데이터가 몰려있지 않은 경우, 즉 히스토그램만 분석해서 잘 안나오는 영상에 대해서 최적의 T를 결정하는 방법이다. Otsu Thresholding방법은 오츠의 이진화 알고리즘을 이용하여 자동으로 T의 값을 찾는 방법으로 알려져있다. 영상에서 임의의 T값을 기준으로 하여 T보다 작은 픽셀 (T보다 어두운 픽셀)과 T와 같거나 큰 픽셀을 각각 다른 2개의 그룹으로 나누어 각각의 평균과 표준편차를 구한다. Otsu Thresholding은 2개 그룹 사이의 그룹 내 분산을 최소화 하거나 혹은 그룹 간 분산을 최대로 하는 방향으로 T를 정하면, 가장 적절한 임계값을 자동으로 얻을 수 있게 된다. 왜냐하면 그룹 내로는 비슷한 분포를(분산 최소) 보이고, 그룹 간으로 다른 성격을 띄는(분산이 최대) 분포를 보이면 그 T값이 우리가 위에서(Thresholding) 정한 histogram에서 peak을 보고 T를 정한 것이랑 같기 때문이다. 위 그림을 Otsu Thresholding을 사용하여 처리하는 과정을 나타낸 예시이다.
+[그림 4] Otsu Thresholding Histogram 16. 원본 그림의 픽셀 분포를 나타낸 것이며, Otsu Thresholding을 통해 가장 적절한 T의 값을 찾은 것이다. [그림 4]에 있는 그래프를 봤을 때 Thresholding방식으로 바로 적절한 T의 값을 찾기란 번거로웠을 것이다. [그림 5] Otsu Thresholding Output [그림 5]는 T값을 기준으로 이진 변환을 한 결과이다. 관련 코드는 GITHUB에 있다.
+Thresholding이나 Otsu Thresholding방식은 전역 임계값을 사용한 것이다. 전역 임계값은 단순성과 효율성에서 이점이 있지만 조명이나 특정 noise, pixel 분포가 복잡한 영상에 상당한 변화가 있는 영상에는 적합하지 않을 수도 있다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/blog-construct/segmentation-2/" /><link rel="prev" href="https://goodyoung.github.io/posts/blog-construct/segmentation/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[DL]Image Segmentation 2",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/blog-construct\/segmentation-2\/"
+        },"genre": "posts","keywords": "computer vision, basic, image preprocessing, DL","wordcount":  737 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/blog-construct\/segmentation-2\/","datePublished": "2024-04-02T13:53:37+09:00","dateModified": "2024-04-02T13:53:37+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[DL]Image Segmentation 2</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-04-02">2024-04-02</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;737 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;4 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#thresholding">Thresholding</a>
+      <ul>
+        <li><a href="#global-thresholding">Global Thresholding</a></li>
+        <li><a href="#otsu-thresholding">Otsu Thresholding</a></li>
+        <li><a href="#adaptive-thresholding">Adaptive Thresholding</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="개요">개요</h2>
+<ol start="0">
+<li>이전 segmentation <a href="https://goodyoung.github.io/posts/blog-construct/segmentation/" target="_blank" rel="noopener noreffer ">관련 글</a>에 대해 조사를 해보니 segmentation을 위한 다양한(<strong>전통적인</strong>) 이미지 방법론(전처리)이 많은 사실을 알게 되었다. 따라서 이에 대해 정리를 해보려고 한다.</li>
+<li>Image segmentation은 접근 방법에 따라 3가지로 나뉜다.</li>
+</ol>
+<ul>
+<li>픽셀 기반 방법
+<ul>
+<li>thresholding에 기반한 방식으로 threshold에 따라 픽셀 별로 이진화를 할 때 많이 사용한다.</li>
+<li>전역, 지역으로 적용하는 영역에 따른 구분도 가능하고, 적응적, 고정 방식으로 경계값을 설정하는 방식으로도 구분 가능하다.</li>
+<li><code>Thresholding</code> 방식 등이 있다.</li>
+</ul>
+</li>
+<li>Edge 기반 방법
+<ul>
+<li>Edge를 추출하는 필터 등을 사용하여 영상으로부터 경계를 추출하는 방법이다.</li>
+<li><code>Edge Detection</code> 방법 등이 있다.</li>
+</ul>
+</li>
+<li>영역 기반 방법
+<ul>
+<li>위 두 방식은 데이터 noise에 민감하다. 영역 기반 방법은 <strong>동질성</strong>에 기반하여 다른 데이터 보다 의미있는 영역으로 나누는데 적합하지만 <u>동질성을 규정하는 rule을 어떻게 정할 것인가는 문제이다.</u></li>
+<li><code>region growing, region merging</code> 방법 등이 있다.</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>따라서 Image segmentation의 기본적인 방법론 <strong>픽셀 기반 방법</strong>에 대해 설명하고자 한다.
+<br></li>
+</ol>
+<hr>
+<h2 id="thresholding">Thresholding</h2>
+<ol start="3">
+<li>영상 처리에서 <strong>Thresholding</strong>은 영상(Image)을 분할하는 가장 간단한 방법이다.</li>
+</ol>
+<br>
+<ol start="4">
+<li><strong>Thresholding</strong>은 말 그대로 특정 임계값을 정하고 그보다 작으면 0, 크면 1로 이진화를 하는 간단한 방법이다.</li>
+</ol>
+<ul>
+<li>
+<p>T(Threshold)가 한개만 적용한 경우</p>
+<img src="/images/image-segmentation-2/image-segmentation-1.png" height="40%" width="40%">
+</li>
+<li>
+<p>T(Threshold)가 두개 적용한 경우</p>
+<img src="/images/image-segmentation-2/image-segmentation-2.png" height="40%" width="40%">
+</li>
+</ul>
+<br/>
+<ol start="5">
+<li>그럼 T의 값은 어떻게 결정할까? 다음으로 T의 값을 설정하는 3가지 방법에 대해서 알아볼 것이다.</li>
+</ol>
+<br/>
+<hr>
+<h3 id="global-thresholding">Global Thresholding</h3>
+<ol start="6">
+<li>
+<p>첫번째 방법으로는 <code>Global Thresholding</code> 방법이 있다. 이 방법은 영상 픽셀값의 누적 분포를 알 수 있는 히스토그램을 사용한다.</p>
+</li>
+<li>
+<p>히스토그램의 peak(정점)의 분포를 확인하여 적절한 임계값을 찾아내는 방식이다. 아래는 임계값을 찾는 예시이다.
+<figure><a class="lightgallery" href="/images/image-segmentation-2/image-segmentation-3.png" title="/images/image-segmentation-2/image-segmentation-3.png" data-thumbnail="/images/image-segmentation-2/image-segmentation-3.png" data-sub-html="<h2>[그림 1] Gray Scale Image</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-2/image-segmentation-3.png"
+            data-srcset="/images/image-segmentation-2/image-segmentation-3.png, /images/image-segmentation-2/image-segmentation-3.png 1.5x, /images/image-segmentation-2/image-segmentation-3.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-2/image-segmentation-3.png" width="10%" />
+    </a><figcaption class="image-caption">[그림 1] Gray Scale Image</figcaption>
+    </figure></p>
+</li>
+<li>
+<p><code>[그림 1]</code>을 보면 Gray Image가 있는 것을 확인 할 수 있다. 우리는 이 Image의 픽셀을 히스토그램으로 시각화 하여 peak를 찾을 것이다.
+<figure><a class="lightgallery" href="/images/image-segmentation-2/image-segmentation-4.png" title="/images/image-segmentation-2/image-segmentation-4.png" data-thumbnail="/images/image-segmentation-2/image-segmentation-4.png" data-sub-html="<h2>[그림 2] Gray Scale Image Histogram</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-2/image-segmentation-4.png"
+            data-srcset="/images/image-segmentation-2/image-segmentation-4.png, /images/image-segmentation-2/image-segmentation-4.png 1.5x, /images/image-segmentation-2/image-segmentation-4.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-2/image-segmentation-4.png" width="10%" />
+    </a><figcaption class="image-caption">[그림 2] Gray Scale Image Histogram</figcaption>
+    </figure></p>
+</li>
+<li>
+<p><code>[그림 2]</code>를 보게 되면 <code>[그림 1]</code>의 픽셀을 빈도수 별로 나누어 <strong>히스토그램</strong>을 그린 것 이다. Peak가 크게 2개 있는 것을 확인이 가능하고 <u>우리는 그 사이 값으로 임계값을 설정하면 된다.</u>
+<figure><a class="lightgallery" href="/images/image-segmentation-2/image-segmentation-5.png" title="/images/image-segmentation-2/image-segmentation-5.png" data-thumbnail="/images/image-segmentation-2/image-segmentation-5.png" data-sub-html="<h2>[그림 3] Final Image</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-2/image-segmentation-5.png"
+            data-srcset="/images/image-segmentation-2/image-segmentation-5.png, /images/image-segmentation-2/image-segmentation-5.png 1.5x, /images/image-segmentation-2/image-segmentation-5.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-2/image-segmentation-5.png" width="10%" />
+    </a><figcaption class="image-caption">[그림 3] Final Image</figcaption>
+    </figure></p>
+</li>
+<li>
+<p>[그림 3]은 임계값을 225으로 잡고 Thresholding을 적용시킨 Image이다. 영상속 모양을 가진 물체들을 잘 탐지한 것을 볼 수 있게 된다.</p>
+</li>
+</ol>
+<blockquote>
+<p>관련 코드는 <a href="https://github.com/Sbeom12/basic-for-Segmentation" target="_blank" rel="noopener noreffer ">GITHUB</a>에 있다.
+<br></p>
+</blockquote>
+<hr>
+<h3 id="otsu-thresholding">Otsu Thresholding</h3>
+<ol start="11">
+<li>두번째 방법으로는 <code>Otsu Thresholding</code> 방법이 있다. 이 방법은 peak의 경계가 명확하지 않고, peak 근처에 데이터가 몰려있지 않은 경우, 즉 히스토그램만 분석해서 잘 안나오는 영상에 대해서 최적의 T를 결정하는 방법이다.</li>
+</ol>
+<br>
+<ol start="12">
+<li><code>Otsu Thresholding</code>방법은 오츠의 이진화 알고리즘을 이용하여 <strong>자동으로</strong> T의 값을 찾는 방법으로 알려져있다.</li>
+</ol>
+<br>
+<ol start="13">
+<li>영상에서 임의의 T값을 기준으로 하여 T보다 작은 픽셀 (T보다 어두운 픽셀)과 T와 같거나 큰 픽셀을 각각 다른 <strong>2개의 그룹</strong>으로 나누어 각각의 평균과 표준편차를 구한다.</li>
+</ol>
+<br>
+<ol start="14">
+<li>
+<p><code>Otsu Thresholding</code>은 2개 그룹 사이의 <code>그룹 내 분산</code>을 최소화 하거나 혹은 <code>그룹 간 분산</code>을 최대로 하는 방향으로 T를 정하면, 가장 적절한 임계값을 <strong>자동으로</strong> 얻을 수 있게 된다. 왜냐하면 그룹 내로는 비슷한 분포를(<strong>분산 최소</strong>) 보이고, 그룹 간으로 다른 성격을 띄는(<strong>분산이 최대</strong>) 분포를 보이면 그 T값이 우리가 위에서(<code>Thresholding</code>) 정한 histogram에서 peak을 보고 T를 정한 것이랑 같기 때문이다.
+<img src="/images/image-segmentation-2/image-segmentation-6.png" height="40%" width="39.6%">
+<img src="/images/image-segmentation-2/image-segmentation-9.png" height="40%" width="49%">
+<img src="/images/image-segmentation-2/image-segmentation-10.png" height="40%" width="49%"></p>
+</li>
+<li>
+<p>위 그림을 <code>Otsu Thresholding</code>을 사용하여 처리하는 과정을 나타낸 예시이다.</p>
+</li>
+</ol>
+<p><figure><a class="lightgallery" href="/images/image-segmentation-2/image-segmentation-7.png" title="/images/image-segmentation-2/image-segmentation-7.png" data-thumbnail="/images/image-segmentation-2/image-segmentation-7.png" data-sub-html="<h2>[그림 4] Otsu Thresholding Histogram</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-2/image-segmentation-7.png"
+            data-srcset="/images/image-segmentation-2/image-segmentation-7.png, /images/image-segmentation-2/image-segmentation-7.png 1.5x, /images/image-segmentation-2/image-segmentation-7.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-2/image-segmentation-7.png" width="10%" />
+    </a><figcaption class="image-caption">[그림 4] Otsu Thresholding Histogram</figcaption>
+    </figure>
+16. 원본 그림의 픽셀 분포를 나타낸 것이며, <code>Otsu Thresholding</code>을 통해 가장 적절한 T의 값을 찾은 것이다. <code>[그림 4]</code>에 있는 그래프를 봤을 때 <code>Thresholding</code>방식으로 바로 적절한 T의 값을 찾기란 번거로웠을 것이다.
+<figure><a class="lightgallery" href="/images/image-segmentation-2/image-segmentation-8.png" title="/images/image-segmentation-2/image-segmentation-8.png" data-thumbnail="/images/image-segmentation-2/image-segmentation-8.png" data-sub-html="<h2>[그림 5] Otsu Thresholding Output</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-2/image-segmentation-8.png"
+            data-srcset="/images/image-segmentation-2/image-segmentation-8.png, /images/image-segmentation-2/image-segmentation-8.png 1.5x, /images/image-segmentation-2/image-segmentation-8.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-2/image-segmentation-8.png" width="10%" />
+    </a><figcaption class="image-caption">[그림 5] Otsu Thresholding Output</figcaption>
+    </figure></p>
+<ol start="17">
+<li><code>[그림 5]</code>는 T값을 기준으로 이진 변환을 한 결과이다.</li>
+</ol>
+<blockquote>
+<p>관련 코드는 <a href="https://github.com/Sbeom12/basic-for-Segmentation" target="_blank" rel="noopener noreffer ">GITHUB</a>에 있다.</p>
+</blockquote>
+<br>
+<ol start="18">
+<li><code>Thresholding</code>이나 <code>Otsu Thresholding</code>방식은 전역 임계값을 사용한 것이다. 전역 임계값은 단순성과 효율성에서 이점이 있지만  <strong>조명이나 특정 noise, pixel 분포가 복잡한 영상</strong>에 상당한 변화가 있는 영상에는 적합하지 않을 수도 있다. 따라서 전역 임계값이 아닌 <code>Adaptive Thresholding</code>방식이 나오게 되었다.</li>
+</ol>
+<hr>
+<h3 id="adaptive-thresholding">Adaptive Thresholding</h3>
+<ol start="19">
+<li><code>Adaptive Thresholding</code>방식에는 영상을 더 작은 하위 영역으로 나누고 로컬 특성을 기반으로 각 하위 영역에 대한 임계값을 계산하는 작업이 포함된다. 이렇게 하면 각 하위 영역이 독립적이므로 noise나 조명의 영향을 완화할 수 있다.</li>
+</ol>
+<br>
+<ol start="20">
+<li><code>Adaptive Thresholding</code>에서 말하는 로컬 특성이란 크게 <code>Adaptive Mean Thresholding</code>, <code>Adaptive Gaussian Thresholding</code>이 두 가지 방법이 있다.</li>
+</ol>
+<ul>
+<li><code>Adaptive Mean Thresholding</code>은 <strong>해당 영역</strong> <u>모든 픽셀의 평균을 T로 취하여</u> 각 하위 영역의 T의 값을 계산한다.</li>
+<li><code>Adaptive Gaussian Thresholding</code>은  <strong>해당 영역</strong>에 대한 <u>가우시안 가중치가 적용된 평균값이 T로 취하여</u> 각 하위 영역의 T의 값을 계산 한다.
+<ul>
+<li>하위 영역의 중심에 더 가까운 픽셀에 더 많은 중요성을 부여한다.</li>
+<li>그로 인하여 이미지 품질은 향상되고 객체 감지나 분할과 같은 작업의 정확도는 높아진다.</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="21">
+<li>아래엔 <code>Adaptive Thresholding</code>에서 <code>Adaptive Mean Thresholding</code>과 <code>Adaptive Gaussian Thresholding</code>을 사용한 예시이다.
+<figure><a class="lightgallery" href="/images/image-segmentation-2/image-segmentation-11.png" title="/images/image-segmentation-2/image-segmentation-11.png" data-thumbnail="/images/image-segmentation-2/image-segmentation-11.png" data-sub-html="<h2>[그림 6] Compare Original to Adaptive Thresholding</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-2/image-segmentation-11.png"
+            data-srcset="/images/image-segmentation-2/image-segmentation-11.png, /images/image-segmentation-2/image-segmentation-11.png 1.5x, /images/image-segmentation-2/image-segmentation-11.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-2/image-segmentation-11.png" width="10%" />
+    </a><figcaption class="image-caption">[그림 6] Compare Original to Adaptive Thresholding</figcaption>
+    </figure></li>
+<li><code>[그림 6]</code>을 보면 좌측 상단이 기존 그림, 우측 상단이 <code>Otsu Thresholding</code>방법, 좌측 하단이 <code>Adaptive Mean Thresholding</code>방법, 우측 하단이 <code>Adaptive Gaussian Thresholding</code>을 사용한 방법이다.</li>
+</ol>
+<br>
+<ol start="23">
+<li><code>Otsu Thresholding</code>방법을 통하면 앞서 말한 것 처럼 조명, noise(위 original 그림에 따르면 오른쪽 위)등이 심하여 영상을 식별하기 어려워진 것을 알 수 있게 된다.</li>
+</ol>
+<br>
+<ol start="24">
+<li>반면에 <code>Adaptive Mean Thresholding</code>과 <code>Adaptive Gaussian Thresholding</code>방법을 활용한 것이 상당히 선명하다. 또 둘 간의 차이도 분명히 나타난다.</li>
+</ol>
+<br>
+<ol start="25">
+<li><code>Adaptive Mean Thresholding</code>(좌측 하단)은 <code>Adaptive Gaussian Thresholding</code>(우측 하단)보다 더 선명한데 그만큼 잡티가 있는 반면, <code>Adaptive Gaussian Thresholding</code>은 그에 비해 선명도는 조금 떨어지지만 잡티가 더 적은 것을 볼 수 있게 된다.</li>
+</ol>
+<blockquote>
+<p>관련 코드는 <a href="https://github.com/Sbeom12/basic-for-Segmentation" target="_blank" rel="noopener noreffer ">GITHUB</a>에 있다.</p>
+</blockquote>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://blog.naver.com/laonple/220874313327" target="_blank" rel="noopener noreffer ">https://blog.naver.com/laonple/220874313327</a></li>
+<li><a href="https://datacarpentry.org/image-processing/07-thresholding.html" target="_blank" rel="noopener noreffer ">https://datacarpentry.org/image-processing/07-thresholding.html</a></li>
+<li><a href="https://encord.com/blog/image-thresholding-image-processing/" target="_blank" rel="noopener noreffer ">https://encord.com/blog/image-thresholding-image-processing/</a></li>
+<li><a href="https://github.com/dltpdn/insightbook.opencv_project_python" target="_blank" rel="noopener noreffer ">https://github.com/dltpdn/insightbook.opencv_project_python</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Thresholding_%28image_processing%29" target="_blank" rel="noopener noreffer ">https://en.wikipedia.org/wiki/Thresholding_(image_processing)</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-04-02</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/blog-construct/segmentation-2/" data-title="[DL]Image Segmentation 2" data-hashtags="computer vision,basic,image preprocessing,DL"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/blog-construct/segmentation-2/" data-hashtag="computer vision"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/blog-construct/segmentation-2/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/blog-construct/segmentation-2/" data-title="[DL]Image Segmentation 2"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/blog-construct/segmentation-2/" data-title="[DL]Image Segmentation 2"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/blog-construct/segmentation-2/" data-title="[DL]Image Segmentation 2"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/blog-construct/segmentation-2/" data-title="[DL]Image Segmentation 2" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/basic/">basic</a>,&nbsp;<a href="/tags/image-preprocessing/">image preprocessing</a>,&nbsp;<a href="/tags/dl/">DL</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/blog-construct/segmentation/" class="prev" rel="prev" title="[DL] Image Segmentation"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[DL] Image Segmentation</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.121.2">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://goodyoung.github.io" target="_blank">GoodYoung</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
