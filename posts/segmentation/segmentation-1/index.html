@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[DL]Image Segmentation 1 - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[DL]Image Segmentation 1" />
+<meta property="og:description" content="개요 컴퓨터 비전(Computer Vision)의 분야에 있어서 대표적인 기술은 객체 분류(Object Classification), 객체 탐지 및 위치 식별(Object Detection &amp; Localization), 객체 분할 (Object Segmentation), 이미지 캡셔닝(Image captioning)등이 있다. 이런 다양한 기술 중 하나인 이미지 분할(Image Segmentation)에 대해서 설명하고자 한다. 이미지 분할(Image Segmentation) [그림 1] Image Segmentation의 예 이미지 분할(Image Segmentation)은 신경망을 훈련시켜 이미지를 픽셀 단위로 분할하는 것이다. 위의 그림과 같이 이미지를 분할하게 되면 각각의 픽셀을 라벨(범주)별로 분류하는 작업을 거치게 된다. 이미지 분할(Image Segmentation)은 이미지 탐지(Image Detection)과는 다른 문제이다. 위의 그림 처럼 사람(Person)이라는 라벨을 가진 이미지에서도 여러 사람들을 분류 하는 것이 이미지 탐지(Image Detection)이다. 이미지 분할(Image Segmentation)은 여러 사람들을 사람이라는 하나의 객체(라벨) 안에 각각 다른 하나의 객체로 구분한다. 다음으론 이런 이미지 분할(Image Segmentation)도 Semantic Segmentation, Instance Segmentation, Panoptic Segmentation등 다양한 종류가 존재하는데 이에 대해 설명하고자 한다. 의미적 분할(Semantic Segmentation) [그림 2] Sementic Segmentation의 예 의미적 분할은 Semantic: &#39;의미론&#39;의 단어 뜻 처럼 이미지 내에 있는 객체들을 의미있는 단위로 분할하는 것을 말한다. 이미지를 봤을 때 큰 의미로 분할을 하게 된다. (위의 예시로 보자면 큰 객체들 위주: 사람, 자전거, 배경) 하지만 의미적 분할은 큰 의미로만 분할을 하지 하나의 객체 안에서 개별 객체로 구분하지는 않는다.(이미지에서 다른 사람이더라도 상관없이 같은 라벨로 표현) 따라서 이를 보완하기 위해 나타난 것이 인스턴스 분할(Instance Segmentation) 이다. 인스턴스 분할(Instance Segmentation) [그림 3] Instance Segmentation의 예 인스턴스 분할은 객체별로 각각 다른 라벨을 가지게 한다. 또한 각 객체의 경계 또한 식별이 가능하게 된다. 인스턴스 분할은 의미적 분할처럼 각 픽셀별로 어떤 카테고리에 속하는지 계산하는 것이 아닌 각 픽셀별로 object가 있는지 없는지 여부만 계산한다.
+2-stage detector(Mask R-CNN)에서 객체들을 bounding box를 통해 localization을 시킨다. 그 후 localize된 RoI마다 class의 개수 만큼 binary mask(instance인지 아닌지) 마스크를 씌워준다. RoI별로 class 개수만큼 output 채널이 존재하고 동일 class더라도 서로다른 객체(instance)로 판별. (-&gt; 객체 별 각각 다른 객체) 즉, RoI가 focus하는 객체(instance)부분만 value를 갖도록 한다. 용어 설명 2-stage detector: localization과 classification이 순차적으로 이루어지는 방식 Localization: 객체 주변의 bounding box를 식별하여 객체의 위치를 찾는 방식 RoI: 관심 영역, 이미지 상에서 관심 있는 영역
+따라서 인스턴스 분할은 background와 같이 구분하기 애매한 것들은 제외시키고 object를 대상으로 한다. 파놉틱 분할(Panoptic Segmentation) [그림 4] Panoptic Segmentation의 예 파놉틱 분할은 위 두가지 방법인 의미적, 인스턴스 분할을 합친 개념이다. 즉, 모든 pixel에 대해 라벨을 분류하고 객체 별 각각 다른 객체로 판별하는 과정을 수행하는 것이다. Image Segmentation 활용 분야 의학 사진(Medical Image)에서 많이 활용되고 있다. 예를 들어 환자의 체내 이미지에서 다양한 질병을 감지하는데 사용되고 있다. [그림 5] Image Segmentation의 활용 예-1 자율 주행 자동차처럼 자기 스스로 이미지를 분석하여 움직이는 것들은 이미지 분할의 도움을 받을 수 있게 된다. [그림 5] Image Segmentation의 활용 예-2 Reference https://velog.io/@dongho5041/%EB%94%A5%EB%9F%AC%EB%8B%9D-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%84%B8%EA%B7%B8%EB%A9%98%ED%85%8C%EC%9D%B4%EC%85%98Image-Segmentation https://velog.io/@lighthouse97/%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%84%B8%EA%B7%B8%EB%A9%98%ED%85%8C%EC%9D%B4%EC%85%98Image-Segmentation https://velog.io/@claude_ssim/%EC%8B%9C%EA%B0%81%EC%A7%80%EB%8A%A5-Instance-segmentation https://ganghee-lee.tistory.com/44 https://ganghee-lee.tistory.com/34 " />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/segmentation/segmentation-1/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-03-20T22:03:00+09:00" />
+<meta property="article:modified_time" content="2024-03-20T22:03:00+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[DL]Image Segmentation 1"/>
+<meta name="twitter:description" content="개요 컴퓨터 비전(Computer Vision)의 분야에 있어서 대표적인 기술은 객체 분류(Object Classification), 객체 탐지 및 위치 식별(Object Detection &amp; Localization), 객체 분할 (Object Segmentation), 이미지 캡셔닝(Image captioning)등이 있다. 이런 다양한 기술 중 하나인 이미지 분할(Image Segmentation)에 대해서 설명하고자 한다. 이미지 분할(Image Segmentation) [그림 1] Image Segmentation의 예 이미지 분할(Image Segmentation)은 신경망을 훈련시켜 이미지를 픽셀 단위로 분할하는 것이다. 위의 그림과 같이 이미지를 분할하게 되면 각각의 픽셀을 라벨(범주)별로 분류하는 작업을 거치게 된다. 이미지 분할(Image Segmentation)은 이미지 탐지(Image Detection)과는 다른 문제이다. 위의 그림 처럼 사람(Person)이라는 라벨을 가진 이미지에서도 여러 사람들을 분류 하는 것이 이미지 탐지(Image Detection)이다. 이미지 분할(Image Segmentation)은 여러 사람들을 사람이라는 하나의 객체(라벨) 안에 각각 다른 하나의 객체로 구분한다. 다음으론 이런 이미지 분할(Image Segmentation)도 Semantic Segmentation, Instance Segmentation, Panoptic Segmentation등 다양한 종류가 존재하는데 이에 대해 설명하고자 한다. 의미적 분할(Semantic Segmentation) [그림 2] Sementic Segmentation의 예 의미적 분할은 Semantic: &#39;의미론&#39;의 단어 뜻 처럼 이미지 내에 있는 객체들을 의미있는 단위로 분할하는 것을 말한다. 이미지를 봤을 때 큰 의미로 분할을 하게 된다. (위의 예시로 보자면 큰 객체들 위주: 사람, 자전거, 배경) 하지만 의미적 분할은 큰 의미로만 분할을 하지 하나의 객체 안에서 개별 객체로 구분하지는 않는다.(이미지에서 다른 사람이더라도 상관없이 같은 라벨로 표현) 따라서 이를 보완하기 위해 나타난 것이 인스턴스 분할(Instance Segmentation) 이다. 인스턴스 분할(Instance Segmentation) [그림 3] Instance Segmentation의 예 인스턴스 분할은 객체별로 각각 다른 라벨을 가지게 한다. 또한 각 객체의 경계 또한 식별이 가능하게 된다. 인스턴스 분할은 의미적 분할처럼 각 픽셀별로 어떤 카테고리에 속하는지 계산하는 것이 아닌 각 픽셀별로 object가 있는지 없는지 여부만 계산한다.
+2-stage detector(Mask R-CNN)에서 객체들을 bounding box를 통해 localization을 시킨다. 그 후 localize된 RoI마다 class의 개수 만큼 binary mask(instance인지 아닌지) 마스크를 씌워준다. RoI별로 class 개수만큼 output 채널이 존재하고 동일 class더라도 서로다른 객체(instance)로 판별. (-&gt; 객체 별 각각 다른 객체) 즉, RoI가 focus하는 객체(instance)부분만 value를 갖도록 한다. 용어 설명 2-stage detector: localization과 classification이 순차적으로 이루어지는 방식 Localization: 객체 주변의 bounding box를 식별하여 객체의 위치를 찾는 방식 RoI: 관심 영역, 이미지 상에서 관심 있는 영역
+따라서 인스턴스 분할은 background와 같이 구분하기 애매한 것들은 제외시키고 object를 대상으로 한다. 파놉틱 분할(Panoptic Segmentation) [그림 4] Panoptic Segmentation의 예 파놉틱 분할은 위 두가지 방법인 의미적, 인스턴스 분할을 합친 개념이다. 즉, 모든 pixel에 대해 라벨을 분류하고 객체 별 각각 다른 객체로 판별하는 과정을 수행하는 것이다. Image Segmentation 활용 분야 의학 사진(Medical Image)에서 많이 활용되고 있다. 예를 들어 환자의 체내 이미지에서 다양한 질병을 감지하는데 사용되고 있다. [그림 5] Image Segmentation의 활용 예-1 자율 주행 자동차처럼 자기 스스로 이미지를 분석하여 움직이는 것들은 이미지 분할의 도움을 받을 수 있게 된다. [그림 5] Image Segmentation의 활용 예-2 Reference https://velog.io/@dongho5041/%EB%94%A5%EB%9F%AC%EB%8B%9D-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%84%B8%EA%B7%B8%EB%A9%98%ED%85%8C%EC%9D%B4%EC%85%98Image-Segmentation https://velog.io/@lighthouse97/%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%84%B8%EA%B7%B8%EB%A9%98%ED%85%8C%EC%9D%B4%EC%85%98Image-Segmentation https://velog.io/@claude_ssim/%EC%8B%9C%EA%B0%81%EC%A7%80%EB%8A%A5-Instance-segmentation https://ganghee-lee.tistory.com/44 https://ganghee-lee.tistory.com/34 "/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/segmentation/segmentation-1/" /><link rel="prev" href="https://goodyoung.github.io/posts/blog-construct/hugo_blog_2/" /><link rel="next" href="https://goodyoung.github.io/posts/segmentation/segmentation-2/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[DL]Image Segmentation 1",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/segmentation\/segmentation-1\/"
+        },"genre": "posts","keywords": "computer vision, segmentation, 딥러닝","wordcount":  409 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/segmentation\/segmentation-1\/","datePublished": "2024-03-20T22:03:00+09:00","dateModified": "2024-03-20T22:03:00+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[DL]Image Segmentation 1</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-03-20">2024-03-20</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;409 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;2 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#이미지-분할image-segmentation">이미지 분할(Image Segmentation)</a></li>
+    <li><a href="#의미적-분할semantic-segmentation">의미적 분할(Semantic Segmentation)</a></li>
+    <li><a href="#인스턴스-분할instance-segmentation">인스턴스 분할(Instance Segmentation)</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#파놉틱-분할panoptic-segmentation">파놉틱 분할(Panoptic Segmentation)</a></li>
+    <li><a href="#image-segmentation-활용-분야">Image Segmentation 활용 분야</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="개요">개요</h2>
+<ol start="0">
+<li>컴퓨터 비전(Computer Vision)의 분야에 있어서 대표적인 기술은 <code>객체 분류(Object Classification)</code>, <code>객체 탐지 및 위치 식별(Object Detection &amp; Localization)</code>, <code>객체 분할 (Object Segmentation)</code>, <code>이미지 캡셔닝(Image captioning)</code>등이 있다.</li>
+<li>이런 다양한 기술 중 하나인 <code>이미지 분할(Image Segmentation)</code>에 대해서 설명하고자 한다.</li>
+</ol>
+<hr>
+<h2 id="이미지-분할image-segmentation">이미지 분할(Image Segmentation)</h2>
+<figure><a class="lightgallery" href="/images/image-segmentation-1/image-segmentation-1.png" title="/images/image-segmentation-1/image-segmentation-1.png" data-thumbnail="/images/image-segmentation-1/image-segmentation-1.png" data-sub-html="<h2>[그림 1] Image Segmentation의 예</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-1/image-segmentation-1.png"
+            data-srcset="/images/image-segmentation-1/image-segmentation-1.png, /images/image-segmentation-1/image-segmentation-1.png 1.5x, /images/image-segmentation-1/image-segmentation-1.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-1/image-segmentation-1.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 1] Image Segmentation의 예</figcaption>
+    </figure>
+<ol start="2">
+<li>이미지 분할(Image Segmentation)은 신경망을 훈련시켜 이미지를 <strong>픽셀 단위</strong>로 분할하는 것이다.</li>
+</ol>
+<br>
+<ol start="3">
+<li>위의 그림과 같이 이미지를 분할하게 되면 각각의 픽셀을 라벨(범주)별로 분류하는 작업을 거치게 된다.</li>
+</ol>
+<br>
+<ol start="4">
+<li>이미지 분할(Image Segmentation)은 이미지 탐지(Image Detection)과는 다른 문제이다.
+<ul>
+<li>위의 그림 처럼 <code>사람(Person)</code>이라는 라벨을 가진 이미지에서도 <strong>여러 사람들을 분류 하는 것</strong>이 이미지 탐지(Image Detection)이다.</li>
+<li>이미지 분할(Image Segmentation)은 <strong>여러 사람들을 사람이라는 하나의 객체(라벨) 안에 각각 다른 하나의 객체</strong>로 구분한다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="5">
+<li>다음으론 이런 이미지 분할(Image Segmentation)도 <code>Semantic Segmentation</code>, <code>Instance Segmentation</code>, <code>Panoptic Segmentation</code>등 다양한 종류가 존재하는데 이에 대해 설명하고자 한다.</li>
+</ol>
+<hr>
+<h2 id="의미적-분할semantic-segmentation">의미적 분할(Semantic Segmentation)</h2>
+<figure><a class="lightgallery" href="/images/image-segmentation-1/image-segmentation-2.png" title="/images/image-segmentation-1/image-segmentation-2.png" data-thumbnail="/images/image-segmentation-1/image-segmentation-2.png" data-sub-html="<h2>[그림 2] Sementic Segmentation의 예</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-1/image-segmentation-2.png"
+            data-srcset="/images/image-segmentation-1/image-segmentation-2.png, /images/image-segmentation-1/image-segmentation-2.png 1.5x, /images/image-segmentation-1/image-segmentation-2.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-1/image-segmentation-2.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 2] Sementic Segmentation의 예</figcaption>
+    </figure>
+<ol start="6">
+<li>의미적 분할은 <code>Semantic: '의미론'</code>의 단어 뜻 처럼 이미지 내에 있는 객체들을 의미있는 단위로 분할하는 것을 말한다.</li>
+</ol>
+<br>
+<ol start="7">
+<li>이미지를 봤을 때 큰 의미로 분할을 하게 된다. (위의 예시로 보자면 큰 객체들 위주: 사람, 자전거, 배경)</li>
+</ol>
+<br>
+<ol start="8">
+<li>하지만 의미적 분할은 큰 의미로만 분할을 하지 하나의 객체 안에서 개별 객체로 구분하지는 않는다.(<em>이미지에서 다른 사람이더라도 상관없이 같은 라벨로 표현</em>)</li>
+</ol>
+<br>
+<ol start="9">
+<li>따라서 이를 보완하기 위해 나타난 것이 <code>인스턴스 분할(Instance Segmentation)</code> 이다.</li>
+</ol>
+<hr>
+<h2 id="인스턴스-분할instance-segmentation">인스턴스 분할(Instance Segmentation)</h2>
+<figure><a class="lightgallery" href="/images/image-segmentation-1/image-segmentation-3.png" title="/images/image-segmentation-1/image-segmentation-3.png" data-thumbnail="/images/image-segmentation-1/image-segmentation-3.png" data-sub-html="<h2>[그림 3] Instance Segmentation의 예</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-1/image-segmentation-3.png"
+            data-srcset="/images/image-segmentation-1/image-segmentation-3.png, /images/image-segmentation-1/image-segmentation-3.png 1.5x, /images/image-segmentation-1/image-segmentation-3.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-1/image-segmentation-3.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 3] Instance Segmentation의 예</figcaption>
+    </figure>
+<ol start="10">
+<li>인스턴스 분할은 객체별로 각각 다른 라벨을 가지게 한다. 또한 각 객체의 경계 또한 식별이 가능하게 된다.</li>
+</ol>
+<br>
+<ol start="11">
+<li>
+<p>인스턴스 분할은 의미적 분할처럼 각 픽셀별로 어떤 카테고리에 속하는지 계산하는 것이 <strong>아닌</strong> 각 픽셀별로 object가 있는지 없는지 여부만 계산한다.</p>
+<ul>
+<li><code>2-stage detector</code>(Mask R-CNN)에서 객체들을 bounding box를 통해 <code>localization</code>을 시킨다.</li>
+<li>그 후 localize된 <strong><code>RoI</code>마다 class의 개수</strong> 만큼 binary mask(instance인지 아닌지) 마스크를 씌워준다.</li>
+<li><strong><code>RoI</code>별로</strong> class 개수만큼 output 채널이 존재하고 동일 class더라도 서로다른 객체(instance)로 판별. (-&gt; <u>객체 별 각각 다른 객체</u>)</li>
+</ul>
+<blockquote>
+<p>즉, RoI가 focus하는 객체(instance)부분만 value를 갖도록 한다. <br></p>
+</blockquote>
+<hr>
+<h4 id="용어-설명">용어 설명</h4>
+<p><code>2-stage detector</code>: localization과 classification이 순차적으로 이루어지는 방식 <br>
+<code>Localization</code>: 객체 주변의 bounding box를 식별하여 객체의 위치를 찾는 방식 <br>
+<code>RoI</code>: 관심 영역, 이미지 상에서 관심 있는 영역</p>
+<hr>
+</li>
+</ol>
+<br>
+<ol start="12">
+<li>따라서 인스턴스 분할은 background와 같이 구분하기 애매한 것들은 제외시키고 object를 대상으로 한다.</li>
+</ol>
+<hr>
+<h2 id="파놉틱-분할panoptic-segmentation">파놉틱 분할(Panoptic Segmentation)</h2>
+<figure><a class="lightgallery" href="/images/image-segmentation-1/image-segmentation-4.png" title="/images/image-segmentation-1/image-segmentation-4.png" data-thumbnail="/images/image-segmentation-1/image-segmentation-4.png" data-sub-html="<h2>[그림 4] Panoptic Segmentation의 예</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/image-segmentation-1/image-segmentation-4.png"
+            data-srcset="/images/image-segmentation-1/image-segmentation-4.png, /images/image-segmentation-1/image-segmentation-4.png 1.5x, /images/image-segmentation-1/image-segmentation-4.png 2x"
+            data-sizes="auto"
+            alt="/images/image-segmentation-1/image-segmentation-4.png" width="10%" />
+    </a><figcaption class="image-caption">[그림 4] Panoptic Segmentation의 예</figcaption>
+    </figure>
+<ol start="13">
+<li>파놉틱 분할은 위 두가지 방법인 의미적, 인스턴스 분할을 <strong>합친 개념</strong>이다. 즉, 모든 pixel에 대해 라벨을 분류하고 객체 별 각각 다른 객체로 판별하는 과정을 수행하는 것이다.</li>
+</ol>
+<br>
+<h2 id="image-segmentation-활용-분야">Image Segmentation 활용 분야</h2>
+<ol start="14">
+<li>의학 사진(Medical Image)에서 많이 활용되고 있다. 예를 들어 환자의 체내 이미지에서 다양한 질병을 감지하는데 사용되고 있다.
+<figure><a class="lightgallery" href="/images/image-segmentation-1/image-segmentation-6.png" title="/images/image-segmentation-1/image-segmentation-6.png" data-thumbnail="/images/image-segmentation-1/image-segmentation-6.png" data-sub-html="<h2>[그림 5] Image Segmentation의 활용 예-1</h2>">
+            <img
+                class="lazyload"
+                src="/svg/loading.min.svg"
+                data-src="/images/image-segmentation-1/image-segmentation-6.png"
+                data-srcset="/images/image-segmentation-1/image-segmentation-6.png, /images/image-segmentation-1/image-segmentation-6.png 1.5x, /images/image-segmentation-1/image-segmentation-6.png 2x"
+                data-sizes="auto"
+                alt="/images/image-segmentation-1/image-segmentation-6.png" height="10%" />
+        </a><figcaption class="image-caption">[그림 5] Image Segmentation의 활용 예-1</figcaption>
+        </figure></li>
+<li>자율 주행 자동차처럼 자기 스스로 이미지를 분석하여 움직이는 것들은 이미지 분할의 도움을 받을 수 있게 된다.
+<figure><a class="lightgallery" href="/images/image-segmentation-1/image-segmentation-7.jpeg" title="/images/image-segmentation-1/image-segmentation-7.jpeg" data-thumbnail="/images/image-segmentation-1/image-segmentation-7.jpeg" data-sub-html="<h2>[그림 5] Image Segmentation의 활용 예-2</h2>">
+            <img
+                class="lazyload"
+                src="/svg/loading.min.svg"
+                data-src="/images/image-segmentation-1/image-segmentation-7.jpeg"
+                data-srcset="/images/image-segmentation-1/image-segmentation-7.jpeg, /images/image-segmentation-1/image-segmentation-7.jpeg 1.5x, /images/image-segmentation-1/image-segmentation-7.jpeg 2x"
+                data-sizes="auto"
+                alt="/images/image-segmentation-1/image-segmentation-7.jpeg" height="10%" />
+        </a><figcaption class="image-caption">[그림 5] Image Segmentation의 활용 예-2</figcaption>
+        </figure></li>
+</ol>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://velog.io/@dongho5041/%EB%94%A5%EB%9F%AC%EB%8B%9D-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%84%B8%EA%B7%B8%EB%A9%98%ED%85%8C%EC%9D%B4%EC%85%98Image-Segmentation" target="_blank" rel="noopener noreffer ">https://velog.io/@dongho5041/%EB%94%A5%EB%9F%AC%EB%8B%9D-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%84%B8%EA%B7%B8%EB%A9%98%ED%85%8C%EC%9D%B4%EC%85%98Image-Segmentation</a></li>
+<li><a href="https://velog.io/@lighthouse97/%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%84%B8%EA%B7%B8%EB%A9%98%ED%85%8C%EC%9D%B4%EC%85%98Image-Segmentation" target="_blank" rel="noopener noreffer ">https://velog.io/@lighthouse97/%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%84%B8%EA%B7%B8%EB%A9%98%ED%85%8C%EC%9D%B4%EC%85%98Image-Segmentation</a></li>
+<li><a href="https://velog.io/@claude_ssim/%EC%8B%9C%EA%B0%81%EC%A7%80%EB%8A%A5-Instance-segmentation" target="_blank" rel="noopener noreffer ">https://velog.io/@claude_ssim/%EC%8B%9C%EA%B0%81%EC%A7%80%EB%8A%A5-Instance-segmentation</a></li>
+<li><a href="https://ganghee-lee.tistory.com/44" target="_blank" rel="noopener noreffer ">https://ganghee-lee.tistory.com/44</a></li>
+<li><a href="https://ganghee-lee.tistory.com/34" target="_blank" rel="noopener noreffer ">https://ganghee-lee.tistory.com/34</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-03-20</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/segmentation/segmentation-1/" data-title="[DL]Image Segmentation 1" data-hashtags="computer vision,segmentation,딥러닝"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/segmentation/segmentation-1/" data-hashtag="computer vision"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/segmentation/segmentation-1/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/segmentation/segmentation-1/" data-title="[DL]Image Segmentation 1"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/segmentation/segmentation-1/" data-title="[DL]Image Segmentation 1"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/segmentation/segmentation-1/" data-title="[DL]Image Segmentation 1"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/segmentation/segmentation-1/" data-title="[DL]Image Segmentation 1" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a>,&nbsp;<a href="/tags/%EB%94%A5%EB%9F%AC%EB%8B%9D/">딥러닝</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/blog-construct/hugo_blog_2/" class="prev" rel="prev" title="Hugo 블로그 구축기 -2 With Mac"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>Hugo 블로그 구축기 -2 With Mac</a>
+            <a href="/posts/segmentation/segmentation-2/" class="next" rel="next" title="[DL]Image Segmentation 2">[DL]Image Segmentation 2<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.121.2">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://goodyoung.github.io" target="_blank">GoodYoung</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
