@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)" />
+<meta property="og:description" content="개요 Semantic Segmentation 문제를 해결하기 위해 제안된 딥러닝 모델인 Fully Convolutional Networks(이하 FCN) 논문 리뷰를 해보려고 한다. Abstract FCN은 convolutional network 자체로 end-to-end 학습, pixels-to-pixels을 훈련을 하고 semantic segmentation에서 state-of-the-art(이하 SOTA)를 달성했다.
+이때 나오는 end-to-end 학습이란 독립적인 것이 아니라 하나의 모델에서 작업이 다 끝나고, 모델의 모든 filter들이 학습이 가능한 학습을 하는 학습 방법이라고 생각하면 된다. [그림 1] end-to-end 학습 end-to-end 학습이 아닌 모델인 pattern recognition모델은 사람들이 직접 filter를 설계하여 classifier만 학습을 하는 방법이다. 본 논문의 핵심 아이디어는 임의의 크기인 input과 input과 같은 크기의 output을 생성하는 fully convolutional network를 구축하는 것이다. 또한 기존의 classification networks(AlexNet, VGG net, GoogLeNet)을 통해 transfer learning을 통한 fine-tuning을 진행하였다. 마지막으로 모델의 deep layer에서 얻은 의미(Semantic) 정보와 shallow layer에서 얻은 외관(Appearance)정보를 섞는 skip architecture를 정의하였다. [그림 2] CNN layers Semantic information deep, coarse(굵다) layer
+CNN에서 제일 deep한 위치에 있는 layer들이 객체의 외관은 파악하기 힘든 반면에 feature들이 활성화가 된 부분을 보면 의미가 있는 정보를 나타낸다. Appearance information shallow, fine layer
+CNN의 첫 번째 layer에 있는 filter들은 보통 edge feature들을 추출하기 때문에 윤곽과 관련된 feature들을 추출한다. --- ## Introduction 6. Convolutional networks의 등장으로 인해 classification, local task(object detection, key-point등)와 같은 분야에서 엄청난 발전을 이룰 수 있었다. 이러한 Convolutional networks의 다음 단계는 segmentation을 위한 모든 pixel에 대한 예측이다. 또한 기존의 방법들 (patchwise training, pre-post processing)등의 수고로움을 해결할 수 있다고 나와있다. 이때 설명하는 patchwise training이란 FCN이 나오기 전 segmentation 학습 방법론 이다. [그림 3] Patchwise training Patchwise learning 방식 특정 크기의 patch를 설정 및 CNN input 이때의 input -&gt; CNN에 의해 classification이 된다. 이때 특정 class로 분류가 되었다면, 해당 patch 중앙에 위치한 pixel을 분류된 class로 분류한다. 이 과정을 슬라이딩 윈도우 방식으로 모든 픽셀을 반복한다. 따라서 Patchwise learning의 방법에는 여러 단점이 생기게 된다. 많은 계산량 patch끼리 겹칠 때의 중복 계산의 우려, patch의 크기를 크게할 때 분류가 애매한 상황 patch 크기를 줄여주면 low resolution(해상도가 낮음)의 문제 마지막으로 FCN이 등장하기 전 semantic한 정보와 location한 정보를 어떻게 잘 조합할 지 몰랐다. 이를 해결하기 위해서 skip architecture가 나오게 된다. Fully convolutional networks 이제까진 기존 CNN에 대한 설명과 FCN이 나오기전의 모델들의 단점들을 살펴보며 FCN 모델의 우수성을 추상적으로 설명했다. 이젠 FCN의 알고리즘을 구체적으로 설명 해보려고 한다. Adapting classifiers for dense prediction [그림 4] FC -&gt; Convolutional layers 전형적인 분류 net(LeNet, AlexNet &hellip;)은 FC층 때문에 고정적인 input size와 non-spatial output을 가진다. 입력 이미지의 크기에 비례하여 FC층에 들어가기 위해 flatten되는 neuron의 수가 비례하기 때문에 input size가 고정적이다. 이때 flatten 되기 때문에 이미지의 공간적 정보의 손실이 있게 된다. 따라서 이러한 linear한 FC층을 [그림 1]처럼 Fully Convolutional한 구조로 변경을 하였다. 이로써 모든 layer에 Conv를 적용하여 ground truth를 각 layer의 출력으로부터 얻을 수 있어 forward와 backward가 계산 효율성에서 장점을 얻는다. 또한 단점이었던 공간 정보의 손실이 없어지는 것도 해결하였다. convolutionalization된 층의 resulting map에 해당되는 특정 위치가 특정 patch 상의 CNN 결과랑 같게 된다. 지금까진 FCN구조의 encoder 부분을 설명한 것과 같다. 다음으론 output map(coarse output)으로 부터 dense prediction을 하는 방법을 알아 볼 것 이다. Shift-and-stitch is filter rarefaction dense prediction을 하기 위해 output map을 upscaling을 해야 한다. upscaling을 하기 위한 방법으로 본문에선 shift-and-stitch방법을 고려했다고 나타난다. [그림 5] shift and stitch 그림을 토대로 max pooling을 하고 위치 정보를 저장하여 원래의 이미지 크기로 upscaling이 가능하다. 하지만 계산 비용이 큰 단점이 있게 된다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/paper/fcn/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-04-14T16:25:24+09:00" />
+<meta property="article:modified_time" content="2024-04-14T16:25:24+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)"/>
+<meta name="twitter:description" content="개요 Semantic Segmentation 문제를 해결하기 위해 제안된 딥러닝 모델인 Fully Convolutional Networks(이하 FCN) 논문 리뷰를 해보려고 한다. Abstract FCN은 convolutional network 자체로 end-to-end 학습, pixels-to-pixels을 훈련을 하고 semantic segmentation에서 state-of-the-art(이하 SOTA)를 달성했다.
+이때 나오는 end-to-end 학습이란 독립적인 것이 아니라 하나의 모델에서 작업이 다 끝나고, 모델의 모든 filter들이 학습이 가능한 학습을 하는 학습 방법이라고 생각하면 된다. [그림 1] end-to-end 학습 end-to-end 학습이 아닌 모델인 pattern recognition모델은 사람들이 직접 filter를 설계하여 classifier만 학습을 하는 방법이다. 본 논문의 핵심 아이디어는 임의의 크기인 input과 input과 같은 크기의 output을 생성하는 fully convolutional network를 구축하는 것이다. 또한 기존의 classification networks(AlexNet, VGG net, GoogLeNet)을 통해 transfer learning을 통한 fine-tuning을 진행하였다. 마지막으로 모델의 deep layer에서 얻은 의미(Semantic) 정보와 shallow layer에서 얻은 외관(Appearance)정보를 섞는 skip architecture를 정의하였다. [그림 2] CNN layers Semantic information deep, coarse(굵다) layer
+CNN에서 제일 deep한 위치에 있는 layer들이 객체의 외관은 파악하기 힘든 반면에 feature들이 활성화가 된 부분을 보면 의미가 있는 정보를 나타낸다. Appearance information shallow, fine layer
+CNN의 첫 번째 layer에 있는 filter들은 보통 edge feature들을 추출하기 때문에 윤곽과 관련된 feature들을 추출한다. --- ## Introduction 6. Convolutional networks의 등장으로 인해 classification, local task(object detection, key-point등)와 같은 분야에서 엄청난 발전을 이룰 수 있었다. 이러한 Convolutional networks의 다음 단계는 segmentation을 위한 모든 pixel에 대한 예측이다. 또한 기존의 방법들 (patchwise training, pre-post processing)등의 수고로움을 해결할 수 있다고 나와있다. 이때 설명하는 patchwise training이란 FCN이 나오기 전 segmentation 학습 방법론 이다. [그림 3] Patchwise training Patchwise learning 방식 특정 크기의 patch를 설정 및 CNN input 이때의 input -&gt; CNN에 의해 classification이 된다. 이때 특정 class로 분류가 되었다면, 해당 patch 중앙에 위치한 pixel을 분류된 class로 분류한다. 이 과정을 슬라이딩 윈도우 방식으로 모든 픽셀을 반복한다. 따라서 Patchwise learning의 방법에는 여러 단점이 생기게 된다. 많은 계산량 patch끼리 겹칠 때의 중복 계산의 우려, patch의 크기를 크게할 때 분류가 애매한 상황 patch 크기를 줄여주면 low resolution(해상도가 낮음)의 문제 마지막으로 FCN이 등장하기 전 semantic한 정보와 location한 정보를 어떻게 잘 조합할 지 몰랐다. 이를 해결하기 위해서 skip architecture가 나오게 된다. Fully convolutional networks 이제까진 기존 CNN에 대한 설명과 FCN이 나오기전의 모델들의 단점들을 살펴보며 FCN 모델의 우수성을 추상적으로 설명했다. 이젠 FCN의 알고리즘을 구체적으로 설명 해보려고 한다. Adapting classifiers for dense prediction [그림 4] FC -&gt; Convolutional layers 전형적인 분류 net(LeNet, AlexNet &hellip;)은 FC층 때문에 고정적인 input size와 non-spatial output을 가진다. 입력 이미지의 크기에 비례하여 FC층에 들어가기 위해 flatten되는 neuron의 수가 비례하기 때문에 input size가 고정적이다. 이때 flatten 되기 때문에 이미지의 공간적 정보의 손실이 있게 된다. 따라서 이러한 linear한 FC층을 [그림 1]처럼 Fully Convolutional한 구조로 변경을 하였다. 이로써 모든 layer에 Conv를 적용하여 ground truth를 각 layer의 출력으로부터 얻을 수 있어 forward와 backward가 계산 효율성에서 장점을 얻는다. 또한 단점이었던 공간 정보의 손실이 없어지는 것도 해결하였다. convolutionalization된 층의 resulting map에 해당되는 특정 위치가 특정 patch 상의 CNN 결과랑 같게 된다. 지금까진 FCN구조의 encoder 부분을 설명한 것과 같다. 다음으론 output map(coarse output)으로 부터 dense prediction을 하는 방법을 알아 볼 것 이다. Shift-and-stitch is filter rarefaction dense prediction을 하기 위해 output map을 upscaling을 해야 한다. upscaling을 하기 위한 방법으로 본문에선 shift-and-stitch방법을 고려했다고 나타난다. [그림 5] shift and stitch 그림을 토대로 max pooling을 하고 위치 정보를 저장하여 원래의 이미지 크기로 upscaling이 가능하다. 하지만 계산 비용이 큰 단점이 있게 된다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/fcn/" /><link rel="prev" href="https://goodyoung.github.io/posts/segmentation/segmentation-3/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/fcn\/"
+        },"genre": "posts","keywords": "FCN, Implement, 논문 리뷰, computer vision, segmentation","wordcount":  939 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/fcn\/","datePublished": "2024-04-14T16:25:24+09:00","dateModified": "2024-04-14T16:25:24+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-04-14">2024-04-14</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;939 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#fully-convolutional-networks">Fully convolutional networks</a>
+      <ul>
+        <li><a href="#adapting-classifiers-for-dense-prediction">Adapting classifiers for dense prediction</a></li>
+        <li><a href="#shift-and-stitch-is-filter-rarefaction">Shift-and-stitch is filter rarefaction</a></li>
+        <li><a href="#upsampling-is-backwards-strided-convolution">Upsampling is backwards strided convolution</a></li>
+        <li><a href="#patchwise-training-is-loss-sampling">Patchwise training is loss sampling</a></li>
+      </ul>
+    </li>
+    <li><a href="#segmentation-architecture">Segmentation Architecture</a>
+      <ul>
+        <li><a href="#combining-what-and-where">Combining what and where</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="개요">개요</h2>
+<ol start="0">
+<li>Semantic Segmentation 문제를 해결하기 위해 제안된 딥러닝 모델인 Fully Convolutional Networks(이하 FCN) 논문 리뷰를 해보려고 한다.</li>
+</ol>
+<hr>
+<h2 id="abstract">Abstract</h2>
+<ol>
+<li>
+<p>FCN은 convolutional network 자체로 <code>end-to-end 학습</code>, <code>pixels-to-pixels</code>을 훈련을 하고 semantic segmentation에서 state-of-the-art(이하 <strong>SOTA</strong>)를 달성했다.</p>
+</li>
+<li>
+<p>이때 나오는 <code>end-to-end 학습</code>이란 독립적인 것이 아니라 하나의 모델에서 작업이 다 끝나고, 모델의 모든 filter들이 학습이 가능한 학습을 하는 학습 방법이라고 생각하면 된다.
+<figure><a class="lightgallery" href="/images/paper/fcn/fcn-1.png" title="/images/paper/fcn/fcn-1.png" data-thumbnail="/images/paper/fcn/fcn-1.png" data-sub-html="<h2>[그림 1] end-to-end 학습</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/fcn/fcn-1.png"
+            data-srcset="/images/paper/fcn/fcn-1.png, /images/paper/fcn/fcn-1.png 1.5x, /images/paper/fcn/fcn-1.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/fcn/fcn-1.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 1] end-to-end 학습</figcaption>
+    </figure></p>
+<ul>
+<li><code>end-to-end 학습</code>이 아닌 모델인 pattern recognition모델은 사람들이 직접 filter를 설계하여 classifier만 학습을 하는 방법이다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="3">
+<li>본 논문의 <strong>핵심 아이디어</strong>는 <strong>임의의 크기</strong>인 input과 <strong>input과 같은 크기의 output</strong>을 생성하는 <code>fully convolutional</code> network를 구축하는 것이다.</li>
+</ol>
+<br>
+<ol start="4">
+<li>또한 기존의 classification networks(<u>AlexNet, VGG net, GoogLeNet</u>)을 통해 transfer learning을 통한 fine-tuning을 진행하였다.</li>
+</ol>
+<br>
+<ol start="5">
+<li>마지막으로 모델의 deep layer에서 얻은 의미(<u>Semantic</u>) 정보와 shallow layer에서 얻은 외관(<u>Appearance</u>)정보를 섞는 <code>skip architecture</code>를 정의하였다.
+<figure><a class="lightgallery" href="/images/paper/fcn/fcn-2.png" title="/images/paper/fcn/fcn-2.png" data-thumbnail="/images/paper/fcn/fcn-2.png" data-sub-html="<h2>[그림 2] CNN layers</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/fcn/fcn-2.png"
+            data-srcset="/images/paper/fcn/fcn-2.png, /images/paper/fcn/fcn-2.png 1.5x, /images/paper/fcn/fcn-2.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/fcn/fcn-2.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 2] CNN layers</figcaption>
+    </figure></li>
+</ol>
+<ul>
+<li>Semantic information
+<blockquote>
+<p>deep, coarse(굵다) layer</p>
+</blockquote>
+<ul>
+<li>CNN에서 제일 deep한 위치에 있는 layer들이 객체의 외관은 파악하기 힘든 반면에 feature들이 활성화가 된 부분을 보면 의미가 있는 정보를 나타낸다.</li>
+</ul>
+</li>
+<li>Appearance information
+<blockquote>
+<p>shallow, fine layer</p>
+</blockquote>
+<ul>
+<li>CNN의 첫 번째 layer에 있는 filter들은 보통 edge feature들을 추출하기 때문에 윤곽과 관련된 feature들을 추출한다.</li>
+</ul>
+</li>
+</ul>
+<br>
+---
+## Introduction
+6.  Convolutional networks의 등장으로 인해 classification, local task(object detection, key-point등)와 같은 분야에서 엄청난 발전을 이룰 수 있었다.
+<br>
+<ol start="7">
+<li>이러한 Convolutional networks의 다음 단계는 segmentation을 위한 모든 pixel에 대한 예측이다.</li>
+</ol>
+<br>
+<ol start="8">
+<li>또한 기존의 방법들 (<code>patchwise training</code>, <code>pre-post processing</code>)등의 수고로움을 해결할 수 있다고 나와있다.</li>
+</ol>
+<br>
+<ol start="9">
+<li>이때 설명하는 <code>patchwise training</code>이란 FCN이 나오기 전 segmentation 학습 방법론 이다.
+<figure><a class="lightgallery" href="/images/paper/fcn/fcn-3.png" title="/images/paper/fcn/fcn-3.png" data-thumbnail="/images/paper/fcn/fcn-3.png" data-sub-html="<h2>[그림 3] Patchwise training</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/fcn/fcn-3.png"
+            data-srcset="/images/paper/fcn/fcn-3.png, /images/paper/fcn/fcn-3.png 1.5x, /images/paper/fcn/fcn-3.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/fcn/fcn-3.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 3] Patchwise training</figcaption>
+    </figure>
+<ul>
+<li><code>Patchwise learning</code> 방식
+<ol>
+<li>특정 크기의 patch를 설정 및 CNN input</li>
+<li>이때의 input -&gt; CNN에 의해 classification이 된다.</li>
+<li>이때 특정 class로 분류가 되었다면, 해당 patch 중앙에 위치한 pixel을 분류된 class로 분류한다.</li>
+<li>이 과정을 슬라이딩 윈도우 방식으로 모든 픽셀을 반복한다.</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="10">
+<li>따라서 <code>Patchwise learning</code>의 방법에는 여러 단점이 생기게 된다.</li>
+</ol>
+<ul>
+<li>많은 계산량</li>
+<li>patch끼리 겹칠 때의 <strong>중복 계산</strong>의 우려, patch의 크기를 크게할 때 분류가 애매한 상황</li>
+<li>patch 크기를 줄여주면 low resolution(해상도가 낮음)의 문제</li>
+</ul>
+<br>
+<ol start="11">
+<li>마지막으로 FCN이 등장하기 전 <code>semantic한 정보</code>와 <code>location한 정보</code>를 어떻게 잘 조합할 지 몰랐다. 이를 해결하기 위해서 <code>skip architecture</code>가 나오게 된다.</li>
+</ol>
+<hr>
+<h2 id="fully-convolutional-networks">Fully convolutional networks</h2>
+<ol start="12">
+<li>이제까진 기존 CNN에 대한 설명과 FCN이 나오기전의 모델들의 단점들을 살펴보며 FCN 모델의 우수성을 추상적으로 설명했다. 이젠 FCN의 알고리즘을 구체적으로 설명 해보려고 한다.</li>
+</ol>
+<h3 id="adapting-classifiers-for-dense-prediction">Adapting classifiers for dense prediction</h3>
+<figure><a class="lightgallery" href="/images/paper/fcn/fcn-4.png" title="/images/paper/fcn/fcn-4.png" data-thumbnail="/images/paper/fcn/fcn-4.png" data-sub-html="<h2>[그림 4] FC -&gt; Convolutional layers</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/fcn/fcn-4.png"
+            data-srcset="/images/paper/fcn/fcn-4.png, /images/paper/fcn/fcn-4.png 1.5x, /images/paper/fcn/fcn-4.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/fcn/fcn-4.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 4] FC -&gt; Convolutional layers</figcaption>
+    </figure>
+<ol start="13">
+<li>전형적인 분류 net(LeNet, AlexNet &hellip;)은 <strong>FC층 때문에</strong> 고정적인 input size와 non-spatial output을 가진다.</li>
+</ol>
+<ul>
+<li>입력 이미지의 크기에 비례하여 FC층에 들어가기 위해 <strong>flatten되는 neuron의 수가 비례</strong>하기 때문에 input size가 고정적이다.</li>
+<li>이때 flatten 되기 때문에 이미지의 <strong>공간적 정보의 손실</strong>이 있게 된다.</li>
+</ul>
+<br>
+<ol start="14">
+<li>따라서 이러한 linear한 FC층을 [그림 1]처럼 <strong>Fully Convolutional</strong>한 구조로 변경을 하였다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>이로써 모든 layer에 Conv를 적용하여 ground truth를 각 layer의 출력으로부터 얻을 수 있어 forward와 backward가 계산 효율성에서 장점을 얻는다. 또한 단점이었던 공간 정보의 손실이 없어지는 것도 해결하였다.</li>
+</ol>
+<ul>
+<li>convolutionalization된 층의 resulting map에 해당되는 특정 위치가 특정 patch 상의 CNN 결과랑 같게 된다.</li>
+</ul>
+<br>
+<ol start="16">
+<li>지금까진 FCN구조의 encoder 부분을 설명한 것과 같다. 다음으론 output map(coarse output)으로 부터 dense prediction을 하는 방법을 알아 볼 것 이다.</li>
+</ol>
+<h3 id="shift-and-stitch-is-filter-rarefaction">Shift-and-stitch is filter rarefaction</h3>
+<ol start="17">
+<li>dense prediction을 하기 위해 output map을 upscaling을 해야 한다. upscaling을 하기 위한 방법으로 본문에선 <code>shift-and-stitch</code>방법을  고려했다고 나타난다.</li>
+</ol>
+<figure><a class="lightgallery" href="/images/paper/fcn/fcn-5.png" title="/images/paper/fcn/fcn-5.png" data-thumbnail="/images/paper/fcn/fcn-5.png" data-sub-html="<h2>[그림 5] shift and stitch</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/fcn/fcn-5.png"
+            data-srcset="/images/paper/fcn/fcn-5.png, /images/paper/fcn/fcn-5.png 1.5x, /images/paper/fcn/fcn-5.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/fcn/fcn-5.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 5] shift and stitch</figcaption>
+    </figure>
+<ol start="18">
+<li>그림을 토대로 max pooling을 하고 위치 정보를 저장하여 원래의 이미지 크기로 upscaling이 가능하다. 하지만 계산 비용이 큰 단점이 있게 된다.</li>
+</ol>
+<br>
+<ol start="19">
+<li>또한 shift-and-stitch와 유사한 효과를 기대할 수 있는 trick을 고려했다고 한다. 이 방법은 upscaling시 기존 픽셀이 s로 나누어 떨어지면 넓어진 영역의 픽셀로 들어가고 그렇지 않으면 0으로 채워지는 방식으로 사용을 한다.
+<img src="/images/paper/fcn/fcn-6.png" height="100%" width="100%">
+<u>출처: <a href="https://jlog1016.tistory.com/84" target="_blank" rel="noopener noreffer ">https://jlog1016.tistory.com/84</a></u></li>
+</ol>
+<br>
+<ol start="20">
+<li>지금까지 upscaling을 하기 위한 2가지 방법을 설명했다. <strong><u>하지만 논문에서는 <code>skip connection</code>을 사용한 upscaling이 더욱 효과적이기 때문에 결론적으로 이 두 방법을 사용하지 않았다.</u></strong></li>
+</ol>
+<h3 id="upsampling-is-backwards-strided-convolution">Upsampling is backwards strided convolution</h3>
+<ol start="21">
+<li>coarse한 출력을 dense한 픽셀로 바꾸는 방법은 크게 두 가지가 있다.</li>
+</ol>
+<ul>
+<li><code>Interpolation</code> 기법</li>
+<li><code>Deconvolution</code> 기법</li>
+</ul>
+<br>
+<ol start="22">
+<li>먼저 <code>Interpolation</code>을 살펴본다면 아래 그림과 같이 <code>interpolation(보간법)</code>을 이용하여 4개의 입력이 있다면 상대적인 위치에 의존하는 linear map을 통해 계산이 수행이 되어 upsampling을 할 수 있게 된다.
+<img src="/images/paper/fcn/fcn-7.png" height="50%" width="49%">
+<img src="/images/paper/fcn/fcn-8.png" height="50%" width="46%"></li>
+</ol>
+<br>
+<ol start="23">
+<li>다음으로 <code>Deconvolution</code>기법을 살펴본다면 factor f로 upsampling하는 것은 input stride가 1/f인 convolution인 의미이다. (f로 stride를 진행하면 작아지므로 같은 크기로 커지게 하려면 f의 반대인 1/f가 되어야 한다.)</li>
+</ol>
+<br>
+<ol start="24">
+<li>이렇게 된다면 이 필터도 downsampling하는 필터와 마찬가지로 <strong>미분 가능하기 때문에 학습이 가능하고(chain-rule) 필터에 activation function이 적용이 되므로 nonlinear function이 되고</strong> 따라서 network 내부에 layer을 붙일 수 있어서 <code>end-to-end</code> 방식으로 학습이 가능하게 된다. 이러한 이점 때문에 논문에선 <code>Deconvolution</code>기법을 활용한 unsampling을 수행하게 된다.</li>
+</ol>
+<h3 id="patchwise-training-is-loss-sampling">Patchwise training is loss sampling</h3>
+<ol start="25">
+<li><code>patchwise</code>방법이나 <code>fully convolutional</code>방법이나 data가 어떤 분포를 형성하는 것은 같지만 <code>patchwise</code>방법에서 patch들 간에 overlab(중복)과 minibatch size의 수에 따라서 <strong>불필요한 computation양이</strong>많아진다고 말한다.</li>
+</ol>
+<br>
+<img src="/images/paper/fcn/fcn-15.png" height="70%" width="70%">
+<ol start="26">
+<li><code>fully convolutional</code>방식 보다 <code>patchwise</code>방식을 적용했을 때 loss가 잘 수렴한다던지의 장점은 없기 때문에 <code>fully convolutional</code>하게 전체 이미지를 입력으로 받아 training을 하는 방식을 채택했다고 설명한다.</li>
+</ol>
+<h2 id="segmentation-architecture">Segmentation Architecture</h2>
+<ol start="27">
+<li>이젠 FCN의 구조에 대해서 자세히 알아볼 것이다.</li>
+</ol>
+<br>
+<ol start="28">
+<li>본 논문에서는 AlexNet, VGG, GooLeNet의 pre-trained된 net의 classification 부분을 fc를 fcn으로 대체하여 사용했고 segmentation을 학습시킬 때 pre-trained 부분을 fine-tuning을 시켰다(PASCAL VOC 2011).</li>
+</ol>
+<br>
+<ol start="29">
+<li>
+<p>그 결과 <code>mean IOU</code>의 결과로 측정했을 때 <code>VGG</code>의 결과가 제일 잘 나왔다.</p>
+<img src="/images/paper/fcn/fcn-10.png" height="50%" width="46%">
+<img src="/images/paper/fcn/fcn-9.png" height="24%" width="43%">
+<p><u>IOU는 1에 가까울 수록 좋은 성능을 가졌음을 의미한다. </u>
+<br></p>
+</li>
+<li>
+<p>그리고 실험한 모델 중 가장 성능이 나쁜 모델 조차도 당시 SOTA에 해당하는 모델의 <code>75%</code>정도의 좋은 성능을 보여줬고 <code>FCN-VGG16</code>모델이 segmentation 결과 <code>SOTA</code>의 성능을 냈다고 한다.</p>
+</li>
+</ol>
+<h3 id="combining-what-and-where">Combining what and where</h3>
+<figure><a class="lightgallery" href="/images/paper/fcn/fcn-11.png" title="/images/paper/fcn/fcn-11.png" data-thumbnail="/images/paper/fcn/fcn-11.png" data-sub-html="<h2>[그림 6] fcn architecture</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/fcn/fcn-11.png"
+            data-srcset="/images/paper/fcn/fcn-11.png, /images/paper/fcn/fcn-11.png 1.5x, /images/paper/fcn/fcn-11.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/fcn/fcn-11.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 6] fcn architecture</figcaption>
+    </figure>
+<ol start="31">
+<li>지금까지 설명한 FCN의 구조는 이렇다. 이 구조만으로 segmentation을 적용하면 성능이 좋지 않기 때문에(FCN-32s) 논문에서는 <code>skip architecture</code>기법을 적용하여 최종 FCN 모델 구조를 고안했다고 한다.</li>
+</ol>
+<br>
+<ol start="32">
+<li>깊은 레이어의 upsampling이 디테일에 한계가 있어서 얕은 레이어와 결합을 하면 전역 정보와 지역 정보를 함께 가져가는 구조가 <code>skip architecture</code>이다. 따라서 final prediction layer와 더 낮은 스트라이드를 가진 lower layer를 결합하는 링크를 추가하여 <code>skip architecture</code>를 완성 시킨다.</li>
+</ol>
+<ul>
+<li>1x1인 pool5의 activation map을 32배 한 upsampled prediction이 FCN-32s</li>
+<li>2x2인 pool4의 activation map과 pool5를 2x upsampled prediction을 더하면 16x upsampled prediction(FCN-16s)</li>
+<li>4x4 pool3과 앞서 더해주었던 prediction을 합하면 8x upsampled predicton(FCN-8s)</li>
+</ul>
+<p><figure><a class="lightgallery" href="/images/paper/fcn/fcn-13.png" title="/images/paper/fcn/fcn-13.png" data-thumbnail="/images/paper/fcn/fcn-13.png" data-sub-html="<h2>[그림 8] fcn-16</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/fcn/fcn-13.png"
+            data-srcset="/images/paper/fcn/fcn-13.png, /images/paper/fcn/fcn-13.png 1.5x, /images/paper/fcn/fcn-13.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/fcn/fcn-13.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 8] fcn-16</figcaption>
+    </figure>
+<figure><a class="lightgallery" href="/images/paper/fcn/fcn-14.png" title="/images/paper/fcn/fcn-14.png" data-thumbnail="/images/paper/fcn/fcn-14.png" data-sub-html="<h2>[그림 9] fcn-8</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/fcn/fcn-14.png"
+            data-srcset="/images/paper/fcn/fcn-14.png, /images/paper/fcn/fcn-14.png 1.5x, /images/paper/fcn/fcn-14.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/fcn/fcn-14.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 9] fcn-8</figcaption>
+    </figure>
+<br></p>
+<ol start="33">
+<li>
+<p>따라서 이런 <code>skip architecture</code>를 통하여 <code>fcn-8</code>이 큰 성능 향상을 이루었다.
+<img src="/images/paper/fcn/fcn-12.png" height="100%" width="60%"></p>
+</li>
+<li>
+<p>그 후 <code>Experimental framework</code> 파트에서는 실험을 할 때 사용했던 <code>optimization, fine-tuning, patch sampling, class balancing</code>등등 실험 했던 것을 나열하고 있다. 이에 관한 더 자세한 사항은 논문을 참고하면 좋을 것 같다.</p>
+</li>
+</ol>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://lee-jaewon.github.io/deep_learning_study/FCN/" target="_blank" rel="noopener noreffer ">https://lee-jaewon.github.io/deep_learning_study/FCN/</a></li>
+<li><a href="https://jlog1016.tistory.com/84" target="_blank" rel="noopener noreffer ">https://jlog1016.tistory.com/84</a></li>
+<li><a href="https://89douner.tistory.com/296" target="_blank" rel="noopener noreffer ">https://89douner.tistory.com/296</a></li>
+<li><a href="https://89douner.tistory.com/m/296?category=878997" target="_blank" rel="noopener noreffer ">https://89douner.tistory.com/m/296?category=878997</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-04-14</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)" data-hashtags="FCN,Implement,논문 리뷰,computer vision,segmentation"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-hashtag="FCN"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/fcn/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/fcn/">FCN</a>,&nbsp;<a href="/tags/implement/">Implement</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/segmentation/segmentation-3/" class="prev" rel="prev" title="[DL]Image Segmentation 3"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[DL]Image Segmentation 3</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.121.2">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://goodyoung.github.io" target="_blank">GoodYoung</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
