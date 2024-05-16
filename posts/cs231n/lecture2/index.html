@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[CS231n] 02.Image Classification - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS231n] 02.Image Classification" />
+<meta property="og:description" content="개요 CS231n을 공부하면서 정리를 위해 글을 작성해보려고 한다. 1강의 내용은 컴퓨터 비전에 대해 전반적인 역사, 이 course를 통해 얻게 될 내용들에 대해서 소개를 해주었다. 따라서 따로 정리할 것은 없어서 정리하지는 않았다. The Problem 컴퓨터는 사람과 달리 이미지를 숫자로 인식을 한다. 따라서 사람이 의미하는 것과 컴퓨터가 이해하는 것에는 차이(Semantic Gap)가 있기 마련이다. 또한 컴퓨터가 image를 인식할 때 여러 문제(problem)들이 발생하게 된다. Viewpoint variation (카메라의 움직임) Illumination (색상 차이) Deformation (다양한 모습) Occlusion (부분적으로 물체 보이는 현상) Background Clutter (배경 혼란 현상) Intraclass variation (다양한 종류) 따라서 우리는 이런 problem들을 극복할 수 있는 robust하고 확장성이 뛰어난 모델을 만들어야 한다. 이런 모델들을 만들기 위해서 Data-Driven Approach(하나의 접근 방식)를 제안한다. Data-Driven Approach에 대해서 아래에 설명을 작성했다.
+image와 label들의 dataset을 모은다. 간단한 분류기를 machine learning에 의해 훈련킨다. (함수에서 train) 새로운 이미지를 가지고 분류기를 평가한다. (함수에서 predict) Nearest Neighbor 이 방법은 학습 데이터와 새로운 이미지들을 비교해서 학습 데이터 중에서 가장 유사한 이미지로 레이블을 예측하는 방법이다. Nearest Neighbor에서 이때 유사한 이미지로 판단하기 위해서 L1(manhattan) distance가 있다. L1 distance는 새로운 이미지의 pixel에 학습 데이터를 뺀 절대값들의 합을 구하여 그 합들이 가장 최소로 나온 이미지를 유사하다고 판단하는 방법이다. [그림 1] Nearest Neighbor 위 그림과 함께 Nearest Neighbor의 과정을 보자면 train 과정에서 모든 훈련 데이터를 저장한다. 그리고 predict 과정에서 모든 훈련 데이터를 비교하여 가장 유사한 훈련 데이터 image를 찾게 된다. 이 과정에서 train: O(1), predict: O(N)(# of iunput)의 시간 복잡도를 가지게 되는데 이것은 잘못되었다고 표현을 한다. 왜냐하면 우리는 보통 분류기가 빠르게 예측하기(predict)를 원하지만 Nearest Neighbor에서는 그것이 반대가 되어있는 것을 알 수 있게 된다. 또한 Nearest Neighbor알고리즘은 가장 가까운 이웃만을 보기 때문에 위와 같은 초록색이 대부분인 영역에서 노란색을 예측하는 문제가 발생 할 수 있다. 따라서 K-Nearest Neighbor알고리즘이 나오게 된다. K-Nearest Neighbor [그림 2] K-Nearest Neighbor 그 다음으로 가까운 Neighbor을 K개의 만큼 찾고, 그것끼리 다수결의 결정으로 예측을 하는 K-Nearest Neighbor방법이 있다. 또 이때 유사도를 결정할 때 L1 distance가 아닌 L2(Euclidean) distance의 계산식이 있다. 이것은 L1과 달리 좌표계가 무엇이든 상관이 없지만 L1의 경우에는 좌표계에 따라 계산값이 변할 수 있다. 각각 어떤것이 좋은지는 데이터의 성격에 따라 다르다 input 데이터가 각각의 항목이 중요한 성격(salary, 성별, 연봉 등)을 가진다면 L1이 적당할 수 있지만 어떤 역할인지 상관이 없으면 L2가 더 좋을 수 있다. 위 그림 2를 보게 되면 K가 커질 수록 좀 더 경계들이 부드러워지는 모습을 볼 수 있게 된다. 그렇다면 K가 무조건 커지면 좋은 것이냐? 그건 또 아니다. 이때 중요한 것이 적절한 K를 결정하는 것이 중요하다. 이런 K같은 요소들을 Hyperparameter이라고 부르고 다음으로 이런 적절한 Hyperparameter을 선택하는 방법에 대해서 설명하겠다. Hyperparameter 이런 Hyperparameter는 직접 시도해보고 가장 좋은 값을 찾는 것이 정답이다. [그림 3] Hyperparameter Setting idea #1: 학습데이터만을 학습하여 하이퍼 파라미터를 선택
+idea #2: train한 모델을 바탕으로 Test set에서만 잘 동작하는 하이퍼 파라미터를 선택
+idea #3: train set으로 모델을 학습, validation set으로 가장 좋았던 하이퍼 파라미터 선택, validation set에서 고른 하이퍼 파라미터를 바탕으로 test set을 test시작
+따라서 이런 적절한 Hyperparameter가 무엇인지 결정할 때 위 3개의 방법 중 idea #3방법이 제일 좋다. 왜냐하면 idea1,2는 unseen data에 대한 정확도가 떨어진다. 결국 idea #2도 새로운 data에 약한 특성을 보인다. 예를 들어, idea #2일 때 K값을 바꿔가면서 이 중 가장 높은 성능을 지닌 K를 정한다고 했을 때 이는 test데이터에 좋은 성능을 보이는 K값인 것이다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/cs231n/lecture2/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-05-14T21:32:06+09:00" />
+<meta property="article:modified_time" content="2024-05-14T21:32:06+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS231n] 02.Image Classification"/>
+<meta name="twitter:description" content="개요 CS231n을 공부하면서 정리를 위해 글을 작성해보려고 한다. 1강의 내용은 컴퓨터 비전에 대해 전반적인 역사, 이 course를 통해 얻게 될 내용들에 대해서 소개를 해주었다. 따라서 따로 정리할 것은 없어서 정리하지는 않았다. The Problem 컴퓨터는 사람과 달리 이미지를 숫자로 인식을 한다. 따라서 사람이 의미하는 것과 컴퓨터가 이해하는 것에는 차이(Semantic Gap)가 있기 마련이다. 또한 컴퓨터가 image를 인식할 때 여러 문제(problem)들이 발생하게 된다. Viewpoint variation (카메라의 움직임) Illumination (색상 차이) Deformation (다양한 모습) Occlusion (부분적으로 물체 보이는 현상) Background Clutter (배경 혼란 현상) Intraclass variation (다양한 종류) 따라서 우리는 이런 problem들을 극복할 수 있는 robust하고 확장성이 뛰어난 모델을 만들어야 한다. 이런 모델들을 만들기 위해서 Data-Driven Approach(하나의 접근 방식)를 제안한다. Data-Driven Approach에 대해서 아래에 설명을 작성했다.
+image와 label들의 dataset을 모은다. 간단한 분류기를 machine learning에 의해 훈련킨다. (함수에서 train) 새로운 이미지를 가지고 분류기를 평가한다. (함수에서 predict) Nearest Neighbor 이 방법은 학습 데이터와 새로운 이미지들을 비교해서 학습 데이터 중에서 가장 유사한 이미지로 레이블을 예측하는 방법이다. Nearest Neighbor에서 이때 유사한 이미지로 판단하기 위해서 L1(manhattan) distance가 있다. L1 distance는 새로운 이미지의 pixel에 학습 데이터를 뺀 절대값들의 합을 구하여 그 합들이 가장 최소로 나온 이미지를 유사하다고 판단하는 방법이다. [그림 1] Nearest Neighbor 위 그림과 함께 Nearest Neighbor의 과정을 보자면 train 과정에서 모든 훈련 데이터를 저장한다. 그리고 predict 과정에서 모든 훈련 데이터를 비교하여 가장 유사한 훈련 데이터 image를 찾게 된다. 이 과정에서 train: O(1), predict: O(N)(# of iunput)의 시간 복잡도를 가지게 되는데 이것은 잘못되었다고 표현을 한다. 왜냐하면 우리는 보통 분류기가 빠르게 예측하기(predict)를 원하지만 Nearest Neighbor에서는 그것이 반대가 되어있는 것을 알 수 있게 된다. 또한 Nearest Neighbor알고리즘은 가장 가까운 이웃만을 보기 때문에 위와 같은 초록색이 대부분인 영역에서 노란색을 예측하는 문제가 발생 할 수 있다. 따라서 K-Nearest Neighbor알고리즘이 나오게 된다. K-Nearest Neighbor [그림 2] K-Nearest Neighbor 그 다음으로 가까운 Neighbor을 K개의 만큼 찾고, 그것끼리 다수결의 결정으로 예측을 하는 K-Nearest Neighbor방법이 있다. 또 이때 유사도를 결정할 때 L1 distance가 아닌 L2(Euclidean) distance의 계산식이 있다. 이것은 L1과 달리 좌표계가 무엇이든 상관이 없지만 L1의 경우에는 좌표계에 따라 계산값이 변할 수 있다. 각각 어떤것이 좋은지는 데이터의 성격에 따라 다르다 input 데이터가 각각의 항목이 중요한 성격(salary, 성별, 연봉 등)을 가진다면 L1이 적당할 수 있지만 어떤 역할인지 상관이 없으면 L2가 더 좋을 수 있다. 위 그림 2를 보게 되면 K가 커질 수록 좀 더 경계들이 부드러워지는 모습을 볼 수 있게 된다. 그렇다면 K가 무조건 커지면 좋은 것이냐? 그건 또 아니다. 이때 중요한 것이 적절한 K를 결정하는 것이 중요하다. 이런 K같은 요소들을 Hyperparameter이라고 부르고 다음으로 이런 적절한 Hyperparameter을 선택하는 방법에 대해서 설명하겠다. Hyperparameter 이런 Hyperparameter는 직접 시도해보고 가장 좋은 값을 찾는 것이 정답이다. [그림 3] Hyperparameter Setting idea #1: 학습데이터만을 학습하여 하이퍼 파라미터를 선택
+idea #2: train한 모델을 바탕으로 Test set에서만 잘 동작하는 하이퍼 파라미터를 선택
+idea #3: train set으로 모델을 학습, validation set으로 가장 좋았던 하이퍼 파라미터 선택, validation set에서 고른 하이퍼 파라미터를 바탕으로 test set을 test시작
+따라서 이런 적절한 Hyperparameter가 무엇인지 결정할 때 위 3개의 방법 중 idea #3방법이 제일 좋다. 왜냐하면 idea1,2는 unseen data에 대한 정확도가 떨어진다. 결국 idea #2도 새로운 data에 약한 특성을 보인다. 예를 들어, idea #2일 때 K값을 바꿔가면서 이 중 가장 높은 성능을 지닌 K를 정한다고 했을 때 이는 test데이터에 좋은 성능을 보이는 K값인 것이다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture2/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/fcn/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[CS231n] 02.Image Classification",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture2\/"
+        },"genre": "posts","keywords": "Image classification, CS231n","wordcount":  1024 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture2\/","datePublished": "2024-05-14T21:32:06+09:00","dateModified": "2024-05-14T21:32:06+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS231n] 02.Image Classification</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-05-14">2024-05-14</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1024 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#the-problem">The Problem</a></li>
+    <li><a href="#nearest-neighbor">Nearest Neighbor</a></li>
+    <li><a href="#k-nearest-neighbor">K-Nearest Neighbor</a></li>
+    <li><a href="#hyperparameter">Hyperparameter</a></li>
+    <li><a href="#nn-nerver-used-on-image">NN nerver used on image</a></li>
+    <li><a href="#linear-classification">Linear Classification</a></li>
+    <li><a href="#참조">참조</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>CS231n</code>을 공부하면서 정리를 위해 글을 작성해보려고 한다.</li>
+</ol>
+<br>
+<ol>
+<li>1강의 내용은 컴퓨터 비전에 대해 전반적인 역사, 이 course를 통해 얻게 될 내용들에 대해서 소개를 해주었다. 따라서 따로 정리할 것은 없어서 정리하지는 않았다.</li>
+</ol>
+<hr>
+<h2 id="the-problem">The Problem</h2>
+<img src="/images/cs231n/lecture2/image01.png" height="100%" width="50%">
+<img src="/images/cs231n/lecture2/image02.png" height="100%" width="49%">
+<ol start="2">
+<li>컴퓨터는 사람과 달리 이미지를 숫자로 인식을 한다. 따라서 사람이 의미하는 것과 컴퓨터가 이해하는 것에는 차이<u><strong>(Semantic Gap)</strong></u>가 있기 마련이다.</li>
+</ol>
+<br>
+<ol start="3">
+<li>또한 컴퓨터가 image를 인식할 때 여러 문제(problem)들이 발생하게 된다.</li>
+</ol>
+<ul>
+<li>Viewpoint variation (카메라의 움직임)</li>
+<li>Illumination (색상 차이)</li>
+<li>Deformation (다양한 모습)</li>
+<li>Occlusion (부분적으로 물체 보이는 현상)</li>
+<li>Background Clutter (배경 혼란 현상)</li>
+<li>Intraclass variation (다양한 종류)</li>
+</ul>
+<br>
+<ol start="4">
+<li>따라서 우리는 이런 problem들을 극복할 수 있는 <code>robust</code>하고 <code>확장성</code>이 뛰어난 모델을 만들어야 한다.</li>
+</ol>
+<br>
+<ol start="5">
+<li>이런 모델들을 만들기 위해서 <code>Data-Driven Approach</code>(하나의 접근 방식)를 제안한다.</li>
+</ol>
+<br>
+<ol start="6">
+<li>
+<p><code>Data-Driven Approach</code>에 대해서 아래에 설명을 작성했다.</p>
+ <img src="/images/cs231n/lecture2/image03.png" height="100%" width="50%">
+<ul>
+<li>image와 label들의 dataset을 모은다.</li>
+<li>간단한 분류기를 machine learning에 의해 훈련킨다. (함수에서 train)</li>
+<li>새로운 이미지를 가지고 분류기를 평가한다. (함수에서 predict)</li>
+</ul>
+</li>
+</ol>
+<br>
+<hr>
+<h2 id="nearest-neighbor">Nearest Neighbor</h2>
+<ol start="7">
+<li>이 방법은 학습 데이터와 새로운 이미지들을 비교해서 학습 데이터 중에서 가장 유사한 이미지로 레이블을 예측하는 방법이다.</li>
+</ol>
+<br>
+<ol start="8">
+<li><code>Nearest Neighbor</code>에서 이때 유사한 이미지로 판단하기 위해서 <code>L1(manhattan) distance</code>가 있다.</li>
+</ol>
+<br>
+  <img src="/images/cs231n/lecture2/image04.png" height="100%" width="100%">
+<ol start="9">
+<li><code>L1 distance</code>는 새로운 이미지의 pixel에 학습 데이터를 뺀 절대값들의 합을 구하여 그 합들이 가장 최소로 나온 이미지를 유사하다고 판단하는 방법이다.</li>
+</ol>
+<figure><a class="lightgallery" href="/images/cs231n/lecture2/image05.png" title="/images/cs231n/lecture2/image05.png" data-thumbnail="/images/cs231n/lecture2/image05.png" data-sub-html="<h2>[그림 1] Nearest Neighbor</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/cs231n/lecture2/image05.png"
+            data-srcset="/images/cs231n/lecture2/image05.png, /images/cs231n/lecture2/image05.png 1.5x, /images/cs231n/lecture2/image05.png 2x"
+            data-sizes="auto"
+            alt="/images/cs231n/lecture2/image05.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 1] Nearest Neighbor</figcaption>
+    </figure>
+<ol start="10">
+<li>위 그림과 함께 <code>Nearest Neighbor</code>의 과정을 보자면 train 과정에서 모든 훈련 데이터를 저장한다. 그리고 predict 과정에서 모든 훈련 데이터를 비교하여 가장 유사한 훈련 데이터 image를 찾게 된다.</li>
+</ol>
+<br>
+<ol start="11">
+<li>이 과정에서 <code>train: O(1)</code>, <code>predict: O(N)(# of iunput)</code>의 시간 복잡도를 가지게 되는데 이것은 잘못되었다고 표현을 한다.</li>
+</ol>
+<br>
+<ol start="12">
+<li>왜냐하면 우리는 <strong>보통 분류기가 빠르게 예측하기(predict)를 원하지만</strong> Nearest Neighbor에서는 그것이 <u>반대가</u> 되어있는 것을 알 수 있게 된다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture2/image06.png" height="50%" width="50%">
+</div>
+<ol start="13">
+<li>또한 <code>Nearest Neighbor</code>알고리즘은 가장 가까운 이웃만을 보기 때문에 위와 같은 초록색이 대부분인 영역에서 노란색을 예측하는 문제가 발생 할 수 있다. 따라서 <code>K-Nearest Neighbor</code>알고리즘이 나오게 된다.</li>
+</ol>
+<hr>
+<h2 id="k-nearest-neighbor">K-Nearest Neighbor</h2>
+<figure><a class="lightgallery" href="/images/cs231n/lecture2/image07.png" title="/images/cs231n/lecture2/image07.png" data-thumbnail="/images/cs231n/lecture2/image07.png" data-sub-html="<h2>[그림 2] K-Nearest Neighbor</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/cs231n/lecture2/image07.png"
+            data-srcset="/images/cs231n/lecture2/image07.png, /images/cs231n/lecture2/image07.png 1.5x, /images/cs231n/lecture2/image07.png 2x"
+            data-sizes="auto"
+            alt="/images/cs231n/lecture2/image07.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 2] K-Nearest Neighbor</figcaption>
+    </figure>
+<ol start="13">
+<li>그 다음으로 가까운 Neighbor을 K개의 만큼 찾고, 그것끼리 <strong>다수결</strong>의 결정으로 예측을 하는 <code>K-Nearest Neighbor</code>방법이 있다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture2/image08.png" height="50%" width="80%">
+</div>
+<ol start="14">
+<li>또 이때 유사도를 결정할 때 <code>L1 distance</code>가 아닌 <code>L2(Euclidean) distance</code>의 계산식이 있다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>이것은 L1과 달리 좌표계가 무엇이든 상관이 없지만 L1의 경우에는 좌표계에 따라 계산값이 변할 수 있다.</li>
+</ol>
+<ul>
+<li>각각 어떤것이 좋은지는 <u>데이터의 성격에 따라 다르다</u></li>
+<li>input 데이터가 <strong>각각의 항목이 중요한</strong> 성격(salary, 성별, 연봉 등)을 가진다면 <code>L1</code>이 적당할 수 있지만</li>
+<li><strong>어떤 역할인지 상관이 없으면</strong> <code>L2</code>가 더 좋을 수 있다.</li>
+</ul>
+<br>
+<ol start="16">
+<li>위 <code>그림 2</code>를 보게 되면 K가 커질 수록 좀 더 경계들이 부드러워지는 모습을 볼 수 있게 된다. 그렇다면 K가 무조건 커지면 좋은 것이냐? 그건 또 아니다. 이때 중요한 것이 적절한 K를 결정하는 것이 중요하다.</li>
+</ol>
+<br>
+<ol start="17">
+<li>이런 K같은 요소들을 <code>Hyperparameter</code>이라고 부르고 다음으로 이런 적절한 <code>Hyperparameter</code>을 선택하는 방법에 대해서 설명하겠다.</li>
+</ol>
+<hr>
+<h2 id="hyperparameter">Hyperparameter</h2>
+<ol start="18">
+<li>이런 <code>Hyperparameter</code>는 직접 시도해보고 가장 좋은 값을 찾는 것이 정답이다.</li>
+</ol>
+<br>
+<figure><a class="lightgallery" href="/images/cs231n/lecture2/image09.png" title="/images/cs231n/lecture2/image09.png" data-thumbnail="/images/cs231n/lecture2/image09.png" data-sub-html="<h2>[그림 3] Hyperparameter Setting</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/cs231n/lecture2/image09.png"
+            data-srcset="/images/cs231n/lecture2/image09.png, /images/cs231n/lecture2/image09.png 1.5x, /images/cs231n/lecture2/image09.png 2x"
+            data-sizes="auto"
+            alt="/images/cs231n/lecture2/image09.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 3] Hyperparameter Setting</figcaption>
+    </figure>
+<ul>
+<li>
+<p><code>idea #1:</code> 학습데이터만을 학습하여 하이퍼 파라미터를 선택</p>
+</li>
+<li>
+<p><code>idea #2:</code> train한 모델을 바탕으로 Test set에서만 잘 동작하는 하이퍼 파라미터를 선택</p>
+</li>
+<li>
+<p><code>idea #3:</code> train set으로 모델을 학습, validation set으로 가장 좋았던 하이퍼 파라미터 선택, validation set에서 고른 하이퍼 파라미터를 바탕으로 test set을 test시작</p>
+</li>
+</ul>
+<br>
+<ol start="19">
+<li>따라서 이런 적절한 <code>Hyperparameter</code>가 무엇인지 결정할 때 위 3개의 방법 중 <code>idea #3</code>방법이 제일 좋다. 왜냐하면 <code>idea1,2</code>는 unseen data에 대한 정확도가 떨어진다. 결국 <code>idea #2</code>도 새로운 data에 약한 특성을 보인다.</li>
+</ol>
+<ul>
+<li>예를 들어, <code>idea #2</code>일 때 K값을 바꿔가면서 이 중 가장 높은 성능을 지닌 K를 정한다고 했을 때 이는 test데이터에 좋은 성능을 보이는 K값인 것이다. 다른 <code>unseen data</code>에 좋은 결과값을 보여줄 지는 모르는 것이다.</li>
+</ul>
+<br>
+<ol start="20">
+<li>따라서 모델 훈련 중 아예 안보이는 unseen data를 설정하는 <code>idea #3</code>가 제일 좋은 방법이다.</li>
+</ol>
+<ul>
+<li>이때 Validation에서 이 알고리즘이 잘 작동하고 적절한 K를 사용하는지 판단하고 그 값들을 <code>unseen data</code>로 활용하는 방법이다.</li>
+</ul>
+<br>
+<figure><a class="lightgallery" href="/images/cs231n/lecture2/image10.png" title="/images/cs231n/lecture2/image10.png" data-thumbnail="/images/cs231n/lecture2/image10.png" data-sub-html="<h2>[그림 4] Cross Validation</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/cs231n/lecture2/image10.png"
+            data-srcset="/images/cs231n/lecture2/image10.png, /images/cs231n/lecture2/image10.png 1.5x, /images/cs231n/lecture2/image10.png 2x"
+            data-sizes="auto"
+            alt="/images/cs231n/lecture2/image10.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 4] Cross Validation</figcaption>
+    </figure>
+<ol start="21">
+<li>세가지 방법과는 다르게 네번째 방법으로 <code>Cross-Validation</code>방법이 있다.</li>
+</ol>
+<br>
+<ol start="22">
+<li>전체 dataset을 여러 개의 fold로 나눈 후 그 중 하나를 <code>validation set</code>으로 두고 나머지를 훈련 데이터로 사용하여 폴드를 나눌 때마다 <code>retrain</code>과정을 거쳐 최적의 파라미터를 찾는 방법이다.</li>
+</ol>
+<ul>
+<li>지금까지의 idea중 <strong>가장 일반화</strong>를 잘 한다.</li>
+<li>하지만, 작은 dataset에서는 자주 사용하지만 dataset 크기가 큰 deep-learning에서는 사용하지 않는 방법이다.
+<ul>
+<li>큰 dataset을 fold 수 만큼 다시 학습을 돌려야 하는 문제가 발생하기 때문이다.</li>
+</ul>
+</li>
+</ul>
+<h2 id="nn-nerver-used-on-image">NN nerver used on image</h2>
+<ol start="23">
+<li>결론적으로 <code>NN</code>알고리즘은 image에서는 <strong><code>절대 사용하지 않는다.</code></strong> 위에 언급한 <code>predict과정</code>이 시간이 오래 걸린다는 것과 <code>L1, L2등</code>으로 구한 pixel간의 유사도 (distance 유사도)가 <strong>의미있는 값이 아니기 때문</strong>이다.</li>
+</ol>
+<figure><a class="lightgallery" href="/images/cs231n/lecture2/image11.png" title="/images/cs231n/lecture2/image11.png" data-thumbnail="/images/cs231n/lecture2/image11.png" data-sub-html="<h2>[그림 5] NN never used</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/cs231n/lecture2/image11.png"
+            data-srcset="/images/cs231n/lecture2/image11.png, /images/cs231n/lecture2/image11.png 1.5x, /images/cs231n/lecture2/image11.png 2x"
+            data-sizes="auto"
+            alt="/images/cs231n/lecture2/image11.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 5] NN never used</figcaption>
+    </figure>
+<ol start="24">
+<li>위 그림을 보면 3개의 image는 원본 image와 분명히 육안으로 다르지만 L2 distance가 같게 나온다. 이를 통해 <u><strong>의미있는 값이 아님</strong></u>을 알 수 있게 된다.</li>
+</ol>
+<br>
+<ol start="25">
+<li>
+<p>또한 차원의 저주(curse of dimentionality)문제가 있다.
+<img src="/images/cs231n/lecture2/image12.png" height="50%" width="70%"></p>
+</li>
+<li>
+<p><code>K-NN</code>이 잘 동작하기 위해서는 전체 공간을 조밀하게 커버 할 만큼 충분한 훈련 샘플들이 필요하게 된다. 하지만 이런 데이터 충분하지 않으면 이웃들 간의 거리가 멀 것이라고 예측하고 제대로 된 분류를 하지 못한다.</p>
+</li>
+</ol>
+<br>
+<ol start="27">
+<li>차원이 증가함에 따라 기하급수적으로 데이터가 필요하게 될 것이고 그만큼 데이터를 모으는 일은 어려울 것으로 예상이 되기 때문에 <strong>NN은 image에서 사용되지 않는다.</strong></li>
+</ol>
+<hr>
+<h2 id="linear-classification">Linear Classification</h2>
+<ol start="28">
+<li><code>Linear Classification</code>이란 기본 블럭들을 빌딩의 층처럼, 레고를 쌓는 것들의 과정이라고 생각하면 된다.</li>
+</ol>
+<figure><a class="lightgallery" href="/images/cs231n/lecture2/image13.png" title="/images/cs231n/lecture2/image13.png" data-thumbnail="/images/cs231n/lecture2/image13.png" data-sub-html="<h2>[그림 6] Parametric Approach-1</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/cs231n/lecture2/image13.png"
+            data-srcset="/images/cs231n/lecture2/image13.png, /images/cs231n/lecture2/image13.png 1.5x, /images/cs231n/lecture2/image13.png 2x"
+            data-sizes="auto"
+            alt="/images/cs231n/lecture2/image13.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 6] Parametric Approach-1</figcaption>
+    </figure>
+<ol start="29">
+<li><code>Linear Classification</code>에서는 <code>Parametric Approach</code>를 사용하게 된다. 이것은 앞선 <code>KNN</code>에는 parameter가 없지만 <code>Linear Classification</code>에서는 <code>W,b</code>라는 parameters들이 존재하게 된다.</li>
+</ol>
+<br>
+<ol start="30">
+<li>따라서 우리는 이 <code>W,b</code>를 훈련 과정 동안 업데이트를 할 것이고 훈련 시간에 training data가 필요가 없게 된다.</li>
+</ol>
+<ul>
+<li><u><code>KNN</code>보다 효율적인 것을 확인이 가능하다.</u></li>
+</ul>
+<br>
+<ol start="31">
+<li>b는 편향(Bias)값이다. 이때 이 편향은 데이터와 무관하게 특정 클래스에 어떠한 <code>우선권</code>을 부여하게 된다.</li>
+</ol>
+<ul>
+<li>dataset이 <strong>imbalace</strong>인 상황에서 특정 class에 우선권을 더 부여하기 위함</li>
+</ul>
+<br>
+<figure><a class="lightgallery" href="/images/cs231n/lecture2/image14.png" title="/images/cs231n/lecture2/image14.png" data-thumbnail="/images/cs231n/lecture2/image14.png" data-sub-html="<h2>[그림 7] Parametric Approach-2</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/cs231n/lecture2/image14.png"
+            data-srcset="/images/cs231n/lecture2/image14.png, /images/cs231n/lecture2/image14.png 1.5x, /images/cs231n/lecture2/image14.png 2x"
+            data-sizes="auto"
+            alt="/images/cs231n/lecture2/image14.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 7] Parametric Approach-2</figcaption>
+    </figure>
+<ol start="32">
+<li><code>그림7</code>을 보면 input image size가 2*2일 때 각 성분(x,b,&hellip;)의 크기를 나타난다.
+<img src="/images/cs231n/lecture2/image16.png" height="50%" width="70%"></li>
+</ol>
+<ul>
+<li>연산은 <strong>단순한</strong> 행렬과 벡터의 곱(mat mul)임을 알 수 있다.</li>
+</ul>
+<br>
+<ol start="33">
+<li>이때 W에서 각 row는 하나의 클래스를 담당하므로 이를 <strong>템플릿</strong>으로 볼 수 있게 된다.</li>
+</ol>
+<ul>
+<li>W의 행 벡터와 input data의 열 벡터 간의 내적을 계산하게 되는데 이는 <code>각 클래스 간 템플릿의 유사도</code>를 의미하는 것으로도 볼 수 있게 된다.</li>
+</ul>
+<br>
+<img src="/images/cs231n/lecture2/image15.png" height="50%" width="90%">
+<ol start="34">
+<li>따라서 위 그림이 각각의 <strong>Weight의 템플릿 값들을 시각화</strong> 한 것이고 <u>이를 통해 모델이 데이터를 이해하기 위해 어떤 학습을 하는지 확인이 가능하다.</u></li>
+</ol>
+<ul>
+<li>이 weight값은 각 class에 있는 모든 이미지를 평균화 시키므로 <strong>각 class에 있는 모든 훈련 데이터의 모습을 포함하게 된다.</strong></li>
+<li>따라서 말(horse)를 보면 데이터 상에 말의 머리가 왼쪽, 오른쪽 모습이 모두 있을 수 있는 것이 확인 할 수 있게 된다.</li>
+</ul>
+<img src="/images/cs231n/lecture2/image17.png" height="30%" width="60%">
+<ol start="35">
+<li>또한 <code>Linear Classification</code>에서 이미지를 고차원에서 data point상에서 하나의 점으로 생각하는 것이다.</li>
+</ol>
+<ul>
+<li>각 class는 <code>linear dicition boundary</code>를 가지며 이러한 선을 기준으로 image를 분류하는 것이라고 생각하면 될 것 같다.</li>
+</ul>
+<br>
+<ol start="36">
+<li>하지만 이렇게 선분으로 구분하는 <code>Linear Classification</code>는 풀 수 없는 어려운 경우가 존재할 수 있게 된다.</li>
+</ol>
+<br>
+<ol start="37">
+<li>Data들을 <strong>binary의 선분으로 구분할 수 없을 경우</strong> 바로 이러한 문제가 발생하게 된다.</li>
+</ol>
+<br>
+<img src="/images/cs231n/lecture2/image18.png" height="30%" width="100%">
+<ol start="38">
+<li>위 그림을 보면 <code>Xor</code>, <code>Donut</code>,<code>Multimodal problem</code>들은 <code>Linear Classification</code>으로 분류 방법이 없다.</li>
+</ol>
+<ul>
+<li>하나의 선분으로 data간의 class를 구분할 수 없다는 뜻이다.</li>
+<li><strong>이것의 <code>Linear Classification</code>의 한계이다.</strong></li>
+</ul>
+<br>
+<ol start="39">
+<li>마지막으로 <code>Linear Classification</code>을 사용하면 <code>NN</code>알고리즘들과 달리 <strong>Train 시간은 O(N)</strong>, <strong>Test 시간은 O(1)</strong> 이 걸려 우리가 원하는 시간을 나타낼 수 있다.</li>
+</ol>
+<hr>
+<h2 id="참조">참조</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=OoUX-nOEjG0&amp;list=PLzUTmXVwsnXod6WNdg57Yc3zFx_f-RYsq&amp;index=2" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=OoUX-nOEjG0&list=PLzUTmXVwsnXod6WNdg57Yc3zFx_f-RYsq&index=2</a></li>
+<li><a href="https://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture2.pdf" target="_blank" rel="noopener noreffer ">https://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture2.pdf</a></li>
+<li><a href="https://velog.io/@fbdp1202/CS231n-%EC%A0%95%EB%A6%AC-2.-Image-Classification" target="_blank" rel="noopener noreffer ">https://velog.io/@fbdp1202/CS231n-%EC%A0%95%EB%A6%AC-2.-Image-Classification</a></li>
+<li><a href="https://wonsang0514.tistory.com/16?category=813399" target="_blank" rel="noopener noreffer ">https://wonsang0514.tistory.com/16?category=813399</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-05-14</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/cs231n/lecture2/" data-title="[CS231n] 02.Image Classification" data-hashtags="Image classification,CS231n"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/cs231n/lecture2/" data-hashtag="Image classification"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/cs231n/lecture2/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/cs231n/lecture2/" data-title="[CS231n] 02.Image Classification"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/cs231n/lecture2/" data-title="[CS231n] 02.Image Classification"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/cs231n/lecture2/" data-title="[CS231n] 02.Image Classification"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/cs231n/lecture2/" data-title="[CS231n] 02.Image Classification" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/image-classification/">Image classification</a>,&nbsp;<a href="/tags/cs231n/">CS231n</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/paper/fcn/" class="prev" rel="prev" title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.121.2">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://goodyoung.github.io" target="_blank">GoodYoung</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>

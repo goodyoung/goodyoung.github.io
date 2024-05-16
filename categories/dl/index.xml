@@ -3,7 +3,19 @@
         <title>DL - Category - Good Young</title>
         <link>https://goodyoung.github.io/categories/dl/</link>
         <description>DL - Category - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 14 Apr 2024 16:25:24 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/dl/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 14 May 2024 21:32:06 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/dl/" rel="self" type="application/rss+xml" /><item>
+    <title>[CS231n] 02.Image Classification</title>
+    <link>https://goodyoung.github.io/posts/cs231n/lecture2/</link>
+    <pubDate>Tue, 14 May 2024 21:32:06 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs231n/lecture2/</guid>
+    <description><![CDATA[개요 CS231n을 공부하면서 정리를 위해 글을 작성해보려고 한다. 1강의 내용은 컴퓨터 비전에 대해 전반적인 역사, 이 course를 통해 얻게 될 내용들에 대해서 소개를 해주었다. 따라서 따로 정리할 것은 없어서 정리하지는 않았다. The Problem 컴퓨터는 사람과 달리 이미지를 숫자로 인식을 한다. 따라서 사람이 의미하는 것과 컴퓨터가 이해하는 것에는 차이(Semantic Gap)가 있기 마련이다. 또한 컴퓨터가 image를 인식할 때 여러 문제(problem)들이 발생하게 된다. Viewpoint variation (카메라의 움직임) Illumination (색상 차이) Deformation (다양한 모습) Occlusion (부분적으로 물체 보이는 현상) Background Clutter (배경 혼란 현상) Intraclass variation (다양한 종류) 따라서 우리는 이런 problem들을 극복할 수 있는 robust하고 확장성이 뛰어난 모델을 만들어야 한다. 이런 모델들을 만들기 위해서 Data-Driven Approach(하나의 접근 방식)를 제안한다. Data-Driven Approach에 대해서 아래에 설명을 작성했다.
+image와 label들의 dataset을 모은다. 간단한 분류기를 machine learning에 의해 훈련킨다. (함수에서 train) 새로운 이미지를 가지고 분류기를 평가한다. (함수에서 predict) Nearest Neighbor 이 방법은 학습 데이터와 새로운 이미지들을 비교해서 학습 데이터 중에서 가장 유사한 이미지로 레이블을 예측하는 방법이다. Nearest Neighbor에서 이때 유사한 이미지로 판단하기 위해서 L1(manhattan) distance가 있다. L1 distance는 새로운 이미지의 pixel에 학습 데이터를 뺀 절대값들의 합을 구하여 그 합들이 가장 최소로 나온 이미지를 유사하다고 판단하는 방법이다. [그림 1] Nearest Neighbor 위 그림과 함께 Nearest Neighbor의 과정을 보자면 train 과정에서 모든 훈련 데이터를 저장한다. 그리고 predict 과정에서 모든 훈련 데이터를 비교하여 가장 유사한 훈련 데이터 image를 찾게 된다. 이 과정에서 train: O(1), predict: O(N)(# of iunput)의 시간 복잡도를 가지게 되는데 이것은 잘못되었다고 표현을 한다. 왜냐하면 우리는 보통 분류기가 빠르게 예측하기(predict)를 원하지만 Nearest Neighbor에서는 그것이 반대가 되어있는 것을 알 수 있게 된다. 또한 Nearest Neighbor알고리즘은 가장 가까운 이웃만을 보기 때문에 위와 같은 초록색이 대부분인 영역에서 노란색을 예측하는 문제가 발생 할 수 있다. 따라서 K-Nearest Neighbor알고리즘이 나오게 된다. K-Nearest Neighbor [그림 2] K-Nearest Neighbor 그 다음으로 가까운 Neighbor을 K개의 만큼 찾고, 그것끼리 다수결의 결정으로 예측을 하는 K-Nearest Neighbor방법이 있다. 또 이때 유사도를 결정할 때 L1 distance가 아닌 L2(Euclidean) distance의 계산식이 있다. 이것은 L1과 달리 좌표계가 무엇이든 상관이 없지만 L1의 경우에는 좌표계에 따라 계산값이 변할 수 있다. 각각 어떤것이 좋은지는 데이터의 성격에 따라 다르다 input 데이터가 각각의 항목이 중요한 성격(salary, 성별, 연봉 등)을 가진다면 L1이 적당할 수 있지만 어떤 역할인지 상관이 없으면 L2가 더 좋을 수 있다. 위 그림 2를 보게 되면 K가 커질 수록 좀 더 경계들이 부드러워지는 모습을 볼 수 있게 된다. 그렇다면 K가 무조건 커지면 좋은 것이냐? 그건 또 아니다. 이때 중요한 것이 적절한 K를 결정하는 것이 중요하다. 이런 K같은 요소들을 Hyperparameter이라고 부르고 다음으로 이런 적절한 Hyperparameter을 선택하는 방법에 대해서 설명하겠다. Hyperparameter 이런 Hyperparameter는 직접 시도해보고 가장 좋은 값을 찾는 것이 정답이다. [그림 3] Hyperparameter Setting idea #1: 학습데이터만을 학습하여 하이퍼 파라미터를 선택
+idea #2: train한 모델을 바탕으로 Test set에서만 잘 동작하는 하이퍼 파라미터를 선택
+idea #3: train set으로 모델을 학습, validation set으로 가장 좋았던 하이퍼 파라미터 선택, validation set에서 고른 하이퍼 파라미터를 바탕으로 test set을 test시작
+따라서 이런 적절한 Hyperparameter가 무엇인지 결정할 때 위 3개의 방법 중 idea #3방법이 제일 좋다. 왜냐하면 idea1,2는 unseen data에 대한 정확도가 떨어진다. 결국 idea #2도 새로운 data에 약한 특성을 보인다. 예를 들어, idea #2일 때 K값을 바꿔가면서 이 중 가장 높은 성능을 지닌 K를 정한다고 했을 때 이는 test데이터에 좋은 성능을 보이는 K값인 것이다.]]></description>
+</item>
+<item>
     <title>[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)</title>
     <link>https://goodyoung.github.io/posts/paper/fcn/</link>
     <pubDate>Sun, 14 Apr 2024 16:25:24 &#43;0900</pubDate>
