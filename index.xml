@@ -27,6 +27,16 @@ idea #3: train set으로 모델을 학습, validation set으로 가장 좋았던
 따라서 이런 적절한 Hyperparameter가 무엇인지 결정할 때 위 3개의 방법 중 idea #3방법이 제일 좋다. 왜냐하면 idea1,2는 unseen data에 대한 정확도가 떨어진다. 결국 idea #2도 새로운 data에 약한 특성을 보인다. 예를 들어, idea #2일 때 K값을 바꿔가면서 이 중 가장 높은 성능을 지닌 K를 정한다고 했을 때 이는 test데이터에 좋은 성능을 보이는 K값인 것이다.]]></description>
 </item>
 <item>
+    <title>[CS231n] 03.Loss Functions and Optimization</title>
+    <link>https://goodyoung.github.io/posts/cs231n/lecture3/</link>
+    <pubDate>Tue, 14 May 2024 21:32:06 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs231n/lecture3/</guid>
+    <description><![CDATA[개요 CS231n의 3강에 대한 내용을 정리 할 것이다.
+저번 강에서는 선형 분류기에 대해서 공부를 했는데 이때 어떻게 이미지의 가중치인 W의 값들을 업데이트 하는 방법에 대해서 집중적으로 다룰 것이다.
+continue]]></description>
+</item>
+<item>
     <title>[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)</title>
     <link>https://goodyoung.github.io/posts/paper/fcn/</link>
     <pubDate>Sun, 14 Apr 2024 16:25:24 &#43;0900</pubDate>

@@ -1,0 +1,17 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Loss Function - Tag - Good Young</title>
+        <link>https://goodyoung.github.io/tags/loss-function/</link>
+        <description>Loss Function - Tag - Good Young</description>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 14 May 2024 21:32:06 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/loss-function/" rel="self" type="application/rss+xml" /><item>
+    <title>[CS231n] 03.Loss Functions and Optimization</title>
+    <link>https://goodyoung.github.io/posts/cs231n/lecture3/</link>
+    <pubDate>Tue, 14 May 2024 21:32:06 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs231n/lecture3/</guid>
+    <description><![CDATA[개요 CS231n의 3강에 대한 내용을 정리 할 것이다.
+저번 강에서는 선형 분류기에 대해서 공부를 했는데 이때 어떻게 이미지의 가중치인 W의 값들을 업데이트 하는 방법에 대해서 집중적으로 다룰 것이다.
+continue]]></description>
+</item>
+</channel>
+</rss>
