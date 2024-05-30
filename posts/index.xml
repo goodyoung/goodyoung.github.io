@@ -35,7 +35,7 @@ idea #3: train set으로 모델을 학습, validation set으로 가장 좋았던
 continue]]></description>
 </item>
 <item>
-    <title>[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)</title>
+    <title>[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) &amp; Implement</title>
     <link>https://goodyoung.github.io/posts/paper/fcn/</link>
     <pubDate>Sun, 14 Apr 2024 16:25:24 &#43;0900</pubDate>
     <author>GoodYoung</author>

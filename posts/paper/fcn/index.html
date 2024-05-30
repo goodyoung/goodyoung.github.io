@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
-        <title>[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)" />
+        <title>[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) &amp; Implement - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) &amp; Implement" />
 <meta property="og:description" content="개요 Semantic Segmentation 문제를 해결하기 위해 제안된 딥러닝 모델인 Fully Convolutional Networks(이하 FCN) 논문 리뷰를 해보려고 한다. Abstract FCN은 convolutional network 자체로 end-to-end 학습, pixels-to-pixels을 훈련을 하고 semantic segmentation에서 state-of-the-art(이하 SOTA)를 달성했다.
 이때 나오는 end-to-end 학습이란 독립적인 것이 아니라 하나의 모델에서 작업이 다 끝나고, 모델의 모든 filter들이 학습이 가능한 학습을 하는 학습 방법이라고 생각하면 된다. [그림 1] end-to-end 학습 end-to-end 학습이 아닌 모델인 pattern recognition모델은 사람들이 직접 filter를 설계하여 classifier만 학습을 하는 방법이다. 본 논문의 핵심 아이디어는 임의의 크기인 input과 input과 같은 크기의 output을 생성하는 fully convolutional network를 구축하는 것이다. 또한 기존의 classification networks(AlexNet, VGG net, GoogLeNet)을 통해 transfer learning을 통한 fine-tuning을 진행하였다. 마지막으로 모델의 deep layer에서 얻은 의미(Semantic) 정보와 shallow layer에서 얻은 외관(Appearance)정보를 섞는 skip architecture를 정의하였다. [그림 2] CNN layers Semantic information deep, coarse(굵다) layer
 CNN에서 제일 deep한 위치에 있는 layer들이 객체의 외관은 파악하기 힘든 반면에 feature들이 활성화가 된 부분을 보면 의미가 있는 정보를 나타낸다. Appearance information shallow, fine layer
@@ -14,7 +14,7 @@ CNN의 첫 번째 layer에 있는 filter들은 보통 edge feature들을 추출�
 <meta property="article:published_time" content="2024-04-14T16:25:24+09:00" />
 <meta property="article:modified_time" content="2024-04-14T16:25:24+09:00" /><meta property="og:site_name" content="My cool site" />
 
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)"/>
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) &amp; Implement"/>
 <meta name="twitter:description" content="개요 Semantic Segmentation 문제를 해결하기 위해 제안된 딥러닝 모델인 Fully Convolutional Networks(이하 FCN) 논문 리뷰를 해보려고 한다. Abstract FCN은 convolutional network 자체로 end-to-end 학습, pixels-to-pixels을 훈련을 하고 semantic segmentation에서 state-of-the-art(이하 SOTA)를 달성했다.
 이때 나오는 end-to-end 학습이란 독립적인 것이 아니라 하나의 모델에서 작업이 다 끝나고, 모델의 모든 filter들이 학습이 가능한 학습을 하는 학습 방법이라고 생각하면 된다. [그림 1] end-to-end 학습 end-to-end 학습이 아닌 모델인 pattern recognition모델은 사람들이 직접 filter를 설계하여 classifier만 학습을 하는 방법이다. 본 논문의 핵심 아이디어는 임의의 크기인 input과 input과 같은 크기의 output을 생성하는 fully convolutional network를 구축하는 것이다. 또한 기존의 classification networks(AlexNet, VGG net, GoogLeNet)을 통해 transfer learning을 통한 fine-tuning을 진행하였다. 마지막으로 모델의 deep layer에서 얻은 의미(Semantic) 정보와 shallow layer에서 얻은 외관(Appearance)정보를 섞는 skip architecture를 정의하였다. [그림 2] CNN layers Semantic information deep, coarse(굵다) layer
 CNN에서 제일 deep한 위치에 있는 layer들이 객체의 외관은 파악하기 힘든 반면에 feature들이 활성화가 된 부분을 보면 의미가 있는 정보를 나타낸다. Appearance information shallow, fine layer
@@ -28,12 +28,12 @@ CNN의 첫 번째 layer에 있는 filter들은 보통 edge feature들을 추출�
     {
         "@context": "http://schema.org",
         "@type": "BlogPosting",
-        "headline": "[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)",
+        "headline": "[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) \u0026 Implement",
         "inLanguage": "en-us",
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/fcn\/"
-        },"genre": "posts","keywords": "FCN, Implement, 논문 리뷰, computer vision, segmentation","wordcount":  937 ,
+        },"genre": "posts","keywords": "FCN, Implement, 논문 리뷰, computer vision, segmentation, 논문 구현","wordcount":  948 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/fcn\/","datePublished": "2024-04-14T16:25:24+09:00","dateModified": "2024-04-14T16:25:24+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -73,9 +73,9 @@ CNN의 첫 번째 layer에 있는 filter들은 보통 edge feature들을 추출�
                 <div class="container"><div class="toc" id="toc-auto">
             <h2 class="toc-title">Contents</h2>
             <div class="toc-content" id="toc-content-auto"></div>
-        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)</h1><div class="post-meta">
-            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-04-14">2024-04-14</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;937 words&nbsp;
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) & Implement</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/implement/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Implement</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-04-14">2024-04-14</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;948 words&nbsp;
                 <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
@@ -100,6 +100,7 @@ CNN의 첫 번째 layer에 있는 filter들은 보통 edge feature들을 추출�
         <li><a href="#combining-what-and-where">Combining what and where</a></li>
       </ul>
     </li>
+    <li><a href="#implement">Implement</a></li>
     <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
@@ -392,6 +393,16 @@ CNN의 첫 번째 layer에 있는 filter들은 보통 edge feature들을 추출�
 <p>그 후 <code>Experimental framework</code> 파트에서는 실험을 할 때 사용했던 <code>optimization, fine-tuning, patch sampling, class balancing</code>등등 실험 했던 것을 나열하고 있다. 이에 관한 더 자세한 사항은 논문을 참고하면 좋을 것 같다.</p>
 </li>
 </ol>
+<hr>
+<h2 id="implement">Implement</h2>
+<ol start="35">
+<li>코드에 대한 구현은 (여기)[https://github.com/Sbeom12/basic-for-Segmentation/blob/main/practice/models/FCN.py]에 해두었다.</li>
+</ol>
+<br>
+<ol start="36">
+<li><code>VGG16 &amp; FCN-8s</code>으로 구현 하였다.</li>
+</ol>
+<hr>
 <h2 id="reference">Reference</h2>
 <ul>
 <li><a href="https://lee-jaewon.github.io/deep_learning_study/FCN/" target="_blank" rel="noopener noreffer ">https://lee-jaewon.github.io/deep_learning_study/FCN/</a></li>
@@ -409,13 +420,13 @@ CNN의 첫 번째 layer에 있는 filter들은 보통 edge feature들을 추출�
         <div class="post-info-line">
             <div class="post-info-md"></div>
             <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)" data-hashtags="FCN,Implement,논문 리뷰,computer vision,segmentation"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-hashtag="FCN"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/fcn/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN)" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) &amp; Implement" data-hashtags="FCN,Implement,논문 리뷰,computer vision,segmentation,논문 구현"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-hashtag="FCN"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/fcn/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) &amp; Implement"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) &amp; Implement"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) &amp; Implement"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/fcn/" data-title="[Paper Review]Fully Convolutional Networks for Semantic Segmentation(FCN) &amp; Implement" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
             </div>
         </div>
     </div>
 
     <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/fcn/">FCN</a>,&nbsp;<a href="/tags/implement/">Implement</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a></section>
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/fcn/">FCN</a>,&nbsp;<a href="/tags/implement/">Implement</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EA%B5%AC%ED%98%84/">논문 구현</a></section>
         <section>
             <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
         </section>
