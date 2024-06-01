@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)" />
+<meta property="og:description" content="개요 Image Segmentation 문제를 해결하기 위해 제안된 대표적인 딥러닝 모델인 DeepLab V1에 대한 논문 리뷰를 해보려고 한다. Abstract 기존 Deep Convolutional Neural Networks이하(DCNN)의 마지막 층에서 충분한 localized가 이루어지지 않았기 때문에 고수준 작업(이미지 분류)에서 좋은 성능을 발휘한다. 그러나 이런 불변성 특성 때문에 마지막 층의 응답은 특정 객체의 위치를 세밀하게 나타내지 못하여, 각 픽셀의 정확한 분류가 필요한 객체 분할(segementation)에는 단점이 될 수 있다. 불변성이란 특정 객체의 위치나 회전 여부에 상관없이 객체의 가장 두드러지는 특징을 추출할 수 있다는 것이다.
+따라서 이러한 단점을 극복하기 위해 CRF랑 DCNN 마지막 층과 결합 하고, GPU에서 초당 8 프레임의 계산이 가능하게 한 hole 알고리즘을 앞으로 설명할 것 이다. Introduction 지난 2년 동안 DCNN은 이미지 분류, 객체 탐지 등 고수준 문제에서의 컴퓨터 비전 시스템의 성능을 향상시켰다. End-to-end 방식으로 학습된 DCNN이 SIFT, HOG과 같은 의존 시스템 보다 현저히 더 나은 결과를 제공한다. 이러한 이유는 불변성 덕분이었지만 지역적 정확도를 원하는 pose estimation, semantic segmentation등의 작업(low-level task)에서는 방해가 된다. signal down-sampling과 spatial insensitivity(invariance)이라는 두가지의 어려움이 있었다. signal down-sampling은 반복되는 downsampling 작업과 max-pool작업 때문에 낮아지는 해상도가 문제였다. 본 논문에서는 해당 문제를 atrous (with holes)알고리즘을 통해 해결을 하려고 한다. invariance은 DCNN의 특징 때문에 공간적 정확성을 본질적으로 제한시키는 문제가 있다. 본 논문에서는 해당 문제를 fully-connected Conditional Random Field(CRF)로 해걸하려고 한다. CRC은 Krahenbühl &amp; Koltun이 제안한 fully connected pairwise를 사용한다. 이는 부스팅 기반의 픽셀 분류기의 성능을 크게 향상시킨다. 아래는 DeepLab system의 세가지 큰 장점들 이다. speed atrous algorithm accuracy PASCAL semantic segmentation challenge에서 SOTA달성 simplicity DCNN &amp; CRFs으로 구성되어 있다. Related Work Segmentation에 대한 여러 work들이 있었지만 DeepLab은 FCN과 비슷하게 픽셀 표현에 직접 작동한다. FCN, 다른 모델들과 DeepLab의 차이점은 CRF와 DCNN-based unary term의 결합이라고 볼 수 있다. 본 논문 이후 더 향상된 방법을 사용한 여러 DeepLab의 버전(V2,V3)들이 나와 있다. CONVOLUTIONAL NEURAL NETWORKS FOR DENSE IMAGE LABELING [그림 1] DeepLabv1의 DCNN 구조 VGG16으로 모델을 구성하였으며 더 효율적인 특징 추출기를 사용하였고 그것을 기반으로 finetuned와 re-purposed를 하였다. EFFICIENT DENSE SLIDING WINDOW FEATURE EXTRACTION WITH THE HOLE ALGORITHM 본 논문에선 효과적인 CNN 특징 추출을 위한 방법에 대해서 설명을 한다. 먼저 그것을 구현하기 앞서 VGG16을 FCN과 같이 FC층을 Fully Convolutional층으로 변환을 하고 최종 이미지가 원본의 해상도를 얻게 변환을 한다. 이때 32 pixel 간격으로 매우 드물게 계산이 되기 때문에 이를 8 pixel로 변경이 필요하였다. 따라서 마지막 2개의 pooling층을 스킵하였다. 32 pixel로 한다면 localization이 떨어지기 때문에 8 pixel로 변경이 필요했다. 또한 VGG16의 네트워크는 5개의 pooling층이 존재하는 네트워크이다. 따라서 마지막 2개를 스킵한다면 원본 해상도의 1/8만큼의 해상도가 나오게 되는 것이다. 원본 이미지의 해상도를 복구 하기 위하여 즉, upsample을 하기 위하여 filter에 zero를 추가하여 sparse한 filter를 얻는 방식의 hole algorithm을 사용하였다. 따라서 마지막 3개의 convolutional은 2배가 되었고 first fully connected layer는 4배가 되었다. 이때 필터를 그대로 유지하면서 각각 입력 스트라이드 2 또는 4 픽셀을 사용하여 적용되는 특징 맵을 드문드문 샘플링함으로써 이 방법을 더 효율적으로 구현할 수 있게 된다. [그림 2] Atrous Convoltion 이때 나타나는 hole algorithm (atrous convolution)이란 필터 중간 중간에 0을 채워 넣어서 학습해야할 파라미터 수는 유지하면서 보다 넓은 영역(Receptive Field)을 참조하게끔 하는 방법이다. Receptive Field(수용 영역): 특징 추출에 사용되는 한 개의 뉴런이 받아들일 수 있는 입력 데이터의 영역
+따라서 atrous convolution을 사용하면 Receptive Field가 넓어지며 localization이 완화되는 효과가 있다. 따라서 이런 atrous convolution을 사용하게 된다면 두가지의 이점이 발생한다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/paper/deeplab-v1/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-05-30T21:38:53+09:00" />
+<meta property="article:modified_time" content="2024-05-30T21:38:53+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)"/>
+<meta name="twitter:description" content="개요 Image Segmentation 문제를 해결하기 위해 제안된 대표적인 딥러닝 모델인 DeepLab V1에 대한 논문 리뷰를 해보려고 한다. Abstract 기존 Deep Convolutional Neural Networks이하(DCNN)의 마지막 층에서 충분한 localized가 이루어지지 않았기 때문에 고수준 작업(이미지 분류)에서 좋은 성능을 발휘한다. 그러나 이런 불변성 특성 때문에 마지막 층의 응답은 특정 객체의 위치를 세밀하게 나타내지 못하여, 각 픽셀의 정확한 분류가 필요한 객체 분할(segementation)에는 단점이 될 수 있다. 불변성이란 특정 객체의 위치나 회전 여부에 상관없이 객체의 가장 두드러지는 특징을 추출할 수 있다는 것이다.
+따라서 이러한 단점을 극복하기 위해 CRF랑 DCNN 마지막 층과 결합 하고, GPU에서 초당 8 프레임의 계산이 가능하게 한 hole 알고리즘을 앞으로 설명할 것 이다. Introduction 지난 2년 동안 DCNN은 이미지 분류, 객체 탐지 등 고수준 문제에서의 컴퓨터 비전 시스템의 성능을 향상시켰다. End-to-end 방식으로 학습된 DCNN이 SIFT, HOG과 같은 의존 시스템 보다 현저히 더 나은 결과를 제공한다. 이러한 이유는 불변성 덕분이었지만 지역적 정확도를 원하는 pose estimation, semantic segmentation등의 작업(low-level task)에서는 방해가 된다. signal down-sampling과 spatial insensitivity(invariance)이라는 두가지의 어려움이 있었다. signal down-sampling은 반복되는 downsampling 작업과 max-pool작업 때문에 낮아지는 해상도가 문제였다. 본 논문에서는 해당 문제를 atrous (with holes)알고리즘을 통해 해결을 하려고 한다. invariance은 DCNN의 특징 때문에 공간적 정확성을 본질적으로 제한시키는 문제가 있다. 본 논문에서는 해당 문제를 fully-connected Conditional Random Field(CRF)로 해걸하려고 한다. CRC은 Krahenbühl &amp; Koltun이 제안한 fully connected pairwise를 사용한다. 이는 부스팅 기반의 픽셀 분류기의 성능을 크게 향상시킨다. 아래는 DeepLab system의 세가지 큰 장점들 이다. speed atrous algorithm accuracy PASCAL semantic segmentation challenge에서 SOTA달성 simplicity DCNN &amp; CRFs으로 구성되어 있다. Related Work Segmentation에 대한 여러 work들이 있었지만 DeepLab은 FCN과 비슷하게 픽셀 표현에 직접 작동한다. FCN, 다른 모델들과 DeepLab의 차이점은 CRF와 DCNN-based unary term의 결합이라고 볼 수 있다. 본 논문 이후 더 향상된 방법을 사용한 여러 DeepLab의 버전(V2,V3)들이 나와 있다. CONVOLUTIONAL NEURAL NETWORKS FOR DENSE IMAGE LABELING [그림 1] DeepLabv1의 DCNN 구조 VGG16으로 모델을 구성하였으며 더 효율적인 특징 추출기를 사용하였고 그것을 기반으로 finetuned와 re-purposed를 하였다. EFFICIENT DENSE SLIDING WINDOW FEATURE EXTRACTION WITH THE HOLE ALGORITHM 본 논문에선 효과적인 CNN 특징 추출을 위한 방법에 대해서 설명을 한다. 먼저 그것을 구현하기 앞서 VGG16을 FCN과 같이 FC층을 Fully Convolutional층으로 변환을 하고 최종 이미지가 원본의 해상도를 얻게 변환을 한다. 이때 32 pixel 간격으로 매우 드물게 계산이 되기 때문에 이를 8 pixel로 변경이 필요하였다. 따라서 마지막 2개의 pooling층을 스킵하였다. 32 pixel로 한다면 localization이 떨어지기 때문에 8 pixel로 변경이 필요했다. 또한 VGG16의 네트워크는 5개의 pooling층이 존재하는 네트워크이다. 따라서 마지막 2개를 스킵한다면 원본 해상도의 1/8만큼의 해상도가 나오게 되는 것이다. 원본 이미지의 해상도를 복구 하기 위하여 즉, upsample을 하기 위하여 filter에 zero를 추가하여 sparse한 filter를 얻는 방식의 hole algorithm을 사용하였다. 따라서 마지막 3개의 convolutional은 2배가 되었고 first fully connected layer는 4배가 되었다. 이때 필터를 그대로 유지하면서 각각 입력 스트라이드 2 또는 4 픽셀을 사용하여 적용되는 특징 맵을 드문드문 샘플링함으로써 이 방법을 더 효율적으로 구현할 수 있게 된다. [그림 2] Atrous Convoltion 이때 나타나는 hole algorithm (atrous convolution)이란 필터 중간 중간에 0을 채워 넣어서 학습해야할 파라미터 수는 유지하면서 보다 넓은 영역(Receptive Field)을 참조하게끔 하는 방법이다. Receptive Field(수용 영역): 특징 추출에 사용되는 한 개의 뉴런이 받아들일 수 있는 입력 데이터의 영역
+따라서 atrous convolution을 사용하면 Receptive Field가 넓어지며 localization이 완화되는 효과가 있다. 따라서 이런 atrous convolution을 사용하게 된다면 두가지의 이점이 발생한다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/deeplab-v1/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs231n/lecture3/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/deeplab-v1\/"
+        },"genre": "posts","keywords": "UNet, Implement, 논문 리뷰, computer vision, segmentation","wordcount":  954 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/deeplab-v1\/","datePublished": "2024-05-30T21:38:53+09:00","dateModified": "2024-05-30T21:38:53+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-05-30">2024-05-30</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;954 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#related-work">Related Work</a></li>
+    <li><a href="#convolutional-neural-networks-for-dense-image-labeling">CONVOLUTIONAL NEURAL NETWORKS FOR DENSE IMAGE LABELING</a>
+      <ul>
+        <li><a href="#efficient-dense-sliding-window-feature-extraction-with-the-hole-algorithm">EFFICIENT DENSE SLIDING WINDOW FEATURE EXTRACTION WITH THE HOLE ALGORITHM</a></li>
+      </ul>
+    </li>
+    <li><a href="#detailed-boundary-recovery-fully-connected-conditional-random-fields-and-multi-scale-prediction">DETAILED BOUNDARY RECOVERY: FULLY-CONNECTED CONDITIONAL RANDOM FIELDS AND MULTI-SCALE PREDICTION</a>
+      <ul>
+        <li><a href="#deep-convolutional-networks-and-the-localization-challenge">DEEP CONVOLUTIONAL NETWORKS AND THE LOCALIZATION CHALLENGE</a></li>
+        <li><a href="#fully-connected-conditional-random-fields-for-accurate-localization">FULLY-CONNECTED CONDITIONAL RANDOM FIELDS FOR ACCURATE LOCALIZATION</a></li>
+        <li><a href="#multi-scale-prediction">MULTI-SCALE PREDICTION</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="개요">개요</h2>
+<ol start="0">
+<li>Image Segmentation 문제를 해결하기 위해 제안된 대표적인 딥러닝 모델인 <code>DeepLab V1</code>에 대한 논문 리뷰를 해보려고 한다.</li>
+</ol>
+<hr>
+<h2 id="abstract">Abstract</h2>
+<ol>
+<li>기존 <code>Deep Convolutional Neural Networks</code>이하(DCNN)의 마지막 층에서 충분한 <code>localized</code>가 이루어지지 않았기 때문에 고수준 작업(이미지 분류)에서 좋은 성능을 발휘한다.</li>
+</ol>
+<br>
+<ol start="2">
+<li>그러나 이런 <code>불변성</code> 특성 때문에 마지막 층의 응답은 특정 객체의 <strong>위치를 세밀하게 나타내지 못하여</strong>, 각 픽셀의 정확한 분류가 필요한 객체 분할(segementation)에는 단점이 될 수 있다.
+<blockquote>
+<p><code>불변성</code>이란 <strong>특정 객체의 위치나 회전 여부에 상관없이</strong> 객체의 가장 두드러지는 특징을 추출할 수 있다는 것이다.</p>
+</blockquote>
+</li>
+</ol>
+<br>
+<ol start="3">
+<li>따라서 이러한 단점을 극복하기 위해 <strong>CRF랑 DCNN 마지막 층과 결합</strong> 하고, GPU에서 초당 8 프레임의 계산이 가능하게 한 <code>hole</code> 알고리즘을 앞으로 설명할 것 이다.</li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<ol start="4">
+<li>지난 2년 동안 <code>DCNN</code>은 이미지 분류, 객체 탐지 등 고수준 문제에서의 컴퓨터 비전 시스템의 성능을 향상시켰다. <code>End-to-end</code> 방식으로 학습된 <code>DCNN</code>이 <code>SIFT</code>, <code>HOG</code>과 같은 의존 시스템 보다 현저히 더 나은 결과를 제공한다.</li>
+</ol>
+<br>
+<ol start="5">
+<li>이러한 이유는 <code>불변성</code> 덕분이었지만 지역적 정확도를 원하는 <code>pose estimation</code>, <code>semantic segmentation</code>등의 작업(low-level task)에서는 방해가 된다.</li>
+</ol>
+<br>
+<ol start="6">
+<li><code>signal down-sampling</code>과 <code>spatial insensitivity(invariance)</code>이라는 두가지의 어려움이 있었다.</li>
+</ol>
+<ul>
+<li><code>signal down-sampling</code>은 반복되는 downsampling 작업과 max-pool작업 때문에 낮아지는 해상도가 문제였다.
+<ul>
+<li>본 논문에서는 해당 문제를 <code>atrous (with holes)</code>알고리즘을 통해 해결을 하려고 한다.</li>
+</ul>
+</li>
+<li><code>invariance</code>은 DCNN의 특징 때문에 공간적 정확성을 본질적으로 제한시키는 문제가 있다.
+<ul>
+<li>본 논문에서는 해당 문제를 <code>fully-connected Conditional Random Field(CRF)</code>로 해걸하려고 한다.</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="7">
+<li><code>CRC</code>은 <a href="https://arxiv.org/abs/1210.5644" target="_blank" rel="noopener noreffer ">Krahenbühl &amp; Koltun</a>이 제안한 fully connected pairwise를 사용한다. 이는 <strong>부스팅 기반의 픽셀 분류기의 성능</strong>을 크게 향상시킨다.</li>
+</ol>
+<br>
+<ol start="8">
+<li>아래는 <code>DeepLab</code> system의 세가지 큰 장점들 이다.
+<ul>
+<li><code>speed</code>
+<ul>
+<li><code>atrous</code> algorithm</li>
+</ul>
+</li>
+<li><code>accuracy</code>
+<ul>
+<li><code>PASCAL</code> semantic segmentation challenge에서 <code>SOTA</code>달성</li>
+</ul>
+</li>
+<li><code>simplicity</code>
+<ul>
+<li><code>DCNN</code> &amp; <code>CRFs</code>으로 구성되어 있다.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="related-work">Related Work</h2>
+<ol start="9">
+<li><code>Segmentation</code>에 대한 여러 <code>work</code>들이 있었지만 <code>DeepLab</code>은 <code>FCN</code>과 비슷하게 픽셀 표현에 직접 작동한다.</li>
+</ol>
+<br>
+<ol start="10">
+<li><code>FCN</code>, 다른 모델들과 <code>DeepLab</code>의 차이점은 <code>CRF</code>와 <code>DCNN-based unary term</code>의 결합이라고 볼 수 있다.</li>
+</ol>
+<br>
+<ol start="11">
+<li>본 논문 이후 더 향상된 방법을 사용한 여러 <code>DeepLab</code>의 버전(V2,V3)들이 나와 있다.</li>
+</ol>
+<hr>
+<h2 id="convolutional-neural-networks-for-dense-image-labeling">CONVOLUTIONAL NEURAL NETWORKS FOR DENSE IMAGE LABELING</h2>
+<figure><a class="lightgallery" href="/images/paper/deeplab-v1/dcnn-deeplab-v1.png" title="/images/paper/deeplab-v1/dcnn-deeplab-v1.png" data-thumbnail="/images/paper/deeplab-v1/dcnn-deeplab-v1.png" data-sub-html="<h2>[그림 1] DeepLabv1의 DCNN 구조</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/deeplab-v1/dcnn-deeplab-v1.png"
+            data-srcset="/images/paper/deeplab-v1/dcnn-deeplab-v1.png, /images/paper/deeplab-v1/dcnn-deeplab-v1.png 1.5x, /images/paper/deeplab-v1/dcnn-deeplab-v1.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/deeplab-v1/dcnn-deeplab-v1.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 1] DeepLabv1의 DCNN 구조</figcaption>
+    </figure>
+<ol start="12">
+<li><code>VGG16</code>으로 모델을 구성하였으며 더 효율적인 특징 추출기를 사용하였고 그것을 기반으로 <code>finetuned</code>와 <code>re-purposed</code>를 하였다.</li>
+</ol>
+<hr>
+<h3 id="efficient-dense-sliding-window-feature-extraction-with-the-hole-algorithm">EFFICIENT DENSE SLIDING WINDOW FEATURE EXTRACTION WITH THE HOLE ALGORITHM</h3>
+<ol start="13">
+<li>본 논문에선 효과적인 CNN 특징 추출을 위한 방법에 대해서 설명을 한다.</li>
+</ol>
+<br>
+<ol start="14">
+<li>먼저 그것을 구현하기 앞서 <code>VGG16</code>을 <code>FCN</code>과 같이 <code>FC층</code>을 <code>Fully Convolutional</code>층으로 변환을 하고 최종 이미지가 원본의 해상도를 얻게 변환을 한다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>이때 <code>32 pixel</code> 간격으로 매우 드물게 계산이 되기 때문에 이를 <code>8 pixel</code>로 변경이 필요하였다. 따라서 마지막 2개의 <code>pooling</code>층을 스킵하였다.
+<ul>
+<li><code>32 pixel</code>로 한다면 <code>localization</code>이 떨어지기 때문에 <code>8 pixel</code>로 변경이 필요했다.</li>
+<li>또한 <code>VGG16</code>의 네트워크는 5개의 <code>pooling</code>층이 존재하는 네트워크이다. 따라서 마지막 2개를 스킵한다면 원본 해상도의 <code>1/8</code>만큼의 해상도가 나오게 되는 것이다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="16">
+<li>원본 이미지의 해상도를 복구 하기 위하여 즉, <code>upsample</code>을 하기 위하여 filter에 <code>zero</code>를 추가하여 <code>sparse</code>한 filter를 얻는 방식의 <code>hole algorithm</code>을 사용하였다.</li>
+</ol>
+<br>
+<ol start="17">
+<li>따라서 마지막 3개의 convolutional은 2배가 되었고 <code>first fully connected layer</code>는 4배가 되었다.</li>
+</ol>
+<br>
+<ol start="18">
+<li>이때 필터를 그대로 유지하면서 각각 입력 스트라이드 2 또는 4 픽셀을 사용하여 적용되는 특징 맵을 드문드문 샘플링함으로써 이 방법을 더 효율적으로 구현할 수 있게 된다.</li>
+</ol>
+<br>
+<figure><a class="lightgallery" href="/images/paper/deeplab-v1/atrous-conv.png" title="/images/paper/deeplab-v1/atrous-conv.png" data-thumbnail="/images/paper/deeplab-v1/atrous-conv.png" data-sub-html="<h2>[그림 2] Atrous Convoltion</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/deeplab-v1/atrous-conv.png"
+            data-srcset="/images/paper/deeplab-v1/atrous-conv.png, /images/paper/deeplab-v1/atrous-conv.png 1.5x, /images/paper/deeplab-v1/atrous-conv.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/deeplab-v1/atrous-conv.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 2] Atrous Convoltion</figcaption>
+    </figure>
+<ol start="19">
+<li>
+<p>이때 나타나는 <code>hole algorithm (atrous convolution)</code>이란 필터 중간 중간에 0을 채워 넣어서 학습해야할 파라미터 수는 유지하면서 보다 넓은 영역(Receptive Field)을 참조하게끔 하는 방법이다.
+<img src="/images/paper/deeplab-v1/atrous-conv2.png" height="50%" width="48.4%"></p>
+<ul>
+<li>
+<blockquote>
+<p>Receptive Field(수용 영역): 특징 추출에 사용되는 한 개의 뉴런이 받아들일 수 있는 입력 데이터의 영역</p>
+</blockquote>
+</li>
+<li>따라서 atrous convolution을 사용하면 Receptive Field가 넓어지며 localization이 완화되는 효과가 있다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="20">
+<li>따라서 이런 <code>atrous convolution</code>을 사용하게 된다면 두가지의 이점이 발생한다. 첫번째는 공간 정보 손실을 줄여 segmentation을 용이하게 한다.</li>
+</ol>
+<br>
+<ol start="21">
+<li>pooling 층을 이용할 경우 <code>해상도가 낮아지고</code>, <code>invariance</code> 때문에 공간정보는 소실돼 결국에는 <code>localization</code>가  떨어지는 치명적인 단점이 있다. 하지만 atrous convolution을 이용할 경우 해상도와 공간 정보를 보존하면서도 rate를 조절해 <code>field of view</code> 크기를 키울 수 있다.</li>
+</ol>
+<br>
+<img src="/images/paper/deeplab-v1/atrous-conv3.png" height="70%" width="68.4%">
+<ol start="22">
+<li>또한 위 그림을 보면 일반 <code>pooling - upsample</code> 의 방법보다 <code>atrous convolution</code>의 방법이 더 밀도있게 표현된 것을 확인이 가능하다.</li>
+</ol>
+<br>
+<ol start="23">
+<li>두번째로는 계산 비용의 이점이 발생한다. 0을 이용하여 실제로 <code>receptive field</code>는 늘어나지만 계산 파라미터 수는 늘지 않는다. 따라서 실제로 논문에서는 <code>atrous convolution</code>을 사용하지 않는 <code>FCN</code>보다 훨씬 빠른 성능을 보인다고 나타난다.
+<ul>
+<li><code>sevaral days vs 10 hours</code></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="detailed-boundary-recovery-fully-connected-conditional-random-fields-and-multi-scale-prediction">DETAILED BOUNDARY RECOVERY: FULLY-CONNECTED CONDITIONAL RANDOM FIELDS AND MULTI-SCALE PREDICTION</h2>
+<ol start="24">
+<li><code>classification accuracy</code>와 <code>localization accuracy</code>에는 trade off가 있다.</li>
+</ol>
+<br>
+<ol start="25">
+<li><code>Deeper model (max-pool)</code>은 classification task에는 훌륭하지만 <code>increased invariance</code>와 큰 <code>receptive fields</code>는 위치 추론을 어렵게 한다.</li>
+</ol>
+<hr>
+<h3 id="deep-convolutional-networks-and-the-localization-challenge">DEEP CONVOLUTIONAL NETWORKS AND THE LOCALIZATION CHALLENGE</h3>
+<ol start="26">
+<li>기존 연구에서 이런 <code>localization</code> 문제를 해결하기 위하여 아래의 두가지 방법이 있어왔다.</li>
+</ol>
+<ul>
+<li>여러 층으로 부터 information들을 모으는 방식 (객체의 경계 파악 용이)</li>
+<li>super-pixel을 사용하여 localization task를 low-level segmentation으로 미루어 사용이 가능하게 하는 방식
+<ul>
+<li>
+<blockquote>
+<p>Super pixel: 이미지를 비슷한 특성을 가진 작은 영역들로 그룹화하는 컴퓨터 비전 기술이다.</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="27">
+<li>하지만 본 논문에서는 <code>localization</code>을 극복하기 위하여 CRF라는 방식을 사용하였고 이 다음에 설명할 것 이다.</li>
+</ol>
+<hr>
+<h3 id="fully-connected-conditional-random-fields-for-accurate-localization">FULLY-CONNECTED CONDITIONAL RANDOM FIELDS FOR ACCURATE LOCALIZATION</h3>
+<ol start="28">
+<li><code>CRF</code>는 <code>image segmentation</code>에 적용하면 한 픽셀의 클래스를 예측할 때 다른 모든 픽셀과 <strong>상호 작용하는 관계를 파악하여</strong> 각 픽셀에 대한 <code>최적의 label</code>을 할당한다.
+<ul>
+<li>
+<blockquote>
+<p>CRF: 각 픽셀이 특정 클래스에 속할 확률을 계산하여 최종 Segmentaion 결과를 도출하는 것을 말한다.
+<br></p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ol>
+<figure><a class="lightgallery" href="/images/paper/deeplab-v1/score-map.png" title="/images/paper/deeplab-v1/score-map.png" data-thumbnail="/images/paper/deeplab-v1/score-map.png" data-sub-html="<h2>[그림 3] DCNN layer score map</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/deeplab-v1/score-map.png"
+            data-srcset="/images/paper/deeplab-v1/score-map.png, /images/paper/deeplab-v1/score-map.png 1.5x, /images/paper/deeplab-v1/score-map.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/deeplab-v1/score-map.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 3] DCNN layer score map</figcaption>
+    </figure>
+<ol start="29">
+<li>하지만 위 그림(<code>DCNN output</code>)에서 확인 할 수 있듯이 우리는 detail한 local 구조를 원하기 때문에 <code>short-range CRF</code>는  안좋을 수 있다.</li>
+</ol>
+<ul>
+<li>보통 <code>CRF</code>는 예측 과정간 발생하는 <strong>noise들을 없애기 위해 사용</strong>되었고 보통 중간 단계에서 후처리를 하는 <code>Short range CRF</code>가 대부분 이다.</li>
+</ul>
+<br>
+<img src="/images/paper/deeplab-v1/crf1.png" height="50%" width="48.4%">
+<img src="/images/paper/deeplab-v1/crf2.png" height="50%" width="48.4%">
+<ol start="30">
+<li>따라서 본 논문에서는 객체의 테두리를 정확하게 예측하기 위한 방법으로 <code>fully connected CRF</code>를 사용하였다.
+<ul>
+<li>위 그림은 CRF에 대해 더욱 명확히 이해할 수 있게 되는데 <code>fully connected CRF</code>를 사용하게 되면 테두리의 정보가 detail해지는 것을 확인 할 수 있다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<figure><a class="lightgallery" href="/images/paper/deeplab-v1/deeplab-model.png" title="/images/paper/deeplab-v1/deeplab-model.png" data-thumbnail="/images/paper/deeplab-v1/deeplab-model.png" data-sub-html="<h2>[그림 4] Model Illustration</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/deeplab-v1/deeplab-model.png"
+            data-srcset="/images/paper/deeplab-v1/deeplab-model.png, /images/paper/deeplab-v1/deeplab-model.png 1.5x, /images/paper/deeplab-v1/deeplab-model.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/deeplab-v1/deeplab-model.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 4] Model Illustration</figcaption>
+    </figure>
+<ol start="31">
+<li>위 그림은 <code>deeplab</code>의 지금까지의 설명을 담은 <code>deeplab model</code>의 전체적인 흐름을 나타낸 그림이다.
+<ul>
+<li><code>1/8</code>크기의 <code>coarse score-map</code>을 구하고 <code>bi-linear interpolation</code>을 통해 upsample을 한다.</li>
+<li>이 결과는 <code>CRF</code>의 <code>unary term</code>에 해당하게 되어서 <code>CRF</code> 과정을 거치게 되면 최종 결과물이 나오게 된다.
+<ul>
+<li>
+<blockquote>
+<p>unary term: 각 픽셀이 특정 클래스에 속할 확률</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><code>iteration</code>이 반복이 될 수록 더 정확해지는 것을 확인할 수 있다.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="multi-scale-prediction">MULTI-SCALE PREDICTION</h3>
+<ol start="32">
+<li><code>FCN</code>처럼 본 논문은 경계 <code>localization</code> 정확도를 높이기 위해 <code>Multi Scale prediction</code>(여러 스케일의 특징맵을 이용해 위치 추론 성능을 높인 방법)을 사용한다.</li>
+</ol>
+<br>
+<ol start="33">
+<li>따라서 이를 사용하기 위하여 <code>원본 이미지</code>와 <code>처음 4개 max pooling</code>의 특징맵을 이용해 <code>final score map</code>을 구했다.</li>
+</ol>
+<br>
+<ol start="34">
+<li><code>첫번째 층</code>은 3x3 필터를 128개 사용하고, <code>두번째 층</code>은 1x1 필터를 128개 사용했다. 그렇게 해서 최종 <strong>128개의 채널을 같은 5개의 특징맵이</strong> 나오고, 이를 <strong>메인 네트워크 마지막 층의 특징맵과 채널 수준으로 결합해</strong> 채널 수가 640만큼 증가한다.</li>
+</ol>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://devbasket.tistory.com/25" target="_blank" rel="noopener noreffer ">https://devbasket.tistory.com/25</a></li>
+<li><a href="https://noru-jumping-in-the-mountains.tistory.com/15" target="_blank" rel="noopener noreffer ">https://noru-jumping-in-the-mountains.tistory.com/15</a></li>
+<li><a href="https://aiflower.tistory.com/10" target="_blank" rel="noopener noreffer ">https://aiflower.tistory.com/10</a></li>
+<li><a href="https://jaylala.tistory.com/entry/%EA%B0%9C%EB%85%90%EC%A0%95%EB%A6%ACFully-Connected-CRFs%EB%9E%80" target="_blank" rel="noopener noreffer ">https://jaylala.tistory.com/entry/%EA%B0%9C%EB%85%90%EC%A0%95%EB%A6%ACFully-Connected-CRFs%EB%9E%80</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-05-30</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/deeplab-v1/" data-title="[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)" data-hashtags="UNet,Implement,논문 리뷰,computer vision,segmentation"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/deeplab-v1/" data-hashtag="UNet"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/deeplab-v1/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/deeplab-v1/" data-title="[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/deeplab-v1/" data-title="[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/deeplab-v1/" data-title="[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/deeplab-v1/" data-title="[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/unet/">UNet</a>,&nbsp;<a href="/tags/implement/">Implement</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/cs231n/lecture3/" class="prev" rel="prev" title="[CS231n] 03.Loss Functions and Optimization"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS231n] 03.Loss Functions and Optimization</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.121.2">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://goodyoung.github.io" target="_blank">GoodYoung</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
