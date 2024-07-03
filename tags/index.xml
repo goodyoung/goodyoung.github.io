@@ -3,7 +3,31 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 30 May 2024 21:38:53 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 02 Jul 2024 15:32:06 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>CS231n</title>
+    <link>https://goodyoung.github.io/tags/cs231n/</link>
+    <pubDate>Tue, 02 Jul 2024 15:32:06 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/cs231n/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>Loss Function</title>
+    <link>https://goodyoung.github.io/tags/loss-function/</link>
+    <pubDate>Tue, 02 Jul 2024 15:32:06 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/loss-function/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>Optimization</title>
+    <link>https://goodyoung.github.io/tags/optimization/</link>
+    <pubDate>Tue, 02 Jul 2024 15:32:06 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/optimization/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
     <title>computer vision</title>
     <link>https://goodyoung.github.io/tags/computer-vision/</link>
     <pubDate>Thu, 30 May 2024 21:38:53 &#43;0900</pubDate>
@@ -41,30 +65,6 @@
     <pubDate>Thu, 30 May 2024 21:38:53 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>CS231n</title>
-    <link>https://goodyoung.github.io/tags/cs231n/</link>
-    <pubDate>Fri, 24 May 2024 21:32:06 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/cs231n/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Loss Function</title>
-    <link>https://goodyoung.github.io/tags/loss-function/</link>
-    <pubDate>Fri, 24 May 2024 21:32:06 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/loss-function/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Optimization</title>
-    <link>https://goodyoung.github.io/tags/optimization/</link>
-    <pubDate>Fri, 24 May 2024 21:32:06 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/optimization/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>

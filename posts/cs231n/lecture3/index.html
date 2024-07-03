@@ -5,22 +5,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[CS231n] 03.Loss Functions and Optimization - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS231n] 03.Loss Functions and Optimization" />
-<meta property="og:description" content="개요 CS231n의 3강에 대한 내용을 정리 할 것이다.
-저번 강에서는 선형 분류기에 대해서 공부를 했는데 이때 어떻게 이미지의 가중치인 W의 값들을 업데이트 하는 방법에 대해서 집중적으로 다룰 것이다.
-continue" />
+<meta property="og:description" content="개요 CS231n의 3강에 대한 내용을 정리 할 것이다. 저번 강에서는 선형 분류기에 대해서 공부를 했는데 이때 어떻게 이미지의 가중치인 W의 값들의 badness를 판단하는지(loss function), 또 W의 값들을 업데이트 하는 방법(optimization)에 대해서 집중적으로 다룰 것이다. Loss Function Loss Function이란 W를 가져와서 점수를 보고 얼마나 정량적으로 좋은지 나쁜지 알려주는 함수이다. 또는 실제값과 예측값의 차이를 수치화 해주는 함수이다. Loos Function의 기본 식은 아래와 같다. xi: pixel value yi: predict label - f: predict y Li: loss function - L: loss mean 따라서 위 식을 통해 어떤 W가 가장 좋은 결과를 가져오는지 정량적으로 판단할 수 있게 된다. Multiclass SVM Loss 다음으론 image classification에 적합한 multi-class SVM Loss에 대한 설명이다. loss function의 식은 아래와 같다. sj: 잘못된 label의 score syi: 제대로 된 label의 score - 1: safety margin 따라서 위 식은 제대로 예측을 했고 그 값이 safety margin보다 뛰어나다면 loss는 0을 나타내고, 그것이 아니라면 잘못된 label과 정상 label간의 차이만큼이 loss인 것을 알 수 있다. 이를 그래프로 시각화를 하면 아래 그림과 같은데 이를 hinge loss라고 한다. 이 그래프를 통해 알 수 있는 사실은 잘 분류된 point는 loss가 작거나 없고, 잘못 분류된 point는 loss가 높다. 잘 분류되었을 수록 syi가 클 것이다. 그러므로 sj - syi의 식에서 음수값이 나올 가능성이 크다. 다음은 hinge loss에 관하여 6가지의 질문이 나온다. Q1: 잘 예측 했을 경우 데이터가 미세하게 변한다고 해서 loss의 값이 변하지는 않는다. Q2: hinge loss의 최솟값은 0, 최대값은 무한대일 것이다. (class score가 엄청 낮은 음수 값을 가지고 있다면) Q3: W를 임의의 작은 수로 초기화를 할 때 sj - syi의 값이 0일 경우 classes_num - 1의 값이 나오게 된다. 이는 debugging시 유용하다. 훈련 시 초기의 loss값이 classes_num - 1이 아니라면 과정 중 어떤 것이 잘못되었는지 다시 볼 필요가 있다. Q4: 정답 class도 계산을 한다면 기존 loss에 1이 증가한 형태일 것이다. Q5: Summation이 아니라 Mean이라도 loss의 값은 변함 없다. (rescale만 된다. 큰 영향 없다.) Q6: 아래의 그림과 같이 제곱항으로 변경한다면 결과는 달라진다. 선형적이었던 관계를 비선형적으로 바꿔서 표현이 된다. 따라서 잘못 예측한 것은 제곱만큼 loss가 커지게 되는 상황이 발생한다. 따라서 데이터의 특성에 따라 극심한 차이를 보고싶을 때 사용한다. 따라서 어떤 loss를 사용하냐는 error값을 얼마나 신경쓰고 있고, 어떻게 정량화 할거냐에 따라 다르다. 아래는 hinge-loss의 example code이다.
+def L_i_vectorzed(x, y, W): scores = W.dot(x) # Predict margins = np.maximum(0, scores - scores[y] &#43; 1) # Calc Loss margins[y] = 0 # class label에 해당하는 것은 0으로 두는 일종의 trick에 해당한다. loss_i = np.sum(margins) # Summation Loss return loss_i # return Regularization 또다른 질문이 있다. *Loss가 0인 W를 찾았다면 이 값과 동일한 다른 W도 존재하는가?*에 대한 질문이다. 정답은 있다! 이다. 기존 W에 2배를 한다고 해서 Loss는 변하지 않는다. 앞서 loss function이 최적의 W를 찾기 위해 정량적으로 나타내는 것이라고 설명을 했다. 하지만 우리는 수많은 W가 0이 된다는 사실을 방금 알게 되었다. 이는 모순임을 알 수 있다. 왜냐하면 오직 위 식은 data의 loss에만 신경을 쓰고 있기 때문이다. 이때의 data는 xi, 즉 training data이다. 이는 아래 그림과 같이 과대 적합 (Overfitting) 인 문제가 발생한다. 우리는 test data에 대한 performance에 관심이 있지 training data에는 관심이 없다. 따라서 우리는 아래 그림과 같이 되기를 원한다. 따라서 기존 Loss 식에 변화를 주어야 된다. 기존 식에 Regularization을 추가하여 이 식은 분류기가 더 간단한 W를 선택하도록 패널티를 주는 역할을 한다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/cs231n/lecture3/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-05-24T21:32:06+09:00" />
-<meta property="article:modified_time" content="2024-05-24T21:32:06+09:00" /><meta property="og:site_name" content="My cool site" />
+<meta property="article:published_time" content="2024-07-02T15:32:06+09:00" />
+<meta property="article:modified_time" content="2024-07-02T15:32:06+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS231n] 03.Loss Functions and Optimization"/>
-<meta name="twitter:description" content="개요 CS231n의 3강에 대한 내용을 정리 할 것이다.
-저번 강에서는 선형 분류기에 대해서 공부를 했는데 이때 어떻게 이미지의 가중치인 W의 값들을 업데이트 하는 방법에 대해서 집중적으로 다룰 것이다.
-continue"/>
+<meta name="twitter:description" content="개요 CS231n의 3강에 대한 내용을 정리 할 것이다. 저번 강에서는 선형 분류기에 대해서 공부를 했는데 이때 어떻게 이미지의 가중치인 W의 값들의 badness를 판단하는지(loss function), 또 W의 값들을 업데이트 하는 방법(optimization)에 대해서 집중적으로 다룰 것이다. Loss Function Loss Function이란 W를 가져와서 점수를 보고 얼마나 정량적으로 좋은지 나쁜지 알려주는 함수이다. 또는 실제값과 예측값의 차이를 수치화 해주는 함수이다. Loos Function의 기본 식은 아래와 같다. xi: pixel value yi: predict label - f: predict y Li: loss function - L: loss mean 따라서 위 식을 통해 어떤 W가 가장 좋은 결과를 가져오는지 정량적으로 판단할 수 있게 된다. Multiclass SVM Loss 다음으론 image classification에 적합한 multi-class SVM Loss에 대한 설명이다. loss function의 식은 아래와 같다. sj: 잘못된 label의 score syi: 제대로 된 label의 score - 1: safety margin 따라서 위 식은 제대로 예측을 했고 그 값이 safety margin보다 뛰어나다면 loss는 0을 나타내고, 그것이 아니라면 잘못된 label과 정상 label간의 차이만큼이 loss인 것을 알 수 있다. 이를 그래프로 시각화를 하면 아래 그림과 같은데 이를 hinge loss라고 한다. 이 그래프를 통해 알 수 있는 사실은 잘 분류된 point는 loss가 작거나 없고, 잘못 분류된 point는 loss가 높다. 잘 분류되었을 수록 syi가 클 것이다. 그러므로 sj - syi의 식에서 음수값이 나올 가능성이 크다. 다음은 hinge loss에 관하여 6가지의 질문이 나온다. Q1: 잘 예측 했을 경우 데이터가 미세하게 변한다고 해서 loss의 값이 변하지는 않는다. Q2: hinge loss의 최솟값은 0, 최대값은 무한대일 것이다. (class score가 엄청 낮은 음수 값을 가지고 있다면) Q3: W를 임의의 작은 수로 초기화를 할 때 sj - syi의 값이 0일 경우 classes_num - 1의 값이 나오게 된다. 이는 debugging시 유용하다. 훈련 시 초기의 loss값이 classes_num - 1이 아니라면 과정 중 어떤 것이 잘못되었는지 다시 볼 필요가 있다. Q4: 정답 class도 계산을 한다면 기존 loss에 1이 증가한 형태일 것이다. Q5: Summation이 아니라 Mean이라도 loss의 값은 변함 없다. (rescale만 된다. 큰 영향 없다.) Q6: 아래의 그림과 같이 제곱항으로 변경한다면 결과는 달라진다. 선형적이었던 관계를 비선형적으로 바꿔서 표현이 된다. 따라서 잘못 예측한 것은 제곱만큼 loss가 커지게 되는 상황이 발생한다. 따라서 데이터의 특성에 따라 극심한 차이를 보고싶을 때 사용한다. 따라서 어떤 loss를 사용하냐는 error값을 얼마나 신경쓰고 있고, 어떻게 정량화 할거냐에 따라 다르다. 아래는 hinge-loss의 example code이다.
+def L_i_vectorzed(x, y, W): scores = W.dot(x) # Predict margins = np.maximum(0, scores - scores[y] &#43; 1) # Calc Loss margins[y] = 0 # class label에 해당하는 것은 0으로 두는 일종의 trick에 해당한다. loss_i = np.sum(margins) # Summation Loss return loss_i # return Regularization 또다른 질문이 있다. *Loss가 0인 W를 찾았다면 이 값과 동일한 다른 W도 존재하는가?*에 대한 질문이다. 정답은 있다! 이다. 기존 W에 2배를 한다고 해서 Loss는 변하지 않는다. 앞서 loss function이 최적의 W를 찾기 위해 정량적으로 나타내는 것이라고 설명을 했다. 하지만 우리는 수많은 W가 0이 된다는 사실을 방금 알게 되었다. 이는 모순임을 알 수 있다. 왜냐하면 오직 위 식은 data의 loss에만 신경을 쓰고 있기 때문이다. 이때의 data는 xi, 즉 training data이다. 이는 아래 그림과 같이 과대 적합 (Overfitting) 인 문제가 발생한다. 우리는 test data에 대한 performance에 관심이 있지 training data에는 관심이 없다. 따라서 우리는 아래 그림과 같이 되기를 원한다. 따라서 기존 Loss 식에 변화를 주어야 된다. 기존 식에 Regularization을 추가하여 이 식은 분류기가 더 간단한 W를 선택하도록 패널티를 주는 역할을 한다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture3/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/unet/" /><link rel="next" href="https://goodyoung.github.io/posts/paper/deeplab-v1/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture3/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/deeplab-v1/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -31,8 +29,8 @@ continue"/>
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture3\/"
-        },"genre": "posts","keywords": "Loss Function, Optimization, CS231n","wordcount":  29 ,
-        "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture3\/","datePublished": "2024-05-24T21:32:06+09:00","dateModified": "2024-05-24T21:32:06+09:00","publisher": {
+        },"genre": "posts","keywords": "Loss Function, Optimization, CS231n","wordcount":  1229 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture3\/","datePublished": "2024-07-02T15:32:06+09:00","dateModified": "2024-07-02T15:32:06+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
                 "@type": "Person",
@@ -73,8 +71,8 @@ continue"/>
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS231n] 03.Loss Functions and Optimization</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-05-24">2024-05-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;29 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;One minute&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-02">2024-07-02</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1229 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;6 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -83,25 +81,368 @@ continue"/>
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
     <li><a href="#개요">개요</a></li>
+    <li><a href="#loss-function">Loss Function</a>
+      <ul>
+        <li><a href="#multiclass-svm-loss">Multiclass SVM Loss</a></li>
+        <li><a href="#regularization">Regularization</a></li>
+        <li><a href="#weight-decay-l2-regularization">Weight Decay (L2 Regularization)</a></li>
+        <li><a href="#softmax">SoftMax</a></li>
+      </ul>
+    </li>
+    <li><a href="#optimization">Optimization</a>
+      <ul>
+        <li><a href="#gradient-descent">Gradient Descent</a></li>
+        <li><a href="#stochastic-gradient-descent-sgd">Stochastic Gradient Descent (SGD)</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><h2 id="개요">개요</h2>
 <ol start="0">
-<li>
-<p><code>CS231n</code>의 3강에 대한 내용을 정리 할 것이다.</p>
+<li><code>CS231n</code>의 3강에 대한 내용을 정리 할 것이다.</li>
+</ol>
+<br>
+<ol>
+<li>저번 강에서는 선형 분류기에 대해서 공부를 했는데 이때 어떻게 이미지의 가중치인 <code>W</code>의 값들의 badness를 판단하는지(<code>loss function</code>), 또 <code>W</code>의 값들을 업데이트 하는 방법(<code>optimization</code>)에 대해서 집중적으로 다룰 것이다.</li>
+</ol>
+<hr>
+<h2 id="loss-function">Loss Function</h2>
+<ol start="2">
+<li><code>Loss Function</code>이란 <code>W</code>를 가져와서 점수를 보고 얼마나 정량적으로 좋은지 나쁜지 알려주는 함수이다.</li>
+</ol>
+<ul>
+<li>또는 실제값과 예측값의 차이를 수치화 해주는 함수이다.</li>
+</ul>
+<br>
+<ol start="3">
+<li><code>Loos Function</code>의 기본 식은 <code>아래</code>와 같다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/lossfunction-1.png" height="100%" width="49%"> </div>
+<ul>
+<li><code>xi</code>: pixel value</li>
+<li><code>yi</code>: predict label
+-<code> f</code>:  predict y</li>
+<li><code>Li</code>: loss function
+-<code> L</code>:  loss mean</li>
+</ul>
+<br>
+<ol start="4">
+<li>따라서 위 식을 통해 어떤 W가 가장 좋은 결과를 가져오는지 정량적으로 판단할 수 있게 된다.</li>
+</ol>
+<h3 id="multiclass-svm-loss">Multiclass SVM Loss</h3>
+<ol start="5">
+<li>다음으론 image classification에 적합한 multi-class SVM Loss에 대한 설명이다.</li>
+</ol>
+<br>
+<ol start="6">
+<li>loss function의 식은 <code>아래</code>와 같다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/lossfunction-2.png" height="100%" width="49%"></div>
+<ul>
+<li><code>sj</code>: 잘못된 label의 score</li>
+<li><code>syi</code>: 제대로 된 label의 score
+-<code> 1</code>: safety margin</li>
+</ul>
+<br>
+<ol start="7">
+<li>따라서 위 식은 제대로 예측을 했고 그 값이 safety margin보다 뛰어나다면 loss는 0을 나타내고, 그것이 아니라면 잘못된 label과 정상 label간의 차이만큼이 loss인 것을 알 수 있다.</li>
+</ol>
+<br>
+<ol start="8">
+<li>이를 그래프로 시각화를 하면 <code>아래 그림</code>과 같은데 이를 <code>hinge loss</code>라고 한다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/hinge-loss.png" height="100%" width="49%">
+</div>
+<br>
+<ol start="9">
+<li>이 그래프를 통해 알 수 있는 사실은 잘 분류된 point는 loss가 작거나 없고, 잘못 분류된 point는 loss가 높다.</li>
+</ol>
+<ul>
+<li>잘 분류되었을 수록 syi가 클 것이다.</li>
+<li>그러므로 sj - syi의 식에서 음수값이 나올 가능성이 크다.</li>
+</ul>
+<br>
+<ol start="10">
+<li>다음은 <code>hinge loss</code>에 관하여 6가지의 질문이 나온다.</li>
+</ol>
+<ul>
+<li><code>Q1</code>: 잘 예측 했을 경우 데이터가 미세하게 변한다고 해서 loss의 값이 변하지는 않는다.</li>
+<li><code>Q2</code>: <code>hinge loss</code>의 최솟값은 0, 최대값은 무한대일 것이다. (class score가 엄청 낮은 음수 값을 가지고 있다면)</li>
+<li><code>Q3</code>: W를 임의의 작은 수로 초기화를 할 때 sj - syi의 값이 0일 경우 <code>classes_num - 1</code>의 값이 나오게 된다.
+<ul>
+<li>이는 debugging시 유용하다.</li>
+<li>훈련 시 초기의 loss값이 <code>classes_num - 1</code>이 아니라면 과정 중 어떤 것이 잘못되었는지 다시 볼 필요가 있다.</li>
+</ul>
 </li>
+<li><code>Q4</code>: 정답 class도 계산을 한다면 기존 loss에 1이 증가한 형태일 것이다.</li>
+<li><code>Q5</code>: <code>Summation</code>이 아니라 <code>Mean</code>이라도 loss의 값은 변함 없다. (rescale만 된다. 큰 영향 없다.)</li>
+<li><code>Q6</code>: 아래의 그림과 같이 제곱항으로 변경한다면 결과는 달라진다. 선형적이었던 관계를 비선형적으로 바꿔서 표현이 된다.
+<ul>
 <li>
-<p>저번 강에서는 선형 분류기에 대해서 공부를 했는데 이때 어떻게 이미지의 가중치인 <code>W</code>의 값들을 업데이트 하는 방법에 대해서 집중적으로 다룰 것이다.</p>
+<img src="/images/cs231n/lecture3/lossfunction-3.png" height="100%" width="49%">
 </li>
+<li>따라서 잘못 예측한 것은 제곱만큼 loss가 커지게 되는 상황이 발생한다. 따라서 <strong>데이터의 특성에 따라 극심한 차이를 보고싶을 때 사용한다.</strong></li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="11">
+<li>따라서 어떤 loss를 사용하냐는 <code>error</code>값을 얼마나 신경쓰고 있고, 어떻게 정량화 할거냐에 따라 다르다.</li>
+</ol>
+<br>
+<ol start="12">
 <li>
-<p>continue</p>
+<p>아래는 <code>hinge-loss</code>의 example code이다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">L_i_vectorzed</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">scores</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># Predict</span>
+</span></span><span class="line"><span class="cl">    <span class="n">margins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">scores</span> <span class="o">-</span> <span class="n">scores</span><span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># Calc Loss</span>
+</span></span><span class="line"><span class="cl">    <span class="n">margins</span><span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># class label에 해당하는 것은 0으로 두는 일종의 trick에 해당한다.</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">margins</span><span class="p">)</span> <span class="c1"># Summation Loss</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">loss_i</span> <span class="c1"># return</span>
+</span></span></code></pre></div></li>
+</ol>
+<hr>
+<h3 id="regularization">Regularization</h3>
+<ol start="13">
+<li>또다른 질문이 있다. *Loss가 0인 W를 찾았다면 이 값과 동일한 다른 W도 존재하는가?*에 대한 질문이다.</li>
+</ol>
+<br>
+<ol start="14">
+<li><strong>정답은</strong> <strong><code>있다!</code></strong> 이다. 기존 W에 2배를 한다고 해서 <code>Loss</code>는 변하지 않는다. 앞서 <code>loss function</code>이 최적의 W를 찾기 위해 정량적으로 나타내는 것이라고 설명을 했다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>하지만 우리는 수많은 W가 0이 된다는 사실을 방금 알게 되었다. 이는 <em>모순</em>임을 알 수 있다.</li>
+</ol>
+<br>
+<ol start="16">
+<li><strong>왜냐하면 오직 위 식은 data의 loss에만 신경을 쓰고 있기 때문이다.</strong> 이때의 data는 <code>xi</code>, 즉 <code>training data</code>이다. 이는 <code>아래 그림</code>과 같이 <strong>과대 적합 (Overfitting)</strong> 인 문제가 발생한다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/regularization-1.png" height="100%" width="49%"> </div>
+<br>
+<ol start="17">
+<li>우리는 <code>test data</code>에 대한 <code>performance</code>에 관심이 있지 <code>training data</code>에는 관심이 없다. 따라서 우리는 <code>아래 그림</code>과 같이 되기를 원한다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/regularization-2.png" height="100%" width="49%"> </div>
+<br>
+<ol start="18">
+<li>따라서 <code>기존 Loss 식</code>에 변화를 주어야 된다. 기존 식에 <code>Regularization</code>을 추가하여 이 식은 분류기가 더 간단한 W를 선택하도록 <strong>패널티를</strong> 주는 역할을 한다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/regularization-3.png" height="100%" width="49%"> </div>
+<br>
+<ol start="19">
+<li>위 식을 볼 수 있듯 더이상 <strong>data</strong>에 대한 function이 아니라 <code>weight</code>기반의 함수임을 알 수 있다. 이 <code>Regularization</code>에는 <code>L1, L2 Regularization</code>이 있다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/regularization-4.png" height="100%" width="49%"> </div>
+<h3 id="weight-decay-l2-regularization">Weight Decay (L2 Regularization)</h3>
+<ol start="20">
+<li><code>L2</code>를 <code>Weight Decay</code>로도 부른다. L2는 W에 대한 <code>Euclidean Norm</code>이다. 해당 부분은 <a href="http://goodyoung.github.io/posts/cs231n/lecture2/" target="_blank" rel="noopener noreffer ">여기</a>에 있다.</li>
+</ol>
+<ul>
+<li><code>L2 Norm</code>을 사용하면 <code>L2 Regularization</code>, <code>Ridge Regression</code> 이다.</li>
+<li><code>L1 Norm</code>을 사용하면 <code>L1 Regularization</code>, <code>Lasso Regression</code> 이다.</li>
+</ul>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/regularization-5.png" height="100%" width="49%"> </div>
+<br>
+<ol start="21">
+<li>위 같이 결과가 같을 때 <code>L2 Regularization</code>은 어떤 <code>W</code>를 선호 할까? 바로 <code>W2</code>를 선호한다.</li>
+</ol>
+<br>
+<ol start="22">
+<li>이유는 <code>L2</code>는 x의 모든 다른 값에 W의 영향들을 분산시키는 것을 선호한다. 따라서 값이 분산되어있는 <code>W2</code>를 더 선호하게 된다.
+<ul>
+<li>따라서 최종 분류기는 모든 입력 차원을 소수의 입력 차원보다 작은 양으로 매우 robust하게 고려하도록 권장된다.</li>
+<li>특정 x 벡터에 의존하는 것이 아닌, 전체 x 벡터에 따라 분산되어 의존하기 때문이다.</li>
+</ul>
 </li>
 </ol>
+<br>
+<ol start="23">
+<li>반면 <code>L1</code>은 <strong>0의 개수</strong> 즉, 행렬의 <strong>Spase</strong>한 특징을 선호하여 0의 개수로 모델의 복잡성을 계산한다. 따라서 <code>W1</code>을 더 선호하게 된다.</li>
+</ol>
+<br>
+<ol start="24">
+<li>따라서 L1, L2 등등을 선택하는 것은 데이터의 특성에 따라 다르다.</li>
+</ol>
+<h3 id="softmax">SoftMax</h3>
+<ol start="25">
+<li>이전까지 <strong>실제 score</strong>에 대한 해석은 없었다. 그 점수가 무엇을 의미하는지는 말을 안했다. 이젠 이 score에 대한 해석을 품은 <code>Loss Function</code>에 대해 알아볼 것이다.</li>
+</ol>
+<br>
+<ol start="26">
+<li><code>Softmax</code>는 <code>Multinomial logistic regression</code>이다. 식은 <code>아래 그림</code>과 같다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/softmax-1.png" height="100%" width="49%"> </div>
+<ol start="27">
+<li><code>위 식</code>을 보면 <code>score</code>를 전부 이용하고 그것에 지수를 취하여 양수가 되게 만든다. 그리고 그런 지수들의 합으로 정규화를 시킨다. 그렇게 되면 <strong>전체 총합이 1인</strong> <code>확률 분포</code>를 얻게 된다.</li>
+</ol>
+<br>
+<ol start="28">
+<li>위에서 얻은 확률이 해당 클래스일 확률을 나타내고 그것을 최대화 하기 위해 log를 씌운 후 <code>Loss Function</code>은 <code>badness</code>를 측정하므로 <code>마이너스</code>로 loss를 표현한다.</li>
+</ol>
+<br>
+<ol start="29">
+<li>다음으로 <code>SoftMax</code>의 2가지의 질문이 나온다.</li>
+</ol>
+<ul>
+<li><code>Q1</code>: Softmax의 최대값과 최소값은 이론적으로 0, 무한대이다.
+<ul>
+<li>정답 class일 때: log(1) = 0, 즉 손실이 0</li>
+<li>오답 class일 때: log(0) = 무한대, (자연 상수 e가 0일 때는 <code>-무한대</code>밖에 없으므로 이론적으로 나타낸다.)</li>
+</ul>
+</li>
+<li><code>Q2</code>: W가 임의의 초기화 된 작은 값일 때 s가 0이면, <code>log(classes_num)</code>으로 나온다.
+<ul>
+<li>이는 debugging시 유용하다.</li>
+<li>훈련 시 초기의 loss값이 <code>log(classes_num)</code>이 아니라면 과정 중 어떤 것이 잘못되었는지 다시 볼 필요가 있다.</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="30">
+<li><code>SVM Loss</code>에서는 정답 class의 확률을 조정한다고 해서 loss는 변하지 않았지만 <code>SoftMax</code>는 그렇지 않다. 왜냐하면 <code>SoftMax</code>는 확률을 1로 만드는 것(정확하게 예측하는 것)이 목표이기 때문이다.</li>
+</ol>
+<br>
+<ol start="31">
+<li><code>SoftMax</code>는 <strong>정답 score가 충분히 높고, 다른 score가 충분히 낮은 상황에서도 정답 class의 확률을 높이는데 최선을 다할 것이다.</strong></li>
+</ol>
+<ul>
+<li>이는 <code>성능 개선</code>의 관점에서 차이가 발생한다.</li>
+</ul>
+<h2 id="optimization">Optimization</h2>
+<ol start="32">
+<li><code>Optimization</code>의 목적은 <code>loss function</code>을 최소화 시키는 W를 찾아내는 과정이다. 궁극적인 목적은 신경망(NN)을 최적화시키는 것이다.</li>
+</ol>
+<br>
+<ol start="33">
+<li>이런 <code>Optimization</code>의 방법 중 <code>Random Search</code>방법이 있다. 주어진 parameter를 무작위로 넣고 가장 좋은 W를 찾는 방법이다.</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">bestloss</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">3073</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.0001</span> <span class="c1"># Get W randomly</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="c1"># 랜덤 W를 사용해 loss 구하기</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">loss</span> <span class="o">&lt;</span> <span class="n">bestloss</span><span class="p">:</span> <span class="c1"># 최적의 loss 찾기</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bestloss</span> <span class="o">=</span> <span class="n">loss</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bestW</span> <span class="o">=</span> <span class="n">W</span>
+</span></span></code></pre></div><br>
+<ol start="34">
+<li>대략 10% 정확도로 매우 안좋다고 나온다. 여기서 얻은 아이디어로는 <code>Loop</code>라는 것이다. <strong>조금씩 개선 시키는 방법을 이용할 수 있겠다 라는 점이다.</strong></li>
+</ol>
+<blockquote>
+<p>따라서 무작위로 뽑은 파라미터로 시작해서 반복적으로 조금씩 개선하여 <code>loss</code>를 낮추는 것이다.</p>
+</blockquote>
+<br>
+<ol start="35">
+<li>이는 마치 산 꼭대기에서 눈을 가리고 산을 내려오는 방법과 같다고 표현을 한다.
+<ul>
+<li>언덕의 각 지점에서의 고도가 loss function의 <code>loss</code>이다.</li>
+</ul>
+</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/mountain.png" height="100%" width="49%"> </div>
+<br>
+<ol start="36">
+<li>다음 <code>Optimization</code>방법으론 <code>Follow the slope</code>가 있다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/derivation.png" height="100%" width="49%"> </div>
+<br>
+<ol start="37">
+<li><code>위 식</code>은 <code>미분 식</code>이다. 첫번째 방법처럼 무작위가 아닌 <strong>gradient(기울기)를 이용하여 기울기가 가장 가파른 곳을 찾아서</strong> 그 단서를 이용해 이동할 수 있다.</li>
+</ol>
+<br>
+<ol start="38">
+<li>1차 함수일 때 어떤 점에서 움직이는 경우의 기울기는 함수의 순간 증가율이다. <code>gradient</code>라는 것은 변수 하나가 아닌 여러개의 경우를 일반화 시킨 것이다.</li>
+</ol>
+<ul>
+<li>Gradient: the vector of (partial derivatives) along each dimension</li>
+</ul>
+<br>
+<ol start="39">
+<li>gradient는 두 가지 방법이 있다.</li>
+</ol>
+<ul>
+<li>수치 gradient</li>
+<li>해석 gradient</li>
+</ul>
+<br>
+<ol start="40">
+<li>수치 gradient를 사용하면 <code>아래 그림</code>과 같이 모든 차원을 하나씩 돌아가는 <code>오버헤드</code>가 발생한다.</li>
+</ol>
+<ul>
+<li>gradient를 수치적으로 계산하는데 드는 비용은 <strong>parameter 수에 따라 선형적으로 증가한다.</strong></li>
+</ul>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/gradient-1.png" height="100%" width="49%"> </div>
+<br>
+<ol start="41">
+<li><code>위 그림</code>에서 보듯이 h의 값을 임의로 0.0001의 작은 값으로 두었다. 하지만 단순히 작은 h의 값을 사용하기 때문에 계산이 비효율 적이다.</li>
+</ol>
+<ul>
+<li>gradient의 진짜 정의는 <code>h</code>가 0으로 수렴할 때의 극한 값. (여기선 그냥 작은 h값)</li>
+</ul>
+<br>
+<ol start="42">
+<li>따라서 나온 것이 <code>해석적 미분</code>이다. 다음 강의에 나온다.</li>
+</ol>
+<ul>
+<li>해석적으로 푸는 것이 수치적으로 푸는 것보다 더 효율적이다.</li>
+</ul>
+<h3 id="gradient-descent">Gradient Descent</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">weights_grad</span> <span class="o">=</span> <span class="n">evaluate_gradient</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">weights</span> <span class="o">+=</span> <span class="o">-</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">weights_grad</span> <span class="c1"># parameter update</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># step_size == lr(learning rate)</span>
+</span></span></code></pre></div><br>
+<ol start="43">
+<li><code>위 식</code> 처럼 우선 W를 임의의 값으로 초기화를 한후, gradient를 계산하고 가중치를 gradient의 반대 방향으로 업데이트 한다.</li>
+</ol>
+<ul>
+<li><strong>함수가 가장 크게 증가하는 방향의 반대이므로</strong></li>
+</ul>
+<br>
+<ol start="44">
+<li><code>위 식</code>도 N개의 전체 training set을 한 번 더 돌면서 계산하는 것은 <strong>똑같다</strong>. <strong>이 과정은 데이터의 크기가 클수록 비효율적이다.</strong></li>
+</ol>
+<h3 id="stochastic-gradient-descent-sgd">Stochastic Gradient Descent (SGD)</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">data_batch</span> <span class="o">=</span> <span class="n">sample_training_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="mi">256</span><span class="p">)</span> <span class="c1"># minibatch 가져오기</span>
+</span></span><span class="line"><span class="cl">  <span class="n">weights_grad</span> <span class="o">=</span> <span class="n">evaluate_gradient</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">weights</span> <span class="o">+=</span> <span class="o">-</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">weights_grad</span> <span class="c1"># parameter update</span>
+</span></span></code></pre></div><ol start="45">
+<li>따라서 나온 것이 SGD이다. 작은 training sample 집합으로 나눠서 학습하는 방법이다. **Mini-batch gradient descent(MGD)**이긴 한데 SGD라고 통용된다.</li>
+</ol>
+<br>
+<ol start="46">
+<li><code>Batch</code>만 이용하여 gradient를 구하는 것이다.</li>
+</ol>
+<ul>
+<li>ConvNet을 쓸 때 한 번에 120만개 중 256개 짜리 배치만 이용해서 parameter 업데이트를 한다.</li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture3/gradient.png" height="100%" width="49%"> </div>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://chasuyeon.tistory.com/entry/CS231n-3" target="_blank" rel="noopener noreffer ">https://chasuyeon.tistory.com/entry/CS231n-3</a>강-정리-Loss-Functions-and-Optimization</li>
+</ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
-                <span>Updated on 2024-05-24</span>
+                <span>Updated on 2024-07-02</span>
             </div></div>
         <div class="post-info-line">
             <div class="post-info-md"></div>
@@ -118,8 +459,7 @@ continue"/>
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/paper/unet/" class="prev" rel="prev" title="[Paper Review]Convolutional Networks for Biomedical Image Segmentation(UNet)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Convolutional Networks for Biomedical Image Segmentation(UNet)</a>
-            <a href="/posts/paper/deeplab-v1/" class="next" rel="next" title="[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)">[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+    <div class="post-nav"><a href="/posts/paper/deeplab-v1/" class="prev" rel="prev" title="[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Semantic Image Segmentation with Deep Convolutional Nets and Fully Connected CRFs(DeepLab V1)</a></div>
 </div>
 <div id="comments"><div id="utterances" class="comment"></div><noscript>
                 Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
