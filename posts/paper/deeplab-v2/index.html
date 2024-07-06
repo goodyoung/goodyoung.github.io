@@ -5,42 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)" />
-<meta property="og:description" content="Abstract Atrous convolution
-효과적으로 FOV(Field of View)를 확장시킨다. (파라미터의 수 증가 없이 더 많은 context들을 포함하여 reception field를 증가시킨다.) Atrous spatial pyramid pooling (ASPP)
-multi scale로 image context를 효과적으로 포착 가능 따라서 robust하게 객체를 분할 할 수 있다. CRF
-max-pooling, downsampling의 결합이 배치되어 invariance가 있던 것들을 CRF를 사용하면서 질, 양적으로 localization 성능을 향상시켰다. Introduction DCNN이 classification, object detection에서 많이 사용된다. hand-crafted feature보다 더 좋은 성능을 나타내기 때문에 이 성공을 이끈 것은 image 변형에 대한 추상적인 data representation을 학습하게 하는 built-in invariance이다. 이 invariance는 classification task에는 좋지만 spatial information이 undesired한 segmentation에는 방해가 된다.
-그래서 우리는 Segmentation을 위한 DCNN에 아래 3가지 사항을 고려했다.
-reduce feature resolution existence of object at multiple scale reduce localization accuracy 첫번째 challenge는 max-pooling과 downsampling이 반복되어서 나타낸다. 이는 spatial resolution을 줄이기 때문에 안좋다. 이를 해결하기 위해서 우린 맨 마지막 단의 몇개의 maxpooling layer를 제거하고 높은 sampling 비율( 더 높은 해상도)로 계산하기 위하여 대신에 upsample 하는 filter를 추가한다. 이때 filter는 hole algorithm을 사용한 atrous convolution을 추가한다. 이것을 이용하여 실제 atrous convolution과 hole algorithm을 사용하여 계산량을 증가시키지 않고 FOV를 증가시켰다.
-두번째 challenge는 기존의 방법은 동일한 이미지를 rescale버전을 DCNN에 입력한 후 얻은 feature map을 aggregate한다. 이 방법은 performance는 증가하지만 computing overhead가 발생한다. 따라서 본 논문에서는 spatial pyramid pooling을 사용하여 convolution 전에 주어진 feature layer를 resampling 하는 효율적인 구조를 제시한다. 이것은 원본 이미지를 여러 필터로 보는 것과 같아서 효율적인 FOV, useful한 multi scale의 관점에서 다양한 image context를 포착할 수 있다. 우린 병렬로 atrous convolutional layer를 사용한다. 이를 &lsquo;atrous spatial pyramid pooling&rsquo; (ASPP)라고 불린다.
-세번째 challenge는 object-centric classifier는 공간적 변형에 대한 불변성이 필요하다. 이를 해결하기 위해선 마지막 segmentation결과를 계산하기 위한 hyper-column의 특징을 뽑는 skip layer를 사용하여 해결한다. CRF를 이용하여 미세한 디테일을 감지하는 능력을 키운다. 미세한 edge detail을 포착하기 위하여 fully connected pairwise CRF를 사용한다. 또한, CRF랑 DCNN이랑 연결했을 때 SOTA를 달성함.
-따라서 본 논문에서 dcnn 모델로 VGG-16, ResNet-101을 사용했고 Fully convolutional 한 층을 사용한다. 그리고 feature resolution을 증가시키기 위해 atrous convolutional layer을 사용하고 8 pixel로 계산한다. bi-linear interpolation을 사용하여 upsample을 하고 다시 CRF를 사용하여 segmentation result를 도출하게 된다.
-이건 결론적으로 빠르고, 정확하고, 간단하다. 기존보다 더 좋은 버전으로 나온다. 결론적으로 multi scale input processin (ASPP)를 사용하고 DCNN을 resnet 사용으로 변경하여 SOTA Methods Atrous Convolution for Dense Feature Extraction and Field-of-View Enlargement atrous convolution의 기존 식은 이것이다. 하지만 atrous convolution을 사용 하기 위해 아래 그림과 같이 r의 값을 조절하여 high resolution input feature map에도 사용할 수 있다.
-2-D일때의 feature map의 특징을 보면 더욱 뚜렷한 것을 확인할 수 있다.
-기존 방식대로 커널을 사용하게 된다면 1/4 의 이미지의 위치에 있는 데이터만 얻을 수 있게 된다. 하지만 atrous convolution을 사용하게 된다면 모든 이미지에 대한 정보를 얻을 수 있기에 공간 resolution이 증가한다.
-atorous convolutional layer를 모든 층에 사용하기엔 비용적 오버헤드가 발생하여 하이브리드 전략을 취한다. 따라서 본 논문에서는 마지막 풀링, convolution layer에 atrous convolution layer를 추가하여 (stride = 2) 4배로 늘리고, 이중 선형 보간법을 사용해 8배로 늘려 원래 이미지 해상도에서 특징 맵을 복원한다.
-이런 atrous convolution은 어떤 레이어에서든 field of view를 임의로 확대할 수 있게 된다. 따라서 본 논문에서 VGG-16의 fc6 레이어에서 r = 12로 설정하면 성능이 크게 향상이 되었음이 나온다.
-첫 번째 방법은 필터를 업샘플링하여 구멍(0)을 삽입하거나, 동등하게 입력 특징 맵을 희소하게 샘플링하는 것입니" />
+<meta property="og:description" content="개요 DeepLab V1에 이어서 DeepLab V2에 대한 논문 리뷰를 해보려고 한다. V1과 엄청나게 큰 차이는 없지만 방법론의 변화가 있었다. Abstract 본 논문에서 해당 모델(DeepLab-V2)에서 사용하고 있는 세가지의 주된 방법을 설명하고 있다. 첫 번째로 Atrous convolutional이다. 이는 파라미터의 수 증가 없이 더 많은 context들을 포함하여 FOV(Field of View)를 증가 시킨다. 두 번째로 Atrous spatial pyramid pooling (ASPP)이다. 이는 multi scale로 image context를 다양한 context들을 효과적으로 포착이 가능하다. 따라서 ASPP를 사용하게 되면 더욱 robust하게 객체를 분할 할 수 있다고 설명한다. 세 번째로 Conditional Random Field (CRF)이다. 이는 max-pooling, downsampling의 결합이 배치되어 invariance가 있던 것들을 CRF를 사용하면서 질, 양적으로 localization 성능을 향상시킨다고 나온다. Introduction hand-crafted feature보다 더 좋은 성능을 나타내기 때문에 Deep Convolutional Neural Networks (DCNN)이 classification, object detection에서 많이 사용된다. 이러한 성공을 이끈 것은 image 변형에 대한 추상적인 data representation을 학습하게 하는 built-in invariance(불변성)이다. 하지만 이런 invariance는 classification task에는 좋지만 spatial information이 undesired한 segmentation에는 좋지 않다. 따라서 본 논문에서는 이런 단점을 극복하기 위해 아래 세가지 사항을 고려 했다. reduce feature resolution existence of object at multiple scale reduce localization accuracy 첫 번째 challenge는 max-pooling과 downsampling이 반복되어서 나타낸다. 이는 spatial resolution을 줄이기 때문에 안좋다. 이를 해결하기 위해서 우린 맨 마지막 단의 몇개의 maxpooling layer를 제거하고 높은 sampling 비율(더 높은 해상도)로 계산하기 위하여 대신에 upsample 하는 filter를 추가한다. 이때 filter는 hole algorithm을 사용한 atrous convolution을 추가한다. 실제 atrous convolution과 hole algorithm을 사용하여 계산량을 증가시키지 않고 FOV를 증가시켰다. 두 번째 challenge는 기존의 방법은 동일한 이미지를 rescale 버전을 DCNN에 입력한 후 얻은 feature map을 aggregate한다. 이 방법은 performance는 증가하지만 computing overhead가 발생한다. 따라서 본 논문에서는 spatial pyramid pooling (SPP)을 사용하여 convolution 전에 주어진 feature layer를 resampling 하는 효율적인 구조를 제시한다. 이것은 원본 이미지를 여러(Multiple) 필터로 보는 것과 같아서 효율적인 FOV, useful한 multi scale의 관점에서 다양한 image context를 포착할 수 있다. 우린 병렬로 atrous convolutional layer를 사용한다. 이를 &lsquo;atrous spatial pyramid pooling&rsquo; (ASPP)라고 불린다. 세 번째 challenge는 object-centric classifier는 공간적 변형에 대한 불변성이 필요하다. 이를 해결하기 위해선 마지막 segmentation결과를 계산하기 위한 hyper-column의 특징을 뽑는 skip layer를 사용하여 해결한다. 미세한 edge detail을 포착하기 위하여 fully connected pairwise CRF를 사용한다. 또한, CRF랑 DCNN이랑 연결했을 때 SOTA를 달성했다. 마지막으로 따라서 본 논문에서 DCNN 모델로 VGG-16, ResNet-101을 사용했고 Fully convolutional 한 층을 사용하였다. Methods 앞에서 말한 세가지 방법에 대해 좀 더 자세히 설명하도록 하겠다. Atrous Convolution for Dense Feature Extraction and Field-of-View Enlargement x[i]: input w[k]: filter (length: K) r: rate,stride 1차원에서 atrous convolution의 기존 식은 위 그림과 같다. 하지만 atrous convolution을 사용 하기 위해 위 그림과 같이 r의 값을 조절하여 high resolution input feature map에도 사용할 수 있다. 또한 위 그림 처럼 2-D일때의 feature map의 특징을 보면 더욱 뚜렷한 것을 확인할 수 있다. 기존 방식대로 커널을 사용하게 된다면 1/4 의 이미지의 위치에 있는 데이터만 얻을 수 있게 된다. 하지만 atrous convolution을 사용하게 된다면 모든 이미지에 대한 정보를 얻을 수 있기에 spatial resolution이 증가한다. atorous convolutional layer를 모든 층에 사용하기엔 비용적 오버헤드가 발생하여 하이브리드 전략을 취한다. 따라서 본 논문에서는 마지막 풀링, convolution layer에 atrous convolution layer를 추가하여 (stride = 2) 4배로 늘리고, 이중 선형 보간법을 사용해 8배로 늘려 원래 이미지 해상도에서 특징 맵을 복원한다. 이런 atrous convolution은 어떤 레이어에서든 FOV(field of view)를 임의로 확대할 수 있게 된다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/paper/deeplab-v2/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-07-04T21:22:47+09:00" />
-<meta property="article:modified_time" content="2024-07-04T21:22:47+09:00" /><meta property="og:site_name" content="My cool site" />
+<meta property="article:published_time" content="2024-07-06T17:22:47+09:00" />
+<meta property="article:modified_time" content="2024-07-06T17:22:47+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"/>
-<meta name="twitter:description" content="Abstract Atrous convolution
-효과적으로 FOV(Field of View)를 확장시킨다. (파라미터의 수 증가 없이 더 많은 context들을 포함하여 reception field를 증가시킨다.) Atrous spatial pyramid pooling (ASPP)
-multi scale로 image context를 효과적으로 포착 가능 따라서 robust하게 객체를 분할 할 수 있다. CRF
-max-pooling, downsampling의 결합이 배치되어 invariance가 있던 것들을 CRF를 사용하면서 질, 양적으로 localization 성능을 향상시켰다. Introduction DCNN이 classification, object detection에서 많이 사용된다. hand-crafted feature보다 더 좋은 성능을 나타내기 때문에 이 성공을 이끈 것은 image 변형에 대한 추상적인 data representation을 학습하게 하는 built-in invariance이다. 이 invariance는 classification task에는 좋지만 spatial information이 undesired한 segmentation에는 방해가 된다.
-그래서 우리는 Segmentation을 위한 DCNN에 아래 3가지 사항을 고려했다.
-reduce feature resolution existence of object at multiple scale reduce localization accuracy 첫번째 challenge는 max-pooling과 downsampling이 반복되어서 나타낸다. 이는 spatial resolution을 줄이기 때문에 안좋다. 이를 해결하기 위해서 우린 맨 마지막 단의 몇개의 maxpooling layer를 제거하고 높은 sampling 비율( 더 높은 해상도)로 계산하기 위하여 대신에 upsample 하는 filter를 추가한다. 이때 filter는 hole algorithm을 사용한 atrous convolution을 추가한다. 이것을 이용하여 실제 atrous convolution과 hole algorithm을 사용하여 계산량을 증가시키지 않고 FOV를 증가시켰다.
-두번째 challenge는 기존의 방법은 동일한 이미지를 rescale버전을 DCNN에 입력한 후 얻은 feature map을 aggregate한다. 이 방법은 performance는 증가하지만 computing overhead가 발생한다. 따라서 본 논문에서는 spatial pyramid pooling을 사용하여 convolution 전에 주어진 feature layer를 resampling 하는 효율적인 구조를 제시한다. 이것은 원본 이미지를 여러 필터로 보는 것과 같아서 효율적인 FOV, useful한 multi scale의 관점에서 다양한 image context를 포착할 수 있다. 우린 병렬로 atrous convolutional layer를 사용한다. 이를 &lsquo;atrous spatial pyramid pooling&rsquo; (ASPP)라고 불린다.
-세번째 challenge는 object-centric classifier는 공간적 변형에 대한 불변성이 필요하다. 이를 해결하기 위해선 마지막 segmentation결과를 계산하기 위한 hyper-column의 특징을 뽑는 skip layer를 사용하여 해결한다. CRF를 이용하여 미세한 디테일을 감지하는 능력을 키운다. 미세한 edge detail을 포착하기 위하여 fully connected pairwise CRF를 사용한다. 또한, CRF랑 DCNN이랑 연결했을 때 SOTA를 달성함.
-따라서 본 논문에서 dcnn 모델로 VGG-16, ResNet-101을 사용했고 Fully convolutional 한 층을 사용한다. 그리고 feature resolution을 증가시키기 위해 atrous convolutional layer을 사용하고 8 pixel로 계산한다. bi-linear interpolation을 사용하여 upsample을 하고 다시 CRF를 사용하여 segmentation result를 도출하게 된다.
-이건 결론적으로 빠르고, 정확하고, 간단하다. 기존보다 더 좋은 버전으로 나온다. 결론적으로 multi scale input processin (ASPP)를 사용하고 DCNN을 resnet 사용으로 변경하여 SOTA Methods Atrous Convolution for Dense Feature Extraction and Field-of-View Enlargement atrous convolution의 기존 식은 이것이다. 하지만 atrous convolution을 사용 하기 위해 아래 그림과 같이 r의 값을 조절하여 high resolution input feature map에도 사용할 수 있다.
-2-D일때의 feature map의 특징을 보면 더욱 뚜렷한 것을 확인할 수 있다.
-기존 방식대로 커널을 사용하게 된다면 1/4 의 이미지의 위치에 있는 데이터만 얻을 수 있게 된다. 하지만 atrous convolution을 사용하게 된다면 모든 이미지에 대한 정보를 얻을 수 있기에 공간 resolution이 증가한다.
-atorous convolutional layer를 모든 층에 사용하기엔 비용적 오버헤드가 발생하여 하이브리드 전략을 취한다. 따라서 본 논문에서는 마지막 풀링, convolution layer에 atrous convolution layer를 추가하여 (stride = 2) 4배로 늘리고, 이중 선형 보간법을 사용해 8배로 늘려 원래 이미지 해상도에서 특징 맵을 복원한다.
-이런 atrous convolution은 어떤 레이어에서든 field of view를 임의로 확대할 수 있게 된다. 따라서 본 논문에서 VGG-16의 fc6 레이어에서 r = 12로 설정하면 성능이 크게 향상이 되었음이 나온다.
-첫 번째 방법은 필터를 업샘플링하여 구멍(0)을 삽입하거나, 동등하게 입력 특징 맵을 희소하게 샘플링하는 것입니"/>
+<meta name="twitter:description" content="개요 DeepLab V1에 이어서 DeepLab V2에 대한 논문 리뷰를 해보려고 한다. V1과 엄청나게 큰 차이는 없지만 방법론의 변화가 있었다. Abstract 본 논문에서 해당 모델(DeepLab-V2)에서 사용하고 있는 세가지의 주된 방법을 설명하고 있다. 첫 번째로 Atrous convolutional이다. 이는 파라미터의 수 증가 없이 더 많은 context들을 포함하여 FOV(Field of View)를 증가 시킨다. 두 번째로 Atrous spatial pyramid pooling (ASPP)이다. 이는 multi scale로 image context를 다양한 context들을 효과적으로 포착이 가능하다. 따라서 ASPP를 사용하게 되면 더욱 robust하게 객체를 분할 할 수 있다고 설명한다. 세 번째로 Conditional Random Field (CRF)이다. 이는 max-pooling, downsampling의 결합이 배치되어 invariance가 있던 것들을 CRF를 사용하면서 질, 양적으로 localization 성능을 향상시킨다고 나온다. Introduction hand-crafted feature보다 더 좋은 성능을 나타내기 때문에 Deep Convolutional Neural Networks (DCNN)이 classification, object detection에서 많이 사용된다. 이러한 성공을 이끈 것은 image 변형에 대한 추상적인 data representation을 학습하게 하는 built-in invariance(불변성)이다. 하지만 이런 invariance는 classification task에는 좋지만 spatial information이 undesired한 segmentation에는 좋지 않다. 따라서 본 논문에서는 이런 단점을 극복하기 위해 아래 세가지 사항을 고려 했다. reduce feature resolution existence of object at multiple scale reduce localization accuracy 첫 번째 challenge는 max-pooling과 downsampling이 반복되어서 나타낸다. 이는 spatial resolution을 줄이기 때문에 안좋다. 이를 해결하기 위해서 우린 맨 마지막 단의 몇개의 maxpooling layer를 제거하고 높은 sampling 비율(더 높은 해상도)로 계산하기 위하여 대신에 upsample 하는 filter를 추가한다. 이때 filter는 hole algorithm을 사용한 atrous convolution을 추가한다. 실제 atrous convolution과 hole algorithm을 사용하여 계산량을 증가시키지 않고 FOV를 증가시켰다. 두 번째 challenge는 기존의 방법은 동일한 이미지를 rescale 버전을 DCNN에 입력한 후 얻은 feature map을 aggregate한다. 이 방법은 performance는 증가하지만 computing overhead가 발생한다. 따라서 본 논문에서는 spatial pyramid pooling (SPP)을 사용하여 convolution 전에 주어진 feature layer를 resampling 하는 효율적인 구조를 제시한다. 이것은 원본 이미지를 여러(Multiple) 필터로 보는 것과 같아서 효율적인 FOV, useful한 multi scale의 관점에서 다양한 image context를 포착할 수 있다. 우린 병렬로 atrous convolutional layer를 사용한다. 이를 &lsquo;atrous spatial pyramid pooling&rsquo; (ASPP)라고 불린다. 세 번째 challenge는 object-centric classifier는 공간적 변형에 대한 불변성이 필요하다. 이를 해결하기 위해선 마지막 segmentation결과를 계산하기 위한 hyper-column의 특징을 뽑는 skip layer를 사용하여 해결한다. 미세한 edge detail을 포착하기 위하여 fully connected pairwise CRF를 사용한다. 또한, CRF랑 DCNN이랑 연결했을 때 SOTA를 달성했다. 마지막으로 따라서 본 논문에서 DCNN 모델로 VGG-16, ResNet-101을 사용했고 Fully convolutional 한 층을 사용하였다. Methods 앞에서 말한 세가지 방법에 대해 좀 더 자세히 설명하도록 하겠다. Atrous Convolution for Dense Feature Extraction and Field-of-View Enlargement x[i]: input w[k]: filter (length: K) r: rate,stride 1차원에서 atrous convolution의 기존 식은 위 그림과 같다. 하지만 atrous convolution을 사용 하기 위해 위 그림과 같이 r의 값을 조절하여 high resolution input feature map에도 사용할 수 있다. 또한 위 그림 처럼 2-D일때의 feature map의 특징을 보면 더욱 뚜렷한 것을 확인할 수 있다. 기존 방식대로 커널을 사용하게 된다면 1/4 의 이미지의 위치에 있는 데이터만 얻을 수 있게 된다. 하지만 atrous convolution을 사용하게 된다면 모든 이미지에 대한 정보를 얻을 수 있기에 spatial resolution이 증가한다. atorous convolutional layer를 모든 층에 사용하기엔 비용적 오버헤드가 발생하여 하이브리드 전략을 취한다. 따라서 본 논문에서는 마지막 풀링, convolution layer에 atrous convolution layer를 추가하여 (stride = 2) 4배로 늘리고, 이중 선형 보간법을 사용해 8배로 늘려 원래 이미지 해상도에서 특징 맵을 복원한다. 이런 atrous convolution은 어떤 레이어에서든 FOV(field of view)를 임의로 확대할 수 있게 된다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -55,8 +27,8 @@ atorous convolutional layer를 모든 층에 사용하기엔 비용적 오버헤
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/deeplab-v2\/"
-        },"genre": "posts","keywords": "UNet, Implement, 논문 리뷰, computer vision, segmentation","wordcount":  505 ,
-        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/deeplab-v2\/","datePublished": "2024-07-04T21:22:47+09:00","dateModified": "2024-07-04T21:22:47+09:00","publisher": {
+        },"genre": "posts","keywords": "DeepLab, Implement, 논문 리뷰, computer vision, segmentation","wordcount":  967 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/deeplab-v2\/","datePublished": "2024-07-06T17:22:47+09:00","dateModified": "2024-07-06T17:22:47+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
                 "@type": "Person",
@@ -97,8 +69,8 @@ atorous convolutional layer를 모든 층에 사용하기엔 비용적 오버헤
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-04">2024-07-04</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;505 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-06">2024-07-06</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;967 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -106,111 +78,314 @@ atorous convolutional layer를 모든 층에 사용하기엔 비용적 오버헤
                 </div>
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
+    <li><a href="#개요">개요</a></li>
     <li><a href="#abstract">Abstract</a></li>
     <li><a href="#introduction">Introduction</a></li>
     <li><a href="#methods">Methods</a>
       <ul>
         <li><a href="#atrous-convolution-for-dense-feature-extraction-and-field-of-view-enlargement">Atrous Convolution for Dense Feature Extraction and Field-of-View Enlargement</a></li>
+        <li><a href="#multiscale-image-representations-using-atrous-spatial-pyramid-pooling">Multiscale Image Representations using Atrous Spatial Pyramid Pooling</a></li>
+        <li><a href="#spatial-pyramid-pooling-spp">Spatial Pyramid Pooling (SPP)</a></li>
+        <li><a href="#structured-prediction-with-fully-connected-conditional-random-fields-for-accurate-boundary-recovery">Structured Prediction with Fully-Connected Conditional Random Fields for Accurate Boundary Recovery</a></li>
       </ul>
     </li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
-            </div><div class="content" id="content"><h2 id="abstract">Abstract</h2>
-<ul>
-<li>
-<p>Atrous convolution</p>
-<ul>
-<li>효과적으로 FOV(Field of View)를 확장시킨다. (파라미터의 수 증가 없이 더 많은 context들을 포함하여 reception field를 증가시킨다.)</li>
-</ul>
-</li>
-<li>
-<p>Atrous spatial pyramid pooling (ASPP)</p>
-<ul>
-<li>multi scale로 image context를 효과적으로 포착 가능</li>
-<li>따라서 robust하게 객체를 분할 할 수 있다.</li>
-</ul>
-</li>
-<li>
-<p>CRF</p>
-<ul>
-<li>max-pooling, downsampling의 결합이 배치되어 invariance가 있던 것들을 CRF를 사용하면서 질, 양적으로 localization 성능을 향상시켰다.</li>
-</ul>
-</li>
-</ul>
+            </div><div class="content" id="content"><h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>DeepLab V1</code>에 이어서 <code>DeepLab V2</code>에 대한 논문 리뷰를 해보려고 한다.</li>
+</ol>
+<br>
+<ol>
+<li><code>V1</code>과 엄청나게 큰 차이는 없지만 방법론의 변화가 있었다.</li>
+</ol>
+<hr>
+<h2 id="abstract">Abstract</h2>
+<ol start="2">
+<li>본 논문에서 해당 모델(DeepLab-V2)에서 사용하고 있는 세가지의 주된 방법을 설명하고 있다.</li>
+</ol>
+<br>
+<ol start="3">
+<li>첫 번째로 <code>Atrous convolutional</code>이다. 이는 파라미터의 수 증가 없이 더 많은 context들을 포함하여 FOV(Field of View)를 증가 시킨다.</li>
+</ol>
+<br>
+<ol start="4">
+<li>두 번째로 <code>Atrous spatial pyramid pooling (ASPP)</code>이다. 이는 multi scale로 image context를 다양한 context들을 효과적으로 포착이 가능하다.</li>
+</ol>
+<br>
+<ol start="5">
+<li>따라서 <code>ASPP</code>를 사용하게 되면 더욱 <code>robust</code>하게 객체를 분할 할 수 있다고 설명한다.</li>
+</ol>
+<br>
+<ol start="6">
+<li>세 번째로 <code>Conditional Random Field (CRF)</code>이다. 이는 max-pooling, downsampling의 결합이 배치되어 <code>invariance</code>가 있던 것들을 CRF를 사용하면서 질, 양적으로 localization 성능을 향상시킨다고 나온다.</li>
+</ol>
+<hr>
 <h2 id="introduction">Introduction</h2>
+<ol start="7">
+<li><code>hand-crafted feature</code>보다 더 좋은 성능을 나타내기 때문에 <code>Deep Convolutional Neural Networks (DCNN)</code>이 classification, object detection에서 많이 사용된다.</li>
+</ol>
+<br>
+<ol start="8">
+<li>이러한 성공을 이끈 것은 image 변형에 대한 추상적인 data representation을 학습하게 하는 built-in invariance(불변성)이다.</li>
+</ol>
+<br>
+<ol start="9">
+<li>하지만 이런 invariance는 classification task에는 좋지만 spatial information이 undesired한 segmentation에는 좋지 않다.</li>
+</ol>
+<br>
+<ol start="10">
+<li>따라서 본 논문에서는 이런 단점을 극복하기 위해 아래 세가지 사항을 고려 했다.</li>
+</ol>
 <ul>
-<li>DCNN이 classification, object detection에서 많이 사용된다.
+<li><strong>reduce feature resolution</strong></li>
+<li><strong>existence of object at multiple scale</strong></li>
+<li><strong>reduce localization accuracy</strong></li>
+</ul>
+<br>
+<ol start="11">
+<li><strong>첫 번째 challenge</strong>는 max-pooling과 downsampling이 반복되어서 나타낸다. 이는 spatial resolution을 줄이기 때문에 안좋다.</li>
+</ol>
+<br>
+<ol start="12">
+<li>이를 해결하기 위해서 우린 맨 마지막 단의 몇개의 maxpooling layer를 제거하고 높은 sampling 비율(더 높은 해상도)로 계산하기 위하여 대신에 upsample 하는 filter를 추가한다.</li>
+</ol>
+<br>
+<ol start="13">
+<li>이때 filter는 <code>hole algorithm</code>을 사용한 <code>atrous convolution</code>을 추가한다.</li>
+</ol>
 <ul>
-<li>hand-crafted feature보다 더 좋은 성능을 나타내기 때문에
-이 성공을 이끈 것은 image 변형에 대한 추상적인 data representation을 학습하게 하는 built-in invariance이다.</li>
+<li>실제 atrous convolution과 hole algorithm을 사용하여 <b>계산량을 증가시키지 않고</b> <code>FOV</code>를 증가시켰다.</li>
+</ul>
+<br>
+<ol start="14">
+<li><strong>두 번째 challenge</strong>는 기존의 방법은 동일한 이미지를 <code>rescale 버전</code>을 DCNN에 입력한 후 얻은 feature map을 aggregate한다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>이 방법은 performance는 증가하지만 <code>computing overhead</code>가 발생한다.</li>
+</ol>
+<br>
+<ol start="16">
+<li>따라서 본 논문에서는 <code>spatial pyramid pooling (SPP)</code>을 사용하여 convolution 전에 주어진 feature layer를 resampling 하는 효율적인 구조를 제시한다.</li>
+</ol>
+<br>
+<ol start="17">
+<li>이것은 원본 이미지를 여러(Multiple) 필터로 보는 것과 같아서 효율적인 FOV, useful한 <code>multi scale</code>의 관점에서 다양한 image context를 포착할 수 있다.</li>
+</ol>
+<br>
+<ol start="18">
+<li>우린 병렬로 atrous convolutional layer를 사용한다. 이를 &lsquo;atrous spatial pyramid pooling&rsquo; (ASPP)라고 불린다.</li>
+</ol>
+<br>
+<ol start="19">
+<li><strong>세 번째 challenge</strong>는 object-centric classifier는 공간적 변형에 대한 불변성이 필요하다.</li>
+</ol>
+<br>
+<ol start="20">
+<li>이를 해결하기 위해선 <strong>마지막 segmentation결과</strong>를 계산하기 위한 <code>hyper-column</code>의 특징을 뽑는 skip layer를 사용하여 해결한다.</li>
+</ol>
+<br>
+<ol start="21">
+<li>미세한 edge detail을 포착하기 위하여 <code>fully connected pairwise CRF</code>를 사용한다. 또한, CRF랑 DCNN이랑 연결했을 때 <code>SOTA</code>를 달성했다.</li>
+</ol>
+<br>
+<ol start="22">
+<li>마지막으로 따라서 본 논문에서 DCNN 모델로 <code>VGG-16</code>, <code>ResNet-101</code>을 사용했고 <code>Fully convolutional</code> 한 층을 사용하였다.</li>
+</ol>
+<hr>
+<h2 id="methods">Methods</h2>
+<ol start="23">
+<li>앞에서 말한 세가지 방법에 대해 좀 더 자세히 설명하도록 하겠다.</li>
+</ol>
+<hr>
+<h3 id="atrous-convolution-for-dense-feature-extraction-and-field-of-view-enlargement">Atrous Convolution for Dense Feature Extraction and Field-of-View Enlargement</h3>
+<div style="text-align:center;">
+<img src="/images/paper/deeplab-v2/filter.png" height="100%"  width="49%"> </div>
+<ul>
+<li><code>x[i]</code>: input</li>
+<li><code>w[k]</code>: filter (length: K)</li>
+<li><code>r</code>: rate,stride</li>
+</ul>
+<ol start="23">
+<li>1차원에서 <code>atrous convolution</code>의 기존 식은 <code>위 그림</code>과 같다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/deeplab-v2/atrous-1.png" height="100%"  width="49%"> </div>
+<ol start="24">
+<li>하지만 <code>atrous convolution</code>을 사용 하기 위해 <code>위 그림</code>과 같이 <strong>r의 값</strong>을 조절하여 <em>high resolution input feature map</em>에도 사용할 수 있다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/deeplab-v2/atrous-2.png" height="100%"  width="49%"> </div>
+<ol start="25">
+<li>또한 <code>위 그림 </code>처럼 2-D일때의 feature map의 특징을 보면 <strong>더욱 뚜렷한 것</strong>을 확인할 수 있다.</li>
+</ol>
+<br>
+<ol start="26">
+<li>기존 방식대로 커널을 사용하게 된다면 <strong>1/4 의 이미지의 위치에 있는 데이터</strong>만 얻을 수 있게 된다. 하지만 <strong>atrous convolution</strong>을 사용하게 된다면 <strong>모든 이미지에 대한 정보</strong>를 얻을 수 있기에 <strong>spatial resolution이 증가한다.</strong></li>
+</ol>
+<br>
+<ol start="27">
+<li><code>atorous convolutional layer</code>를 모든 층에 사용하기엔 비용적 오버헤드가 발생하여 <code>하이브리드 전략</code>을 취한다.</li>
+</ol>
+<br>
+<ol start="28">
+<li>따라서 본 논문에서는 마지막 풀링, convolution layer에 <code>atrous convolution layer</code>를 추가하여 (stride = 2) 4배로 늘리고, 이중 선형 보간법을 사용해 8배로 늘려 원래 이미지 해상도에서 특징 맵을 복원한다.</li>
+</ol>
+<br>
+<ol start="29">
+<li>이런 <code>atrous convolution</code>은 어떤 레이어에서든 <code>FOV(field of view)</code>를 임의로 확대할 수 있게 된다.</li>
+</ol>
+<br>
+<ol start="30">
+<li>이런 <code>atrous convolution</code>을 구현하기 위한 방법으로는 <code>두가지 방법</code>이 있다.</li>
+</ol>
+<br>
+<ol start="31">
+<li><code>첫 번째 방법</code>으로는 필터를 업샘플링하여 구멍(0)을 삽입하거나, 동등하게 입력 특징 맵을 희소하게 샘플링하는 것입니다. (input feature map에 0을 추가)</li>
+</ol>
+<br>
+<ol start="32">
+<li><code>두 번째 방법</code>으로는 입력 특성 맵을 atrous 합성곱 비율 <code>r</code>에 해당하는 비율로 <code>샘플링(subsample)</code>하는 것이다.</li>
+</ol>
+<ul>
+<li>r×r 가능한 시프트 각각에 대해 해상도가 줄어든 r^2개의 맵을 생성</li>
+<li>중간 특성 맵에 표준 합성곱을 적용하고 이를 다시 원래 이미지 해상도로 재조립합니다(reinterlace)</li>
+<li>atrous 합성곱을 일반 합성곱으로 변환함으로써 최적화된 합성곱 루틴을 사용할 수 있게 된다.</li>
+</ul>
+<h3 id="multiscale-image-representations-using-atrous-spatial-pyramid-pooling">Multiscale Image Representations using Atrous Spatial Pyramid Pooling</h3>
+<ol start="33">
+<li>다음으론 <code>Atrous Spatial Pyramid Pooling (ASPP)</code>에 관한 설명이다. <code>DCNN</code>은 <code>다양한 size</code>의 object를 포함하고 있다. 따라서 <code>segmentation</code>에서 사용하기 위하여 <code>2가지 방법</code>을 사용한다</li>
+</ol>
+<br>
+<ol start="34">
+<li><code>첫번째 방법</code>으로는 다음과 같다.
+<ul>
+<li><code>standard multiscale processing</code>을 계산한다.</li>
+<li>같은 parameter를 공유하는 DCNN branch를 <code>병렬</code>로 3개의 version을 <code>rescale한다</code>.</li>
+<li>이를 <code>이중선형 보간</code>을 한다. 그리고 이를 <code>융합(fuse)</code>한다.</li>
+<li>이 방법을 <code>training, testing</code> 둘다 사용 한다.</li>
+<li>하지만 그만큼의 <u><strong>computing resource의 문제</strong></u>가 있다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="35">
+<li>
+<p><code>두번째 방법</code>으로는  다음과 같다.</p>
+<ul>
+<li>R-CNN의 방법에서 영감을 얻어 <code>SPP</code>(임의의 scale의 지역을 <code>single scale</code>의 conv 특징을 <code>resampling</code> 하면서 정확하고 효율적이게 분류하는 방법)의 방법을 사용한다.</li>
+<li><code>다른 sampling rate</code>별로 병렬적으로 multiple 한 <code>atrous conv layer</code>를 사용하는 구조를 지닌 불변성을 구현했다.</li>
+<li>특징 추출은 <code>각각의 sampling rate 별로</code> 이루어지고 각각 다른 branch로 진행된다.</li>
+<li>최종 결과를 만들기 위해 <code>융합(fuse)</code>된다.
+<br></li>
+</ul>
+</li>
+<li>
+<p>논문에는 없지만 아래에서 <code>SPP</code>에 대해서 좀 더 알아보겠다.</p>
+</li>
+</ol>
+<h3 id="spatial-pyramid-pooling-spp">Spatial Pyramid Pooling (SPP)</h3>
+<ol start="37">
+<li>기존 CNN에서는 고정된 크기의 이미지만 입력으로 받았다. 그 이유는 <code>Fully-Connected layer(FC)</code>때문이었다.</li>
+</ol>
+<br>
+<ol start="38">
+<li>이는 필터가 <code>슬라이딩 윈도우 방식</code>으로 훑어가는 <code>Object Detection</code>에서 치명적인 단점이었다.</li>
+</ol>
+<br>
+<ol start="39">
+<li>왜냐하면 필터로 탐지되는 <strong>객체의 크기는 다양할 수 있기 때문이다.</strong></li>
+</ol>
+<br>
+<ol start="40">
+<li>이를 해결하기 위하여 <code>Spatial Pyramid Pooling (SPP)</code>방법이 고안되었다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/paper/deeplab-v2/spp.png" height="100%"  width="70%"> </div>
+<ol start="41">
+<li><code>위 그림</code>처럼 <code>arbitrary(임의의)한</code> input이 들어와도 <code>피라미드 풀링</code>을 하면 feature를 고정적인 사이즈로 압축이 가능 한 것을 확인 할 수 있게 된다.</li>
+</ol>
+<ul>
+<li>이렇게 다양한 사이즈로 풀링을 진행하면, 정보(context)가 더욱 다양해지는 효과가 있습니다. 다양한 사이즈의 객체를 검출하는 데에 유리한 장점이 있게된다.</li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/deeplab-v2/aspp.png" height="100%"  width="70%"> </div>
+<ol start="42">
+<li>따라서 <code>위 그림</code>처럼 <code>DeepLab-V2</code>에서는 이러한 <code>SPP</code>의 필터를 <code>atrous convolution filter</code>로 변경한 구조를 제안했다.</li>
+</ol>
+<h3 id="structured-prediction-with-fully-connected-conditional-random-fields-for-accurate-boundary-recovery">Structured Prediction with Fully-Connected Conditional Random Fields for Accurate Boundary Recovery</h3>
+<ol start="43">
+<li>다음으론 <code>Conditional Random Fields (CRF)</code>에 대한 설명이다.</li>
+</ol>
+<br>
+<ol start="44">
+<li><code>Segmentation</code>에서는 <code>localization</code> 문제를 해결했어야 했는데 이 문제를 해결하기 위해 이전 연구는 <code>두 가지 방향</code>을 추구했다.</li>
+</ol>
+<ul>
+<li>
+<p><code>첫 번째는</code> 객체 경계를 더 잘 추정하기 위해 <strong>컨볼루션 신경망의 여러 레이어에서 정보를 활용</strong>하는 것이다.</p>
+</li>
+<li>
+<p><code>두 번째는</code> 사실상 <code>localization</code> 작업을 low-level 분할 방법에 위임하는 <code>super-pixel representation</code>을 사용하는 것이다.</p>
+<img src="/images/paper/deeplab-v2/super-pixel.jpeg" height="100%"  width="50%">
+<blockquote>
+<p><code>super-pixel</code>: pixel들을 색 등의 <code>저레벨 정보</code>를 바탕으로 비슷한 것끼리 묶어서 <code>커다란 pixel</code>을 만드는 작업이다.</p>
+</blockquote>
+<ul>
+<li>따라서 <code>super-pixel</code>로 대상의 경계를 파악하여 <code>localization</code>이 강화가 된다.</li>
 </ul>
 </li>
 </ul>
-<p>이 invariance는 classification task에는 좋지만 spatial information이 undesired한 segmentation에는 방해가 된다.</p>
-<p>그래서 우리는 Segmentation을 위한 DCNN에 아래 3가지 사항을 고려했다.</p>
+<br>
+<ol start="45">
+<li>본 논문에선 <code>localization</code> 문제를 해결하기 위하여 <code>CRF</code>방법을 사용했는데 이 방법은 <code>DeepLab-V1</code>에서도 사용을 한 방법이다. 이를 <code>DeepLab-V2</code>에서 더욱 발전을 시켰다.</li>
+</ol>
+<br>
+<ol start="46">
+<li>기존 연구에서는 <strong>공간적으로 가까운 노드들에게 동일한 레이블</strong>을 할당하는 방식을 취했다. <code>(short-range CRF)</code></li>
+</ol>
 <ul>
-<li>reduce feature resolution</li>
-<li>existence of object at multiple scale</li>
-<li>reduce localization accuracy</li>
+<li>이를 통해 노이즈가 있는 <strong>분할 맵을 부드럽게</strong> 만드는 데 사용되었다.</li>
 </ul>
-<p>첫번째 challenge는 max-pooling과 downsampling이 반복되어서 나타낸다.
-이는 spatial resolution을 줄이기 때문에 안좋다.
-이를 해결하기 위해서 우린 맨 마지막 단의 몇개의 maxpooling layer를 제거하고 높은 sampling 비율( 더 높은 해상도)로 계산하기 위하여 대신에 upsample 하는 filter를 추가한다.
-이때 filter는 hole algorithm을 사용한 atrous convolution을 추가한다.
-이것을 이용하여 실제 atrous convolution과 hole algorithm을 사용하여 계산량을 증가시키지 않고 FOV를 증가시켰다.</p>
-<p>두번째 challenge는 기존의 방법은 동일한 이미지를 rescale버전을 DCNN에 입력한 후 얻은 feature map을 aggregate한다.
-이 방법은 performance는 증가하지만 computing overhead가 발생한다.
-따라서 본 논문에서는 spatial pyramid pooling을 사용하여 convolution 전에 주어진 feature layer를 resampling 하는 효율적인 구조를 제시한다.
-이것은 원본 이미지를 여러 필터로 보는 것과 같아서 효율적인 FOV, useful한 multi scale의 관점에서 다양한 image context를 포착할 수 있다.
-우린 병렬로 atrous convolutional layer를 사용한다. 이를 &lsquo;atrous spatial pyramid pooling&rsquo; (ASPP)라고 불린다.</p>
-<p>세번째 challenge는 object-centric classifier는 공간적 변형에 대한 불변성이 필요하다.
-이를 해결하기 위해선 마지막 segmentation결과를 계산하기 위한 hyper-column의 특징을 뽑는 skip layer를 사용하여 해결한다.
-CRF를 이용하여 미세한 디테일을 감지하는 능력을 키운다.
-미세한 edge detail을 포착하기 위하여 fully connected pairwise CRF를 사용한다. 또한, CRF랑 DCNN이랑 연결했을 때 SOTA를 달성함.</p>
-<p>따라서 본 논문에서 dcnn 모델로 VGG-16, ResNet-101을 사용했고 Fully convolutional 한 층을 사용한다.
-그리고 feature resolution을 증가시키기 위해 atrous convolutional layer을 사용하고 8 pixel로 계산한다.
-bi-linear interpolation을 사용하여 upsample을 하고 다시 CRF를 사용하여 segmentation result를 도출하게 된다.</p>
+<br>
+<ol start="46">
+<li>하지만 현대의 DCNN은 일반적으로 <strong>매우 부드럽고 균일한 분류 결과</strong>를 생성하기 때문에 <code>short-range CRF</code>가 좋지 않았다.</li>
+</ol>
 <ul>
-<li>이건 결론적으로 빠르고, 정확하고, 간단하다.
-기존보다 더 좋은 버전으로 나온다.
-결론적으로
-multi scale input processin (ASPP)를 사용하고 DCNN을 resnet 사용으로 변경하여 SOTA</li>
+<li>왜냐하면 목적 자체가 부드러워 지게 만드는 것이 아니라 <code>localization</code>을 해결하기 위함이기 때문이다.</li>
 </ul>
-<h2 id="methods">Methods</h2>
-<h3 id="atrous-convolution-for-dense-feature-extraction-and-field-of-view-enlargement">Atrous Convolution for Dense Feature Extraction and Field-of-View Enlargement</h3>
-<p>atrous convolution의 기존 식은 이것이다.
-<img
-        class="lazyload"
-        src="/svg/loading.min.svg"
-        data-src="image.png"
-        data-srcset="image.png, image.png 1.5x, image.png 2x"
-        data-sizes="auto"
-        alt="image.png"
-        title="alt text" /></p>
-<p>하지만 atrous convolution을 사용 하기 위해 아래 그림과 같이 r의 값을 조절하여 high resolution input feature map에도 사용할 수 있다.</p>
-<p>2-D일때의 feature map의 특징을 보면 더욱 뚜렷한 것을 확인할 수 있다.</p>
-<p>기존 방식대로 커널을 사용하게 된다면 1/4 의 이미지의 위치에 있는 데이터만 얻을 수 있게 된다. 하지만 atrous convolution을 사용하게 된다면 모든 이미지에 대한 정보를 얻을 수 있기에 공간 resolution이 증가한다.</p>
-<p>atorous convolutional layer를 모든 층에 사용하기엔 비용적 오버헤드가 발생하여 하이브리드 전략을 취한다.
-따라서 본 논문에서는 마지막 풀링, convolution layer에 atrous convolution layer를 추가하여 (stride = 2) 4배로 늘리고, 이중 선형 보간법을 사용해 8배로 늘려 원래 이미지 해상도에서 특징 맵을 복원한다.</p>
-<p>이런 atrous convolution은 어떤 레이어에서든 field of view를 임의로 확대할 수 있게 된다.
-따라서 본 논문에서 VGG-16의 fc6 레이어에서 r = 12로 설정하면 성능이 크게 향상이 되었음이 나온다.</p>
-<p>첫 번째 방법은 필터를 업샘플링하여 구멍(0)을 삽입하거나, 동등하게 입력 특징 맵을 희소하게 샘플링하는 것입니</p>
+<br>
+<ol start="47">
+<li>따라서 <code>short-range CRF</code>대신 <code>fully connected CRF</code>을 고안하여 성능 향상이 기여하였다.</li>
+</ol>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://deep-learning-study.tistory.com/445" target="_blank" rel="noopener noreffer ">https://deep-learning-study.tistory.com/445</a></li>
+<li><a href="https://paperswithcode.com/method/spatial-pyramid-pooling" target="_blank" rel="noopener noreffer ">https://paperswithcode.com/method/spatial-pyramid-pooling</a></li>
+<li><a href="https://extremenormal.tistory.com/entry/Superpixel%EC%9D%B4%EB%9E%80" target="_blank" rel="noopener noreffer ">https://extremenormal.tistory.com/entry/Superpixel%EC%9D%B4%EB%9E%80</a></li>
+</ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
-                <span>Updated on 2024-07-04</span>
+                <span>Updated on 2024-07-06</span>
             </div></div>
         <div class="post-info-line">
             <div class="post-info-md"></div>
             <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)" data-hashtags="UNet,Implement,논문 리뷰,computer vision,segmentation"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-hashtag="UNet"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)" data-hashtags="DeepLab,Implement,논문 리뷰,computer vision,segmentation"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-hashtag="DeepLab"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/deeplab-v2/" data-title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
             </div>
         </div>
     </div>
 
     <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/unet/">UNet</a>,&nbsp;<a href="/tags/implement/">Implement</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a></section>
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/deeplab/">DeepLab</a>,&nbsp;<a href="/tags/implement/">Implement</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a></section>
         <section>
             <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
         </section>
