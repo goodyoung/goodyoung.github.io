@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[CS231n] 04.Introduction to Neural Networks - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS231n] 04.Introduction to Neural Networks" />
+<meta property="og:description" content="각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.
+로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.
+로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다. 이는 trade-off이다.
+그래디언트의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한다.
+항상 변수에 대한 그래디언트가 변수 와 동일한 모양을 가져야 한다.
+순방향 단계에서는 연산 결과를 계산하고 나중에 그라디언트 계산에 사용할 수 있는 중간 값을 저장하고
+역방향에서는 chain-rule을 사용한다. 업스트림 그라디언트를 연결하고 로컬 그래디언트와 곱하여 노드의 입력에 대한 그래디언트를 계산하고 이를 다음에 연결된 노드로 전달한다.
+NN
+2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.
+h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/cs231n/lecture4/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-07-08T21:02:03+09:00" />
+<meta property="article:modified_time" content="2024-07-08T21:02:03+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS231n] 04.Introduction to Neural Networks"/>
+<meta name="twitter:description" content="각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.
+로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.
+로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다. 이는 trade-off이다.
+그래디언트의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한다.
+항상 변수에 대한 그래디언트가 변수 와 동일한 모양을 가져야 한다.
+순방향 단계에서는 연산 결과를 계산하고 나중에 그라디언트 계산에 사용할 수 있는 중간 값을 저장하고
+역방향에서는 chain-rule을 사용한다. 업스트림 그라디언트를 연결하고 로컬 그래디언트와 곱하여 노드의 입력에 대한 그래디언트를 계산하고 이를 다음에 연결된 노드로 전달한다.
+NN
+2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.
+h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture4/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/deeplab-v2/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[CS231n] 04.Introduction to Neural Networks",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture4\/"
+        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  137 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture4\/","datePublished": "2024-07-08T21:02:03+09:00","dateModified": "2024-07-08T21:02:03+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS231n] 04.Introduction to Neural Networks</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-08">2024-07-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;137 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;One minute&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
+            </div><div class="content" id="content"><p>각 입력이 local node로 들어오고 다음 노드로 직접 전달된다.
+로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.</p>
+<p>로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.</p>
+<p>로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다.
+이는 trade-off이다.</p>
+<p>그래디언트의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한다.</p>
+<p>항상 변수에 대한 그래디언트가 변수 와 동일한 모양을 가져야 한다.</p>
+<p>순방향 단계에서는 연산 결과를 계산하고 나중에 그라디언트 계산에 사용할 수 있는 중간 값을 저장하고</p>
+<p>역방향에서는 chain-rule을 사용한다. 업스트림 그라디언트를 연결하고 로컬 그래디언트와 곱하여 노드의 입력에 대한 그래디언트를 계산하고 이를 다음에 연결된 노드로 전달한다.</p>
+<hr>
+<p>NN</p>
+<p>2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.</p>
+<p>h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것
+w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다.</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-07-08</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/cs231n/lecture4/" data-title="[CS231n] 04.Introduction to Neural Networks" data-hashtags="Chain Rule,Neural Networks,CS231n"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/cs231n/lecture4/" data-hashtag="Chain Rule"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/cs231n/lecture4/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/cs231n/lecture4/" data-title="[CS231n] 04.Introduction to Neural Networks"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/cs231n/lecture4/" data-title="[CS231n] 04.Introduction to Neural Networks"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/cs231n/lecture4/" data-title="[CS231n] 04.Introduction to Neural Networks"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/cs231n/lecture4/" data-title="[CS231n] 04.Introduction to Neural Networks" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/chain-rule/">Chain Rule</a>,&nbsp;<a href="/tags/neural-networks/">Neural Networks</a>,&nbsp;<a href="/tags/cs231n/">CS231n</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/paper/deeplab-v2/" class="prev" rel="prev" title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.121.2">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://goodyoung.github.io" target="_blank">GoodYoung</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>

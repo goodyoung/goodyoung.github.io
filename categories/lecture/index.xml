@@ -3,7 +3,24 @@
         <title>Lecture - Category - Good Young</title>
         <link>https://goodyoung.github.io/categories/lecture/</link>
         <description>Lecture - Category - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 02 Jul 2024 15:32:06 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/lecture/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 08 Jul 2024 21:02:03 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/lecture/" rel="self" type="application/rss+xml" /><item>
+    <title>[CS231n] 04.Introduction to Neural Networks</title>
+    <link>https://goodyoung.github.io/posts/cs231n/lecture4/</link>
+    <pubDate>Mon, 08 Jul 2024 21:02:03 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs231n/lecture4/</guid>
+    <description><![CDATA[각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.
+로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.
+로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다. 이는 trade-off이다.
+그래디언트의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한다.
+항상 변수에 대한 그래디언트가 변수 와 동일한 모양을 가져야 한다.
+순방향 단계에서는 연산 결과를 계산하고 나중에 그라디언트 계산에 사용할 수 있는 중간 값을 저장하고
+역방향에서는 chain-rule을 사용한다. 업스트림 그라디언트를 연결하고 로컬 그래디언트와 곱하여 노드의 입력에 대한 그래디언트를 계산하고 이를 다음에 연결된 노드로 전달한다.
+NN
+2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.
+h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다.]]></description>
+</item>
+<item>
     <title>[CS231n] 03.Loss Functions and Optimization</title>
     <link>https://goodyoung.github.io/posts/cs231n/lecture3/</link>
     <pubDate>Tue, 02 Jul 2024 15:32:06 &#43;0900</pubDate>
