@@ -3,7 +3,23 @@
         <title>computer vision - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/computer-vision/</link>
         <description>computer vision - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 06 Jul 2024 17:22:47 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/computer-vision/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 08 Jul 2024 21:01:50 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/computer-vision/" rel="self" type="application/rss+xml" /><item>
+    <title>[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation</title>
+    <link>https://goodyoung.github.io/posts/paper/r-cnn/</link>
+    <pubDate>Mon, 08 Jul 2024 21:01:50 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/paper/r-cnn/</guid>
+    <description><![CDATA[Abstract 최근 몇 년간 Object-Detection 분야가 정체 상태에 있었다. 가장 성능이 좋은 방법론은 low-level image feature와 high-level context를 섞는 것이다. 본 논문에서는 간단하고 확장 가능한 object-algorithm을 제시한다. - 이는 VOC2012에서 SOTA 결과 대비 30%나 향상된 mAP를 보여준다. 본 논문에서는 두가지 방법을 사용한다 - high-capacity cnn을 하위의 region proposal에 적용시킨다 - data가 부족할 때, 사전 학습 된 모델을 도메인 특화 미세 조정을 하면 성능이 크게 향상된다 따라서 region proposal을 cnn과 결합했기 때문에 R-CNN(Regions with CNN features)라고 한다.
+Introduction 지난 10년간 visual recognition task에서의 진전은 SIFT와 HOG의 사용에 의존되어 왔다.
+둘 다 컴퓨터 비전에서 널리 사용되는 두 가지 이미지 특징 추출 기법이다. SIFT: 다양한 스케일과 회전에 대해 불변인 키포인트와 불변인 특징을 만드는 기법 HOG: 이미지의 지역적인 형태나 외곽선을 표현하는 방법으로, 물체 탐지, 특히 사람 탐지에 사용된다. 2010~2012년가지 소폭적인 개선만 이루어 졌다. AlexNet의 개발로 인하여 CNN이 크게 향상이 되었다. 그 후 Classification이 Detection의 결과에 어느정도의 영향을 미치는지에 대해 관건이었다. 본 논문은 HOG와 같은 기법들과 비교하여 CNN이 Object-Detection 성능을 향상시켰음을 시사한다. 이러한 결과를 얻기 위하여 두가지 문제에 집중하였다. - deep network에서의 localizing object - 작은 크기의 detection data로 높은 capacity model로 훈련하기
+classification과는 달리 객체 탐지에서는 localization이 문제이다. 이를 해결하기 위한 방법은 2가지 방법이 있다. - regression problem으로 설정 - 실용적으로 좋지 않다. (30%의 결과가 나온다) - sliding-window detector를 구축 - 본 논문의 CNN은 좀 더 깊은(다섯 개의 CNN layer) layer를 구축하였는데 이는 높은 spatial resolution을 유지하기 어렵다. - 따라서 이는 객체의 정확한 위치를 찾는데 어려움이 있다는 것이고 이 역시 아직 남아있는 과제임을 나타낸다.
+대신에 본 논문은 이러한 문제를 recognition using region을 통해 해결하려고 한다. Region-Proposal을 통해 2000개의 카테고리를 만들고 이를 CNN을 사용해 고정적인 길이의 특징 벡터를 추출 한다. 이때 입력되는 이미지의 사이즈도 고정되어야 하기 때문에 아핀 변환 등으로 이미지를 추출한 후 입력으로 사용한다. 그 후 이를 선형 SVM으로 분류한다.
+이는 영역의 크기에 상관없이 동일한 크기로 변환이 된다. (Figure 1). 본 논문에서는 이를 Region-Proposal과 CNN을 같이 사용하므로 R-CNN이라고 한다.
+두번째의 문제는 라벨 데이터의 부족, 비지도 사전 훈련을 허용. - 지도학습의 미세 조정
+ILSVRC인 임의의 큰 데이터로 지도 학습을 한 모델에 PASCAL의 작은 데이터를 domain 특화 미세 조정을 하는 패러다임을 제시한다. 미세조정을 하면서 33%가 올랐다.
+Object Detection with R-CNN ]]></description>
+</item>
+<item>
     <title>[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)</title>
     <link>https://goodyoung.github.io/posts/paper/deeplab-v2/</link>
     <pubDate>Sat, 06 Jul 2024 17:22:47 &#43;0900</pubDate>

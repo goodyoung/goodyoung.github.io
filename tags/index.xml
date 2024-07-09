@@ -30,9 +30,49 @@
 <item>
     <title>computer vision</title>
     <link>https://goodyoung.github.io/tags/computer-vision/</link>
-    <pubDate>Sat, 06 Jul 2024 17:22:47 &#43;0900</pubDate>
+    <pubDate>Mon, 08 Jul 2024 21:01:50 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/computer-vision/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>FCN</title>
+    <link>https://goodyoung.github.io/tags/fcn/</link>
+    <pubDate>Mon, 08 Jul 2024 21:01:50 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/fcn/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>Implement</title>
+    <link>https://goodyoung.github.io/tags/implement/</link>
+    <pubDate>Mon, 08 Jul 2024 21:01:50 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/implement/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>segmentation</title>
+    <link>https://goodyoung.github.io/tags/segmentation/</link>
+    <pubDate>Mon, 08 Jul 2024 21:01:50 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/segmentation/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>논문 구현</title>
+    <link>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EA%B5%AC%ED%98%84/</link>
+    <pubDate>Mon, 08 Jul 2024 21:01:50 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EA%B5%AC%ED%98%84/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>논문 리뷰</title>
+    <link>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</link>
+    <pubDate>Mon, 08 Jul 2024 21:01:50 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
@@ -41,46 +81,6 @@
     <pubDate>Sat, 06 Jul 2024 17:22:47 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/deeplab/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Implement</title>
-    <link>https://goodyoung.github.io/tags/implement/</link>
-    <pubDate>Sat, 06 Jul 2024 17:22:47 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/implement/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>segmentation</title>
-    <link>https://goodyoung.github.io/tags/segmentation/</link>
-    <pubDate>Sat, 06 Jul 2024 17:22:47 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/segmentation/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>논문 리뷰</title>
-    <link>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</link>
-    <pubDate>Sat, 06 Jul 2024 17:22:47 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Loss Function</title>
-    <link>https://goodyoung.github.io/tags/loss-function/</link>
-    <pubDate>Tue, 02 Jul 2024 15:32:06 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/loss-function/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Optimization</title>
-    <link>https://goodyoung.github.io/tags/optimization/</link>
-    <pubDate>Tue, 02 Jul 2024 15:32:06 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/optimization/</guid>
     <description><![CDATA[]]></description>
 </item>
 </channel>

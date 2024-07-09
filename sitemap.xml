@@ -13,13 +13,17 @@
             <loc>https://goodyoung.github.io/posts/</loc><lastmod>2024-07-08T21:02:03&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/</loc><lastmod>2024-07-08T21:02:03&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/categories/theory/</loc><lastmod>2024-07-08T21:02:03&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/posts/paper/r-cnn/</loc><lastmod>2024-07-08T21:01:50&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/computer-vision/</loc><lastmod>2024-07-08T21:01:50&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/fcn/</loc><lastmod>2024-07-08T21:01:50&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/implement/</loc><lastmod>2024-07-08T21:01:50&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/implement/</loc><lastmod>2024-07-08T21:01:50&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/paper-review/</loc><lastmod>2024-07-08T21:01:50&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/segmentation/</loc><lastmod>2024-07-08T21:01:50&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EA%B5%AC%ED%98%84/</loc><lastmod>2024-07-08T21:01:50&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</loc><lastmod>2024-07-08T21:01:50&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/paper/deeplab-v2/</loc><lastmod>2024-07-06T17:22:47&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/computer-vision/</loc><lastmod>2024-07-06T17:22:47&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/deeplab/</loc><lastmod>2024-07-06T17:22:47&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/implement/</loc><lastmod>2024-07-06T17:22:47&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/paper-review/</loc><lastmod>2024-07-06T17:22:47&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/segmentation/</loc><lastmod>2024-07-06T17:22:47&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</loc><lastmod>2024-07-06T17:22:47&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/cs231n/lecture3/</loc><lastmod>2024-07-02T15:32:06&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/loss-function/</loc><lastmod>2024-07-02T15:32:06&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/optimization/</loc><lastmod>2024-07-02T15:32:06&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
@@ -29,9 +33,6 @@
             <loc>https://goodyoung.github.io/posts/cs231n/lecture2/</loc><lastmod>2024-05-14T21:32:06&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/image-classification/</loc><lastmod>2024-05-14T21:32:06&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/paper/fcn/</loc><lastmod>2024-04-14T16:25:24&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/fcn/</loc><lastmod>2024-04-14T16:25:24&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/implement/</loc><lastmod>2024-04-14T16:25:24&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EA%B5%AC%ED%98%84/</loc><lastmod>2024-04-14T16:25:24&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/segmentation/segmentation-3/</loc><lastmod>2024-04-04T19:31:48&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/basic/</loc><lastmod>2024-04-04T19:31:48&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/dl/</loc><lastmod>2024-04-04T19:31:48&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>

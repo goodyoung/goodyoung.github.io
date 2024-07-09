@@ -5,7 +5,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[CS231n] 04.Introduction to Neural Networks - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS231n] 04.Introduction to Neural Networks" />
-<meta property="og:description" content="각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.
+<meta property="og:description" content="개요 CS231n의 4강에 대한 내용을 정리 할 것이다.
+저번 강에서는 Loss Function과 Optimization에 대해서 배웠는데 이번 강에서는 W를 업데이트 하는 과정인 Chain-Rule과 간단한 Neural Networks에 대해서 배울 것이다.
+Backpropagation 지난 과정에 gradient에는 두가지 종류가 있다고 배웠다. 그 중 빠르고 정확한 analytic gradient에 대해서 활용해볼 것이다.
+각 과정의 연산 과정을 Computational graph을 활용하여 표현한다면 analytic gradient를 활용할 수 있게 된다. 이를 통해 함수는 BackPropagation이라는 기술을 사용하고, gradient를 얻기 위하여 Chain-rule를 활용한다.
+BackPropagation의 과정은 다음과 같다.
+각 입력이 local node로 들어오고 다음 노드로 직접 전달된다.
+local gradient는 이때의 입력된 노드의 출력의 gradient이다.
+각각의 입력마다 그때의 local gradient를 구한다. 즉, z에 대한 x로의 미분, z에 대한 y로의 미분을 구한다. 이를 Forward Pass (Foward Propagation)이라고 한다.
+Forward Pass의 맨 마지막에는 loss function을 통한 loss가 나온다.
+Forward Pass가 모든 노드가 진행이 되었으면 Backward Pass (Back Propagation)이 진행된다.
+이때 Back Propagation은 수많은 계산을 거쳐 나온 loss에 대한 z의 미분을 나타내고 이는 global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)라고 칭한다.
+이때 그럼 loss에 대한 x, y의 미분값을 구할 수 있게 되는데 이때 활용되는 개념이 Chain-rule이다.
+Forward Pass로 구한 local gradient의 값과 그 노드의 global gradient를 곱하면 우리고 최종적으로 원하는 gradient가 나오게 된다.
+continue
+E=mc^2를 인라인 수식으로 표시하려면 다음과 같이 작성합니다: $E=mc^2$
+Integrate $$\int x^3 dx$$
+$E=mc^2$
+각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.
 로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.
 로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다. 이는 trade-off이다.
 그래디언트의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한다.
@@ -14,14 +31,32 @@
 역방향에서는 chain-rule을 사용한다. 업스트림 그라디언트를 연결하고 로컬 그래디언트와 곱하여 노드의 입력에 대한 그래디언트를 계산하고 이를 다음에 연결된 노드로 전달한다.
 NN
 2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.
-h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다." />
+h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다.
+Neural Network " />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/cs231n/lecture4/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2024-07-08T21:02:03+09:00" />
 <meta property="article:modified_time" content="2024-07-08T21:02:03+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS231n] 04.Introduction to Neural Networks"/>
-<meta name="twitter:description" content="각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.
+<meta name="twitter:description" content="개요 CS231n의 4강에 대한 내용을 정리 할 것이다.
+저번 강에서는 Loss Function과 Optimization에 대해서 배웠는데 이번 강에서는 W를 업데이트 하는 과정인 Chain-Rule과 간단한 Neural Networks에 대해서 배울 것이다.
+Backpropagation 지난 과정에 gradient에는 두가지 종류가 있다고 배웠다. 그 중 빠르고 정확한 analytic gradient에 대해서 활용해볼 것이다.
+각 과정의 연산 과정을 Computational graph을 활용하여 표현한다면 analytic gradient를 활용할 수 있게 된다. 이를 통해 함수는 BackPropagation이라는 기술을 사용하고, gradient를 얻기 위하여 Chain-rule를 활용한다.
+BackPropagation의 과정은 다음과 같다.
+각 입력이 local node로 들어오고 다음 노드로 직접 전달된다.
+local gradient는 이때의 입력된 노드의 출력의 gradient이다.
+각각의 입력마다 그때의 local gradient를 구한다. 즉, z에 대한 x로의 미분, z에 대한 y로의 미분을 구한다. 이를 Forward Pass (Foward Propagation)이라고 한다.
+Forward Pass의 맨 마지막에는 loss function을 통한 loss가 나온다.
+Forward Pass가 모든 노드가 진행이 되었으면 Backward Pass (Back Propagation)이 진행된다.
+이때 Back Propagation은 수많은 계산을 거쳐 나온 loss에 대한 z의 미분을 나타내고 이는 global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)라고 칭한다.
+이때 그럼 loss에 대한 x, y의 미분값을 구할 수 있게 되는데 이때 활용되는 개념이 Chain-rule이다.
+Forward Pass로 구한 local gradient의 값과 그 노드의 global gradient를 곱하면 우리고 최종적으로 원하는 gradient가 나오게 된다.
+continue
+E=mc^2를 인라인 수식으로 표시하려면 다음과 같이 작성합니다: $E=mc^2$
+Integrate $$\int x^3 dx$$
+$E=mc^2$
+각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.
 로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.
 로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다. 이는 trade-off이다.
 그래디언트의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한다.
@@ -30,11 +65,12 @@ h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 
 역방향에서는 chain-rule을 사용한다. 업스트림 그라디언트를 연결하고 로컬 그래디언트와 곱하여 노드의 입력에 대한 그래디언트를 계산하고 이를 다음에 연결된 노드로 전달한다.
 NN
 2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.
-h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다."/>
+h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다.
+Neural Network "/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture4/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/deeplab-v2/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture4/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/r-cnn/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -45,7 +81,7 @@ h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture4\/"
-        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  137 ,
+        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  339 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture4\/","datePublished": "2024-07-08T21:02:03+09:00","dateModified": "2024-07-08T21:02:03+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -87,15 +123,83 @@ h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS231n] 04.Introduction to Neural Networks</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-08">2024-07-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;137 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;One minute&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-08">2024-07-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;339 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;2 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
                     <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
                 </div>
-                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
-            </div><div class="content" id="content"><p>각 입력이 local node로 들어오고 다음 노드로 직접 전달된다.
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#backpropagation">Backpropagation</a></li>
+    <li><a href="#neural-network">Neural Network</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="개요">개요</h2>
+<ol start="0">
+<li>
+<p><code>CS231n</code>의 4강에 대한 내용을 정리 할 것이다.</p>
+</li>
+<li>
+<p>저번 강에서는 <code>Loss Function</code>과 <code>Optimization</code>에 대해서 배웠는데 이번 강에서는 <code>W</code>를 업데이트 하는 과정인 <code>Chain-Rule</code>과 간단한 <code>Neural Networks</code>에 대해서 배울 것이다.</p>
+</li>
+</ol>
+<hr>
+<h2 id="backpropagation">Backpropagation</h2>
+<ol start="2">
+<li>
+<p>지난 과정에 gradient에는 두가지 종류가 있다고 배웠다. 그 중 빠르고 정확한 <code>analytic gradient</code>에 대해서 활용해볼 것이다.</p>
+</li>
+<li>
+<p>각 과정의 연산 과정을 <code>Computational graph</code>을 활용하여 표현한다면 <code>analytic gradient</code>를 활용할 수 있게 된다.
+<img src="/images/cs231n/lecture4/computational-1.png" height="100%" width="60%"></p>
+</li>
+<li>
+<p>이를 통해 함수는 <code>BackPropagation</code>이라는 기술을 사용하고, gradient를 얻기 위하여 <code>Chain-rule</code>를 활용한다.</p>
+</li>
+<li>
+<p><code>BackPropagation</code>의 과정은 다음과 같다.</p>
+</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+<ol start="6">
+<li>
+<p>각 입력이 <code>local node</code>로 들어오고 다음 노드로 직접 전달된다.</p>
+</li>
+<li>
+<p><code>local gradient</code>는 이때의 입력된 노드의 출력의 <code>gradient</code>이다.</p>
+<ul>
+<li>각각의 입력마다 그때의 <code>local gradient</code>를 구한다.</li>
+<li>즉, <code>z에 대한 x로의 미분</code>, <code>z에 대한 y로의 미분</code>을 구한다.</li>
+</ul>
+</li>
+<li>
+<p>이를 <code>Forward Pass (Foward Propagation)</code>이라고 한다.</p>
+</li>
+<li>
+<p><code>Forward Pass</code>의 맨 마지막에는 <code>loss function</code>을 통한 loss가 나온다.</p>
+</li>
+<li>
+<p><code>Forward Pass</code>가 모든 노드가 진행이 되었으면 <code>Backward Pass (Back Propagation)</code>이 진행된다.</p>
+</li>
+<li>
+<p>이때 <code>Back Propagation</code>은 수많은 계산을 거쳐 나온 <code>loss에 대한 z의 미분</code>을 나타내고 이는 <code>global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)</code>라고 칭한다.</p>
+</li>
+<li>
+<p>이때 그럼 <code>loss에 대한 x, y의 미분</code>값을 구할 수 있게 되는데 이때 활용되는 개념이 <code>Chain-rule</code>이다.</p>
+</li>
+<li>
+<p><code>Forward Pass</code>로 구한 <code>local gradient</code>의 값과 그 노드의 <code>global gradient</code>를 곱하면 우리고 최종적으로 원하는 <code>gradient</code>가 나오게 된다.</p>
+</li>
+</ol>
+<p>continue</p>
+<p><code>E=mc^2</code>를 인라인 수식으로 표시하려면 다음과 같이 작성합니다: $E=mc^2$</p>
+<p>Integrate $$\int x^3 dx$$</p>
+<p>$E=mc^2$</p>
+<p>각 입력이 local node로 들어오고 다음 노드로 직접 전달된다.
 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.</p>
 <p>로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.</p>
 <p>로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다.
@@ -109,6 +213,7 @@ h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 
 <p>2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.</p>
 <p>h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것
 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다.</p>
+<h2 id="neural-network">Neural Network</h2>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
@@ -130,16 +235,32 @@ w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 �
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/paper/deeplab-v2/" class="prev" rel="prev" title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)</a></div>
+    <div class="post-nav"><a href="/posts/paper/r-cnn/" class="prev" rel="prev" title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation</a></div>
 </div>
 <div id="comments"><div id="utterances" class="comment"></div><noscript>
                 Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
             </noscript></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.121.2">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
-                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://goodyoung.github.io" target="_blank">GoodYoung</a></span></div>
-        </div>
-    </footer></div>
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
 
         <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
                 <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
