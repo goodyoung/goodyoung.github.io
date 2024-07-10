@@ -5,68 +5,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[CS231n] 04.Introduction to Neural Networks - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS231n] 04.Introduction to Neural Networks" />
-<meta property="og:description" content="개요 CS231n의 4강에 대한 내용을 정리 할 것이다.
-저번 강에서는 Loss Function과 Optimization에 대해서 배웠는데 이번 강에서는 W를 업데이트 하는 과정인 Chain-Rule과 간단한 Neural Networks에 대해서 배울 것이다.
-Backpropagation 지난 과정에 gradient에는 두가지 종류가 있다고 배웠다. 그 중 빠르고 정확한 analytic gradient에 대해서 활용해볼 것이다.
-각 과정의 연산 과정을 Computational graph을 활용하여 표현한다면 analytic gradient를 활용할 수 있게 된다. 이를 통해 함수는 BackPropagation이라는 기술을 사용하고, gradient를 얻기 위하여 Chain-rule를 활용한다.
-BackPropagation의 과정은 다음과 같다.
-각 입력이 local node로 들어오고 다음 노드로 직접 전달된다.
-local gradient는 이때의 입력된 노드의 출력의 gradient이다.
-각각의 입력마다 그때의 local gradient를 구한다. 즉, z에 대한 x로의 미분, z에 대한 y로의 미분을 구한다. 이를 Forward Pass (Foward Propagation)이라고 한다.
-Forward Pass의 맨 마지막에는 loss function을 통한 loss가 나온다.
-Forward Pass가 모든 노드가 진행이 되었으면 Backward Pass (Back Propagation)이 진행된다.
-이때 Back Propagation은 수많은 계산을 거쳐 나온 loss에 대한 z의 미분을 나타내고 이는 global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)라고 칭한다.
-이때 그럼 loss에 대한 x, y의 미분값을 구할 수 있게 되는데 이때 활용되는 개념이 Chain-rule이다.
-Forward Pass로 구한 local gradient의 값과 그 노드의 global gradient를 곱하면 우리고 최종적으로 원하는 gradient가 나오게 된다.
-continue
-E=mc^2를 인라인 수식으로 표시하려면 다음과 같이 작성합니다: $E=mc^2$
-Integrate $$\int x^3 dx$$
-$E=mc^2$
-각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.
-로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.
-로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다. 이는 trade-off이다.
-그래디언트의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한다.
-항상 변수에 대한 그래디언트가 변수 와 동일한 모양을 가져야 한다.
-순방향 단계에서는 연산 결과를 계산하고 나중에 그라디언트 계산에 사용할 수 있는 중간 값을 저장하고
-역방향에서는 chain-rule을 사용한다. 업스트림 그라디언트를 연결하고 로컬 그래디언트와 곱하여 노드의 입력에 대한 그래디언트를 계산하고 이를 다음에 연결된 노드로 전달한다.
-NN
-2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.
-h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다.
-Neural Network " />
+<meta property="og:description" content="개요 CS231n의 4강에 대한 내용을 정리 할 것이다. 저번 강에서는 Loss Function과 Optimization에 대해서 배웠는데 이번 강에서는 W를 업데이트 하는 과정인 Chain-Rule과 간단한 Neural Networks에 대해서 배울 것이다. Backpropagation 지난 과정에 gradient에는 두가지 종류가 있다고 배웠다. 그 중 빠르고 정확한 analytic gradient에 대해서 활용해볼 것이다. 각 과정의 연산 과정을 Computational graph을 활용하여 표현한다면 analytic gradient를 활용할 수 있게 된다.
+이를 통해 함수는 BackPropagation이라는 기술을 사용하고, gradient를 얻기 위하여 Chain-rule를 활용한다.
+BackPropagation의 과정은 다음과 같다. 각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. local gradient는 이때의 입력된 노드의 출력의 gradient이다. 각각의 입력마다 그때의 local gradient를 구한다. 즉, z에 대한 x로의 미분, z에 대한 y로의 미분을 구한다. 이를 Forward Pass (Foward Propagation)이라고 한다. Forward Pass의 맨 마지막에는 loss function을 통한 loss가 나온다. Forward Pass가 모든 노드가 진행이 되었으면 Backward Pass (Back Propagation)이 진행된다. 이때 Back Propagation은 수많은 계산을 거쳐 나온 loss에 대한 z의 미분을 나타내고 이는 global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)라고 칭한다. 이때 그럼 loss에 대한 x, y의 미분값을 구할 수 있게 되는데 이때 활용되는 개념이 Chain-rule이다. Forward Pass로 구한 local gradient의 값과 그 노드의 global gradient를 곱하면 우리고 최종적으로 원하는 gradient가 나오게 된다. $gradient = local \ gradient * global \ gradient$ 이런 Computational graph에서 그룹화를 할 수 있다는 사실도 알 수 있다. 위 그림을 보면 sigmoid gate로 하나의 노드로 묶어서 계산 할 수도 있다. 따라서 얼마나 그룹화를 하여 노드를 표현할 것인지에 대한 고민이 필요할 수 있다. 또한 Back Propagation에는 3가지 패턴이 존재한다고 한다. add gate gradient 전달하는 역할 max gate 한 방향으로 gradient 모두 전달하는 역할 mul gate 서로 gradient 전환하는 역할 종합적으로 위에서 배운 Back Propagation을 아래와 같이 일반화된 식으로 표현한다. $$ \frac{\partial f}{\partial x} = \sum \frac{\partial f}{\partial q_i} \cdot \frac{\partial q_i}{\partial x} $$
+이제 위에서 배운 Back Propagation에서 변수가 벡터라고 생각한다면 gradient는 Jacobian matrix로 표현할 수 있게 된다. Jacobian matrix: 각 요소의 미분을 포함하는 행렬 따라서 4096의 input이 들어온다면 이 Jacobian matrix의 크기는 $4096 * 4096$ 일 것이다. 이때 gradient의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한 값으로 표현이 되고 이는 결국 편미분한 값과 이어지게 된다. 따라서 입력의 어떤 차원이 출력의 어떤 차원에 영향을 주는지, 그래서 Jacobian matrix는 입력의 각 요소가 오직 출력의 해당 요소에만 영향을 주기 때문에 대각 행렬이 될 것이다. Neural Networks 위 그림 처럼 2계층 신경망을 얻기 위해 다른 것 위에 비선형 변환을 하면 된다. 이렇게 계속 층층 쌓아가면 Deep Neural Network의 형태가 된다. 위의 W1, W2는 각각 gradient로 학습 시키고, 그 gradient들은 Chain-rule으로 계산하여 구한다. 이런 비선형성의 특징을 표현하기 위해 activation function이라는 함수가 존재한다. 이는 강의 후반부에 더 자세히 다룬다고 한다. 아래는 이 Forward pass과정을 코드로 표현한 것이다. f = lambda x: 1.0/(1.0&#43; np.exp(-x)) # sigmoid (activation function) x = np.random.randn(3, 1) # random input vector h1 = f(np.dot(W1, x) &#43; b1) # calculate first hidden layer h2 = f(np.dot(W2, h1) &#43; b2) # calculate second hidden layer out = np.dot(W3,h2) &#43; b3 # output neuron (1*1) Reference https://chasuyeon.tistory.com/entry/cs231n-4%EA%B0%95-%EC%A0%95%EB%A6%AC-Introduction-to-Neural-Networks " />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/cs231n/lecture4/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2024-07-08T21:02:03+09:00" />
 <meta property="article:modified_time" content="2024-07-08T21:02:03+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS231n] 04.Introduction to Neural Networks"/>
-<meta name="twitter:description" content="개요 CS231n의 4강에 대한 내용을 정리 할 것이다.
-저번 강에서는 Loss Function과 Optimization에 대해서 배웠는데 이번 강에서는 W를 업데이트 하는 과정인 Chain-Rule과 간단한 Neural Networks에 대해서 배울 것이다.
-Backpropagation 지난 과정에 gradient에는 두가지 종류가 있다고 배웠다. 그 중 빠르고 정확한 analytic gradient에 대해서 활용해볼 것이다.
-각 과정의 연산 과정을 Computational graph을 활용하여 표현한다면 analytic gradient를 활용할 수 있게 된다. 이를 통해 함수는 BackPropagation이라는 기술을 사용하고, gradient를 얻기 위하여 Chain-rule를 활용한다.
-BackPropagation의 과정은 다음과 같다.
-각 입력이 local node로 들어오고 다음 노드로 직접 전달된다.
-local gradient는 이때의 입력된 노드의 출력의 gradient이다.
-각각의 입력마다 그때의 local gradient를 구한다. 즉, z에 대한 x로의 미분, z에 대한 y로의 미분을 구한다. 이를 Forward Pass (Foward Propagation)이라고 한다.
-Forward Pass의 맨 마지막에는 loss function을 통한 loss가 나온다.
-Forward Pass가 모든 노드가 진행이 되었으면 Backward Pass (Back Propagation)이 진행된다.
-이때 Back Propagation은 수많은 계산을 거쳐 나온 loss에 대한 z의 미분을 나타내고 이는 global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)라고 칭한다.
-이때 그럼 loss에 대한 x, y의 미분값을 구할 수 있게 되는데 이때 활용되는 개념이 Chain-rule이다.
-Forward Pass로 구한 local gradient의 값과 그 노드의 global gradient를 곱하면 우리고 최종적으로 원하는 gradient가 나오게 된다.
-continue
-E=mc^2를 인라인 수식으로 표시하려면 다음과 같이 작성합니다: $E=mc^2$
-Integrate $$\int x^3 dx$$
-$E=mc^2$
-각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. 로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.
-로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.
-로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다. 이는 trade-off이다.
-그래디언트의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한다.
-항상 변수에 대한 그래디언트가 변수 와 동일한 모양을 가져야 한다.
-순방향 단계에서는 연산 결과를 계산하고 나중에 그라디언트 계산에 사용할 수 있는 중간 값을 저장하고
-역방향에서는 chain-rule을 사용한다. 업스트림 그라디언트를 연결하고 로컬 그래디언트와 곱하여 노드의 입력에 대한 그래디언트를 계산하고 이를 다음에 연결된 노드로 전달한다.
-NN
-2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.
-h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것 w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다.
-Neural Network "/>
+<meta name="twitter:description" content="개요 CS231n의 4강에 대한 내용을 정리 할 것이다. 저번 강에서는 Loss Function과 Optimization에 대해서 배웠는데 이번 강에서는 W를 업데이트 하는 과정인 Chain-Rule과 간단한 Neural Networks에 대해서 배울 것이다. Backpropagation 지난 과정에 gradient에는 두가지 종류가 있다고 배웠다. 그 중 빠르고 정확한 analytic gradient에 대해서 활용해볼 것이다. 각 과정의 연산 과정을 Computational graph을 활용하여 표현한다면 analytic gradient를 활용할 수 있게 된다.
+이를 통해 함수는 BackPropagation이라는 기술을 사용하고, gradient를 얻기 위하여 Chain-rule를 활용한다.
+BackPropagation의 과정은 다음과 같다. 각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. local gradient는 이때의 입력된 노드의 출력의 gradient이다. 각각의 입력마다 그때의 local gradient를 구한다. 즉, z에 대한 x로의 미분, z에 대한 y로의 미분을 구한다. 이를 Forward Pass (Foward Propagation)이라고 한다. Forward Pass의 맨 마지막에는 loss function을 통한 loss가 나온다. Forward Pass가 모든 노드가 진행이 되었으면 Backward Pass (Back Propagation)이 진행된다. 이때 Back Propagation은 수많은 계산을 거쳐 나온 loss에 대한 z의 미분을 나타내고 이는 global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)라고 칭한다. 이때 그럼 loss에 대한 x, y의 미분값을 구할 수 있게 되는데 이때 활용되는 개념이 Chain-rule이다. Forward Pass로 구한 local gradient의 값과 그 노드의 global gradient를 곱하면 우리고 최종적으로 원하는 gradient가 나오게 된다. $gradient = local \ gradient * global \ gradient$ 이런 Computational graph에서 그룹화를 할 수 있다는 사실도 알 수 있다. 위 그림을 보면 sigmoid gate로 하나의 노드로 묶어서 계산 할 수도 있다. 따라서 얼마나 그룹화를 하여 노드를 표현할 것인지에 대한 고민이 필요할 수 있다. 또한 Back Propagation에는 3가지 패턴이 존재한다고 한다. add gate gradient 전달하는 역할 max gate 한 방향으로 gradient 모두 전달하는 역할 mul gate 서로 gradient 전환하는 역할 종합적으로 위에서 배운 Back Propagation을 아래와 같이 일반화된 식으로 표현한다. $$ \frac{\partial f}{\partial x} = \sum \frac{\partial f}{\partial q_i} \cdot \frac{\partial q_i}{\partial x} $$
+이제 위에서 배운 Back Propagation에서 변수가 벡터라고 생각한다면 gradient는 Jacobian matrix로 표현할 수 있게 된다. Jacobian matrix: 각 요소의 미분을 포함하는 행렬 따라서 4096의 input이 들어온다면 이 Jacobian matrix의 크기는 $4096 * 4096$ 일 것이다. 이때 gradient의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한 값으로 표현이 되고 이는 결국 편미분한 값과 이어지게 된다. 따라서 입력의 어떤 차원이 출력의 어떤 차원에 영향을 주는지, 그래서 Jacobian matrix는 입력의 각 요소가 오직 출력의 해당 요소에만 영향을 주기 때문에 대각 행렬이 될 것이다. Neural Networks 위 그림 처럼 2계층 신경망을 얻기 위해 다른 것 위에 비선형 변환을 하면 된다. 이렇게 계속 층층 쌓아가면 Deep Neural Network의 형태가 된다. 위의 W1, W2는 각각 gradient로 학습 시키고, 그 gradient들은 Chain-rule으로 계산하여 구한다. 이런 비선형성의 특징을 표현하기 위해 activation function이라는 함수가 존재한다. 이는 강의 후반부에 더 자세히 다룬다고 한다. 아래는 이 Forward pass과정을 코드로 표현한 것이다. f = lambda x: 1.0/(1.0&#43; np.exp(-x)) # sigmoid (activation function) x = np.random.randn(3, 1) # random input vector h1 = f(np.dot(W1, x) &#43; b1) # calculate first hidden layer h2 = f(np.dot(W2, h1) &#43; b2) # calculate second hidden layer out = np.dot(W3,h2) &#43; b3 # output neuron (1*1) Reference https://chasuyeon.tistory.com/entry/cs231n-4%EA%B0%95-%EC%A0%95%EB%A6%AC-Introduction-to-Neural-Networks "/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -81,7 +33,7 @@ Neural Network "/>
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture4\/"
-        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  339 ,
+        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  473 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture4\/","datePublished": "2024-07-08T21:02:03+09:00","dateModified": "2024-07-08T21:02:03+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -123,8 +75,8 @@ Neural Network "/>
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS231n] 04.Introduction to Neural Networks</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-08">2024-07-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;339 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;2 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-08">2024-07-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;473 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -134,86 +86,167 @@ Neural Network "/>
   <ul>
     <li><a href="#개요">개요</a></li>
     <li><a href="#backpropagation">Backpropagation</a></li>
-    <li><a href="#neural-network">Neural Network</a></li>
+    <li><a href="#neural-networks">Neural Networks</a></li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><h2 id="개요">개요</h2>
 <ol start="0">
-<li>
-<p><code>CS231n</code>의 4강에 대한 내용을 정리 할 것이다.</p>
-</li>
-<li>
-<p>저번 강에서는 <code>Loss Function</code>과 <code>Optimization</code>에 대해서 배웠는데 이번 강에서는 <code>W</code>를 업데이트 하는 과정인 <code>Chain-Rule</code>과 간단한 <code>Neural Networks</code>에 대해서 배울 것이다.</p>
-</li>
+<li><code>CS231n</code>의 4강에 대한 내용을 정리 할 것이다.</li>
+</ol>
+<br>
+<ol>
+<li>저번 강에서는 <code>Loss Function</code>과 <code>Optimization</code>에 대해서 배웠는데 이번 강에서는 <code>W</code>를 업데이트 하는 과정인 <code>Chain-Rule</code>과 간단한 <code>Neural Networks</code>에 대해서 배울 것이다.</li>
 </ol>
 <hr>
 <h2 id="backpropagation">Backpropagation</h2>
 <ol start="2">
+<li>지난 과정에 gradient에는 두가지 종류가 있다고 배웠다. 그 중 빠르고 정확한 <code>analytic gradient</code>에 대해서 활용해볼 것이다.</li>
+</ol>
+<br>
+<ol start="3">
 <li>
-<p>지난 과정에 gradient에는 두가지 종류가 있다고 배웠다. 그 중 빠르고 정확한 <code>analytic gradient</code>에 대해서 활용해볼 것이다.</p>
-</li>
-<li>
-<p>각 과정의 연산 과정을 <code>Computational graph</code>을 활용하여 표현한다면 <code>analytic gradient</code>를 활용할 수 있게 된다.
-<img src="/images/cs231n/lecture4/computational-1.png" height="100%" width="60%"></p>
+<p>각 과정의 연산 과정을 <code>Computational graph</code>을 활용하여 표현한다면 <code>analytic gradient</code>를 활용할 수 있게 된다.</p>
+ <img src="/images/cs231n/lecture4/computational-1.png" height="100%" width="60%">
 </li>
 <li>
 <p>이를 통해 함수는 <code>BackPropagation</code>이라는 기술을 사용하고, gradient를 얻기 위하여 <code>Chain-rule</code>를 활용한다.</p>
 </li>
-<li>
-<p><code>BackPropagation</code>의 과정은 다음과 같다.</p>
-</li>
+</ol>
+<br>
+<ol start="5">
+<li><code>BackPropagation</code>의 과정은 다음과 같다.</li>
 </ol>
 <div style="text-align:center;">
 <img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+<br>
 <ol start="6">
-<li>
-<p>각 입력이 <code>local node</code>로 들어오고 다음 노드로 직접 전달된다.</p>
-</li>
-<li>
-<p><code>local gradient</code>는 이때의 입력된 노드의 출력의 <code>gradient</code>이다.</p>
+<li>각 입력이 <code>local node</code>로 들어오고 다음 노드로 직접 전달된다.</li>
+</ol>
+<br>
+<ol start="7">
+<li><code>local gradient</code>는 이때의 입력된 노드의 출력의 <code>gradient</code>이다.
 <ul>
 <li>각각의 입력마다 그때의 <code>local gradient</code>를 구한다.</li>
 <li>즉, <code>z에 대한 x로의 미분</code>, <code>z에 대한 y로의 미분</code>을 구한다.</li>
 </ul>
 </li>
+</ol>
+<br>
+<ol start="8">
+<li>이를 <code>Forward Pass (Foward Propagation)</code>이라고 한다.</li>
+</ol>
+<br>
+<ol start="9">
+<li><code>Forward Pass</code>의 맨 마지막에는 <code>loss function</code>을 통한 loss가 나온다.</li>
+</ol>
+<br>
+<ol start="10">
+<li><code>Forward Pass</code>가 모든 노드가 진행이 되었으면 <code>Backward Pass (Back Propagation)</code>이 진행된다.</li>
+</ol>
+<br>
+<ol start="11">
+<li>이때 <code>Back Propagation</code>은 수많은 계산을 거쳐 나온 <code>loss에 대한 z의 미분</code>을 나타내고 이는 <code>global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)</code>라고 칭한다.</li>
+</ol>
+<br>
+<ol start="12">
+<li>이때 그럼 <code>loss에 대한 x, y의 미분</code>값을 구할 수 있게 되는데 이때 활용되는 개념이 <code>Chain-rule</code>이다.</li>
+</ol>
+<br>
+<ol start="13">
+<li><code>Forward Pass</code>로 구한 <code>local gradient</code>의 값과 그 노드의 <code>global gradient</code>를 곱하면 우리고 최종적으로 원하는 <code>gradient</code>가 나오게 된다.</li>
+</ol>
+<ul>
+<li>$gradient = local \ gradient * global \ gradient$</li>
+</ul>
+<br>
+<ol start="14">
 <li>
-<p>이를 <code>Forward Pass (Foward Propagation)</code>이라고 한다.</p>
-</li>
-<li>
-<p><code>Forward Pass</code>의 맨 마지막에는 <code>loss function</code>을 통한 loss가 나온다.</p>
-</li>
-<li>
-<p><code>Forward Pass</code>가 모든 노드가 진행이 되었으면 <code>Backward Pass (Back Propagation)</code>이 진행된다.</p>
-</li>
-<li>
-<p>이때 <code>Back Propagation</code>은 수많은 계산을 거쳐 나온 <code>loss에 대한 z의 미분</code>을 나타내고 이는 <code>global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)</code>라고 칭한다.</p>
-</li>
-<li>
-<p>이때 그럼 <code>loss에 대한 x, y의 미분</code>값을 구할 수 있게 되는데 이때 활용되는 개념이 <code>Chain-rule</code>이다.</p>
-</li>
-<li>
-<p><code>Forward Pass</code>로 구한 <code>local gradient</code>의 값과 그 노드의 <code>global gradient</code>를 곱하면 우리고 최종적으로 원하는 <code>gradient</code>가 나오게 된다.</p>
+<p>이런 <code>Computational graph</code>에서 그룹화를 할 수 있다는 사실도 알 수 있다. <br>
+<img src="/images/cs231n/lecture4/group-1.png" height="100%" width="80%"></p>
+<ul>
+<li><code>위 그림</code>을 보면 <code>sigmoid gate</code>로 하나의 노드로 묶어서 계산 할 수도 있다.</li>
+<li>따라서 얼마나 그룹화를 하여 노드를 표현할 것인지에 대한 고민이 필요할 수 있다.</li>
+</ul>
 </li>
 </ol>
-<p>continue</p>
-<p><code>E=mc^2</code>를 인라인 수식으로 표시하려면 다음과 같이 작성합니다: $E=mc^2$</p>
-<p>Integrate $$\int x^3 dx$$</p>
-<p>$E=mc^2$</p>
-<p>각 입력이 local node로 들어오고 다음 노드로 직접 전달된다.
-로컬 그라디언트는 노드의 즉각적인 출력의 그라디언트이다.</p>
-<p>로컬그라디언트를 구하고 각 값에 연결하는 것이 chain-rule이다.</p>
-<p>로컬 그라디언트를 기록할 수 있는 한 좀 더 복잡한 노드를 만들고 이를 그룹화 할 수 있게 된다.
-이는 trade-off이다.</p>
-<p>그래디언트의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한다.</p>
-<p>항상 변수에 대한 그래디언트가 변수 와 동일한 모양을 가져야 한다.</p>
-<p>순방향 단계에서는 연산 결과를 계산하고 나중에 그라디언트 계산에 사용할 수 있는 중간 값을 저장하고</p>
-<p>역방향에서는 chain-rule을 사용한다. 업스트림 그라디언트를 연결하고 로컬 그래디언트와 곱하여 노드의 입력에 대한 그래디언트를 계산하고 이를 다음에 연결된 노드로 전달한다.</p>
+<br>
+<ol start="15">
+<li>
+<p>또한 <code>Back Propagation</code>에는 3가지 패턴이 존재한다고 한다.
+<img src="/images/cs231n/lecture4/back-2.png" height="100%" width="80%"></p>
+<ul>
+<li><code>add gate</code>
+<ul>
+<li><code>gradient</code> 전달하는 역할</li>
+</ul>
+</li>
+<li><code>max gate</code>
+<ul>
+<li>한 방향으로 <code>gradient</code> 모두 전달하는 역할</li>
+</ul>
+</li>
+<li><code>mul gate</code>
+<ul>
+<li>서로 <code>gradient</code> 전환하는 역할</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="16">
+<li>종합적으로 위에서 배운 <code>Back Propagation</code>을 아래와 같이 일반화된 식으로 표현한다.</li>
+</ol>
+<p>$$
+\frac{\partial f}{\partial x} = \sum \frac{\partial f}{\partial q_i} \cdot \frac{\partial q_i}{\partial x}
+$$</p>
+<br>
+<ol start="17">
+<li>이제 위에서 배운 <code>Back Propagation</code>에서 변수가 벡터라고 생각한다면 <code>gradient</code>는 <code>Jacobian matrix</code>로 표현할 수 있게 된다.</li>
+</ol>
+<ul>
+<li><code>Jacobian matrix</code>: 각 요소의 미분을 포함하는 행렬</li>
+</ul>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/vector.png" height="100%" width="80%"> </div>
+<br>
+<ol start="18">
+<li>따라서 4096의 input이 들어온다면 이 <code>Jacobian matrix</code>의 크기는 $4096 * 4096$ 일 것이다.</li>
+</ol>
+<ul>
+<li>이때 <code>gradient</code>의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한 값으로 표현이 되고 이는 결국 편미분한 값과 이어지게 된다.</li>
+<li>따라서 입력의 어떤 차원이 출력의 어떤 차원에 영향을 주는지, 그래서 <code>Jacobian matrix</code>는 입력의 각 요소가 오직 출력의 해당 요소에만 영향을 주기 때문에 <code>대각 행렬</code>이 될 것이다.</li>
+</ul>
 <hr>
-<p>NN</p>
-<p>2계층 신경망을 얻기 위해 다른 것 위에 선형 변환을 하면 된다. -&gt; 이러면 단일 선형 함수 처럼 붕괴가 된다.</p>
-<p>h: w-one의 각 템플릿이 얼마나 존재하는지에 대한 것
-w-two: 이 모든것에 가중치를 부여하고 이 모든 중간 점수에 가중치를 부여하여 최종 점수를 얻는다.</p>
-<h2 id="neural-network">Neural Network</h2>
+<h2 id="neural-networks">Neural Networks</h2>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/layer.png" height="100%" width="80%"> </div>
+<ol start="19">
+<li>위 그림 처럼 2계층 신경망을 얻기 위해 다른 것 위에 <code>비선형 변환</code>을 하면 된다. 이렇게 계속 층층 쌓아가면 <code>Deep Neural Network</code>의 형태가 된다.</li>
+</ol>
+<ul>
+<li>위의 <code>W1, W2</code>는 각각 <code>gradient</code>로 학습 시키고, 그 <code>gradient</code>들은 <code>Chain-rule</code>으로 계산하여 구한다.</li>
+</ul>
+<br>
+<ol start="20">
+<li>이런 <u>비선형성의 특징을 표현하기</u> 위해 <code>activation function</code>이라는 함수가 존재한다. 이는 강의 후반부에 더 자세히 다룬다고 한다.</li>
+</ol>
+<br>
+<ol start="21">
+<li>아래는 이 <code>Forward pass</code>과정을 코드로 표현한 것이다.
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span> <span class="c1"># sigmoid (activation function)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># random input vector</span>
+</span></span><span class="line"><span class="cl">  <span class="n">h1</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">W1</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">b1</span><span class="p">)</span> <span class="c1"># calculate first hidden layer</span>
+</span></span><span class="line"><span class="cl">  <span class="n">h2</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">W2</span><span class="p">,</span> <span class="n">h1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b2</span><span class="p">)</span> <span class="c1"># calculate second hidden layer</span>
+</span></span><span class="line"><span class="cl">  <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">W3</span><span class="p">,</span><span class="n">h2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b3</span> <span class="c1"># output neuron (1*1)</span>
+</span></span></code></pre></div></li>
+</ol>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://chasuyeon.tistory.com/entry/cs231n-4%EA%B0%95-%EC%A0%95%EB%A6%AC-Introduction-to-Neural-Networks" target="_blank" rel="noopener noreffer ">https://chasuyeon.tistory.com/entry/cs231n-4%EA%B0%95-%EC%A0%95%EB%A6%AC-Introduction-to-Neural-Networks</a></li>
+</ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
