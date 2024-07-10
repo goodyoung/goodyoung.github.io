@@ -5,34 +5,22 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation" />
-<meta property="og:description" content="Abstract 최근 몇 년간 Object-Detection 분야가 정체 상태에 있었다. 가장 성능이 좋은 방법론은 low-level image feature와 high-level context를 섞는 것이다. 본 논문에서는 간단하고 확장 가능한 object-algorithm을 제시한다. - 이는 VOC2012에서 SOTA 결과 대비 30%나 향상된 mAP를 보여준다. 본 논문에서는 두가지 방법을 사용한다 - high-capacity cnn을 하위의 region proposal에 적용시킨다 - data가 부족할 때, 사전 학습 된 모델을 도메인 특화 미세 조정을 하면 성능이 크게 향상된다 따라서 region proposal을 cnn과 결합했기 때문에 R-CNN(Regions with CNN features)라고 한다.
-Introduction 지난 10년간 visual recognition task에서의 진전은 SIFT와 HOG의 사용에 의존되어 왔다.
-둘 다 컴퓨터 비전에서 널리 사용되는 두 가지 이미지 특징 추출 기법이다. SIFT: 다양한 스케일과 회전에 대해 불변인 키포인트와 불변인 특징을 만드는 기법 HOG: 이미지의 지역적인 형태나 외곽선을 표현하는 방법으로, 물체 탐지, 특히 사람 탐지에 사용된다. 2010~2012년가지 소폭적인 개선만 이루어 졌다. AlexNet의 개발로 인하여 CNN이 크게 향상이 되었다. 그 후 Classification이 Detection의 결과에 어느정도의 영향을 미치는지에 대해 관건이었다. 본 논문은 HOG와 같은 기법들과 비교하여 CNN이 Object-Detection 성능을 향상시켰음을 시사한다. 이러한 결과를 얻기 위하여 두가지 문제에 집중하였다. - deep network에서의 localizing object - 작은 크기의 detection data로 높은 capacity model로 훈련하기
-classification과는 달리 객체 탐지에서는 localization이 문제이다. 이를 해결하기 위한 방법은 2가지 방법이 있다. - regression problem으로 설정 - 실용적으로 좋지 않다. (30%의 결과가 나온다) - sliding-window detector를 구축 - 본 논문의 CNN은 좀 더 깊은(다섯 개의 CNN layer) layer를 구축하였는데 이는 높은 spatial resolution을 유지하기 어렵다. - 따라서 이는 객체의 정확한 위치를 찾는데 어려움이 있다는 것이고 이 역시 아직 남아있는 과제임을 나타낸다.
-대신에 본 논문은 이러한 문제를 recognition using region을 통해 해결하려고 한다. Region-Proposal을 통해 2000개의 카테고리를 만들고 이를 CNN을 사용해 고정적인 길이의 특징 벡터를 추출 한다. 이때 입력되는 이미지의 사이즈도 고정되어야 하기 때문에 아핀 변환 등으로 이미지를 추출한 후 입력으로 사용한다. 그 후 이를 선형 SVM으로 분류한다.
-이는 영역의 크기에 상관없이 동일한 크기로 변환이 된다. (Figure 1). 본 논문에서는 이를 Region-Proposal과 CNN을 같이 사용하므로 R-CNN이라고 한다.
-두번째의 문제는 라벨 데이터의 부족, 비지도 사전 훈련을 허용. - 지도학습의 미세 조정
-ILSVRC인 임의의 큰 데이터로 지도 학습을 한 모델에 PASCAL의 작은 데이터를 domain 특화 미세 조정을 하는 패러다임을 제시한다. 미세조정을 하면서 33%가 올랐다.
-Object Detection with R-CNN " />
+<meta property="og:description" content="개요 Object Detection분야에서 널리 사용되는 딥러닝 모델인 RCNN에 대한 논문 리뷰를 해보려고 한다. RCNN은 이미지 내에서 객체를 정확하게 탐지하고 분류하는 문제를 해결하기 위해 개발되었다. Abstract 최근 몇 년간 Object Detection 분야가 정체 상태에 있었다. 그동안 가장 성능이 좋은 방법론은 low-level image feature와 high-level context를 섞는 것이다. 본 논문에서는 간단하고 확장 가능한 object-algorithm을 제시한다. 이는 VOC2012에서 SOTA 결과 대비 30%나 향상된 mAP를 보여준다. 본 논문에서는 두가지 방법을 사용한다 high-capacity cnn을 하위의 region proposal에 적용시킨다. 이를 통해 RCNN이라고 불린다. data가 부족할 때, 사전 학습 된 모델을 도메인 특화 미세 조정을 하면 성능이 크게 향상된다. 따라서 region proposal을 CNN과 결합했기 때문에 R-CNN(Regions with CNN features)라고 한다. Introduction 지난 10년간 visual recognition task에서의 진전은 SIFT와 HOG의 사용에 의존되어 왔다. 둘 다 컴퓨터 비전에서 널리 사용되는 두 가지 이미지 특징 추출 기법이다. SIFT: 다양한 스케일과 회전에 대해 불변인 키포인트와 불변인 특징을 만드는 기법이다. HOG: 이미지의 지역적인 형태나 외곽선을 표현하는 방법으로, 물체 탐지, 특히 사람 탐지에 사용된다. 2010~2012년가지 소폭적인 개선만 이루어 졌다. AlexNet의 개발로 인하여 CNN이 크게 향상이 되었다. 그 후 Classification이 Object Detection의 결과에 어느정도의 영향을 미치는지에 대해 관건이었다. 본 논문은 HOG와 같은 기법들과 비교하여 CNN이 Object Detection 성능을 향상시켰음을 보여준다. 이러한 결과를 얻기 위하여 두가지 문제에 집중하였다. Deep network에서의 localizing object 작은 양의 detection data로 높은 capacity model 훈련하기 Classification과는 달리 Object Detection에서는 localization이 문제이다.이를 해결하기 위한 방법은 2가지 방법이 있다. Regression problem으로 설정 실용적으로 좋지 않다. (30%의 결과가 나온다) Sliding-window detector를 구축 본 논문의 CNN은 좀 더 깊은(다섯 개의 CNN layer) layer를 구축하였는데 이는 높은 spatial resolution을 유지하기 어렵다. 따라서 이는 객체의 정확한 위치를 찾는데 어려움이 있다는 것이고 이 역시 아직 남아있는 과제임을 나타낸다. 본 논문은 첫 번째 문제를 Recognition using region을 통해 해결하려고 한다. 위 그림 처럼 Region-proposal을 통해 2000개의 카테고리를 만들고 이를 CNN을 사용해 고정적인 길이의 특징 벡터를 추출 한다. 이때 입력되는 이미지의 사이즈도 고정되어야 하기 때문에 아핀 변환 등으로 이미지를 추출한 후 입력으로 사용한다. 그 후 이를 선형 SVM으로 분류한다. 이는 영역의 크기에 상관없이 동일한 크기로 변환이 된다. 본 논문에서는 이를 Region-proposal과 CNN을 같이 사용하므로 R-CNN이라고 한다. 본 논문은 두 번째의 문제를 사전 학습 미세조정에 따른 비지도 사전 훈련을 허용하여 해결했다. ILSVRC인 임의의 큰 데이터로 지도 학습을 한 모델에 PASCAL의 작은 데이터를 domain 특화 미세 조정을 하는 패러다임을 제시한다. 이를 통해 결과가 33%가 올랐다. Object Detection with R-CNN 크게 3가지 모듈을 포함하고 있다. Category-independent region proposal Large Convolutional neural network Class specific linear SVM 본 논문에서는 Region-proposal을 생성하기 위해 Selective Search방법을 이용한다.
+Selective Search란 색상, 질감, 영역크기 등을 이용해 non-objective segmentation을 수행한다. 이 작업을 통해 좌측 제일 하단 그림과 같이 많은 small segmented areas들을 얻을 수 있다. Bottom-up 방식으로 small segemented areas들을 합쳐서 더 큰 segemented areas들을 만든다. 두 번째의 작업을 반복하여 최종적으로 2000개의 region proposal을 생성한다. 또한 본 논문에서는 AlexNet의 모델을 사용하여 $227 * 227$의 고정적 크기인 이미지를 받게 한다.
+따라서 임의의 다양한 크기를 가진 영역들을 고정된 크기로 바꾸는 작업인 warping의 과정을 거친다. 2000장의 region-proposal이 selective-search에 의해 나오면 ground-truth와 IoU를 비교하여 0.5 보다 큰 경우를 positive로 구분하고 그 외를 negative로 구분한다. 또한 positive랑 negative가 겹치는 객체를 정확히 탐지하기 위하여 IoU overlap threshold를 사용하여 IoU 임계치를 주어 객체 탐지 성능을 높인다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/paper/r-cnn/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-07-08T21:01:50+09:00" />
-<meta property="article:modified_time" content="2024-07-08T21:01:50+09:00" /><meta property="og:site_name" content="My cool site" />
+<meta property="article:published_time" content="2024-07-10T16:01:50+09:00" />
+<meta property="article:modified_time" content="2024-07-10T16:01:50+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation"/>
-<meta name="twitter:description" content="Abstract 최근 몇 년간 Object-Detection 분야가 정체 상태에 있었다. 가장 성능이 좋은 방법론은 low-level image feature와 high-level context를 섞는 것이다. 본 논문에서는 간단하고 확장 가능한 object-algorithm을 제시한다. - 이는 VOC2012에서 SOTA 결과 대비 30%나 향상된 mAP를 보여준다. 본 논문에서는 두가지 방법을 사용한다 - high-capacity cnn을 하위의 region proposal에 적용시킨다 - data가 부족할 때, 사전 학습 된 모델을 도메인 특화 미세 조정을 하면 성능이 크게 향상된다 따라서 region proposal을 cnn과 결합했기 때문에 R-CNN(Regions with CNN features)라고 한다.
-Introduction 지난 10년간 visual recognition task에서의 진전은 SIFT와 HOG의 사용에 의존되어 왔다.
-둘 다 컴퓨터 비전에서 널리 사용되는 두 가지 이미지 특징 추출 기법이다. SIFT: 다양한 스케일과 회전에 대해 불변인 키포인트와 불변인 특징을 만드는 기법 HOG: 이미지의 지역적인 형태나 외곽선을 표현하는 방법으로, 물체 탐지, 특히 사람 탐지에 사용된다. 2010~2012년가지 소폭적인 개선만 이루어 졌다. AlexNet의 개발로 인하여 CNN이 크게 향상이 되었다. 그 후 Classification이 Detection의 결과에 어느정도의 영향을 미치는지에 대해 관건이었다. 본 논문은 HOG와 같은 기법들과 비교하여 CNN이 Object-Detection 성능을 향상시켰음을 시사한다. 이러한 결과를 얻기 위하여 두가지 문제에 집중하였다. - deep network에서의 localizing object - 작은 크기의 detection data로 높은 capacity model로 훈련하기
-classification과는 달리 객체 탐지에서는 localization이 문제이다. 이를 해결하기 위한 방법은 2가지 방법이 있다. - regression problem으로 설정 - 실용적으로 좋지 않다. (30%의 결과가 나온다) - sliding-window detector를 구축 - 본 논문의 CNN은 좀 더 깊은(다섯 개의 CNN layer) layer를 구축하였는데 이는 높은 spatial resolution을 유지하기 어렵다. - 따라서 이는 객체의 정확한 위치를 찾는데 어려움이 있다는 것이고 이 역시 아직 남아있는 과제임을 나타낸다.
-대신에 본 논문은 이러한 문제를 recognition using region을 통해 해결하려고 한다. Region-Proposal을 통해 2000개의 카테고리를 만들고 이를 CNN을 사용해 고정적인 길이의 특징 벡터를 추출 한다. 이때 입력되는 이미지의 사이즈도 고정되어야 하기 때문에 아핀 변환 등으로 이미지를 추출한 후 입력으로 사용한다. 그 후 이를 선형 SVM으로 분류한다.
-이는 영역의 크기에 상관없이 동일한 크기로 변환이 된다. (Figure 1). 본 논문에서는 이를 Region-Proposal과 CNN을 같이 사용하므로 R-CNN이라고 한다.
-두번째의 문제는 라벨 데이터의 부족, 비지도 사전 훈련을 허용. - 지도학습의 미세 조정
-ILSVRC인 임의의 큰 데이터로 지도 학습을 한 모델에 PASCAL의 작은 데이터를 domain 특화 미세 조정을 하는 패러다임을 제시한다. 미세조정을 하면서 33%가 올랐다.
-Object Detection with R-CNN "/>
+<meta name="twitter:description" content="개요 Object Detection분야에서 널리 사용되는 딥러닝 모델인 RCNN에 대한 논문 리뷰를 해보려고 한다. RCNN은 이미지 내에서 객체를 정확하게 탐지하고 분류하는 문제를 해결하기 위해 개발되었다. Abstract 최근 몇 년간 Object Detection 분야가 정체 상태에 있었다. 그동안 가장 성능이 좋은 방법론은 low-level image feature와 high-level context를 섞는 것이다. 본 논문에서는 간단하고 확장 가능한 object-algorithm을 제시한다. 이는 VOC2012에서 SOTA 결과 대비 30%나 향상된 mAP를 보여준다. 본 논문에서는 두가지 방법을 사용한다 high-capacity cnn을 하위의 region proposal에 적용시킨다. 이를 통해 RCNN이라고 불린다. data가 부족할 때, 사전 학습 된 모델을 도메인 특화 미세 조정을 하면 성능이 크게 향상된다. 따라서 region proposal을 CNN과 결합했기 때문에 R-CNN(Regions with CNN features)라고 한다. Introduction 지난 10년간 visual recognition task에서의 진전은 SIFT와 HOG의 사용에 의존되어 왔다. 둘 다 컴퓨터 비전에서 널리 사용되는 두 가지 이미지 특징 추출 기법이다. SIFT: 다양한 스케일과 회전에 대해 불변인 키포인트와 불변인 특징을 만드는 기법이다. HOG: 이미지의 지역적인 형태나 외곽선을 표현하는 방법으로, 물체 탐지, 특히 사람 탐지에 사용된다. 2010~2012년가지 소폭적인 개선만 이루어 졌다. AlexNet의 개발로 인하여 CNN이 크게 향상이 되었다. 그 후 Classification이 Object Detection의 결과에 어느정도의 영향을 미치는지에 대해 관건이었다. 본 논문은 HOG와 같은 기법들과 비교하여 CNN이 Object Detection 성능을 향상시켰음을 보여준다. 이러한 결과를 얻기 위하여 두가지 문제에 집중하였다. Deep network에서의 localizing object 작은 양의 detection data로 높은 capacity model 훈련하기 Classification과는 달리 Object Detection에서는 localization이 문제이다.이를 해결하기 위한 방법은 2가지 방법이 있다. Regression problem으로 설정 실용적으로 좋지 않다. (30%의 결과가 나온다) Sliding-window detector를 구축 본 논문의 CNN은 좀 더 깊은(다섯 개의 CNN layer) layer를 구축하였는데 이는 높은 spatial resolution을 유지하기 어렵다. 따라서 이는 객체의 정확한 위치를 찾는데 어려움이 있다는 것이고 이 역시 아직 남아있는 과제임을 나타낸다. 본 논문은 첫 번째 문제를 Recognition using region을 통해 해결하려고 한다. 위 그림 처럼 Region-proposal을 통해 2000개의 카테고리를 만들고 이를 CNN을 사용해 고정적인 길이의 특징 벡터를 추출 한다. 이때 입력되는 이미지의 사이즈도 고정되어야 하기 때문에 아핀 변환 등으로 이미지를 추출한 후 입력으로 사용한다. 그 후 이를 선형 SVM으로 분류한다. 이는 영역의 크기에 상관없이 동일한 크기로 변환이 된다. 본 논문에서는 이를 Region-proposal과 CNN을 같이 사용하므로 R-CNN이라고 한다. 본 논문은 두 번째의 문제를 사전 학습 미세조정에 따른 비지도 사전 훈련을 허용하여 해결했다. ILSVRC인 임의의 큰 데이터로 지도 학습을 한 모델에 PASCAL의 작은 데이터를 domain 특화 미세 조정을 하는 패러다임을 제시한다. 이를 통해 결과가 33%가 올랐다. Object Detection with R-CNN 크게 3가지 모듈을 포함하고 있다. Category-independent region proposal Large Convolutional neural network Class specific linear SVM 본 논문에서는 Region-proposal을 생성하기 위해 Selective Search방법을 이용한다.
+Selective Search란 색상, 질감, 영역크기 등을 이용해 non-objective segmentation을 수행한다. 이 작업을 통해 좌측 제일 하단 그림과 같이 많은 small segmented areas들을 얻을 수 있다. Bottom-up 방식으로 small segemented areas들을 합쳐서 더 큰 segemented areas들을 만든다. 두 번째의 작업을 반복하여 최종적으로 2000개의 region proposal을 생성한다. 또한 본 논문에서는 AlexNet의 모델을 사용하여 $227 * 227$의 고정적 크기인 이미지를 받게 한다.
+따라서 임의의 다양한 크기를 가진 영역들을 고정된 크기로 바꾸는 작업인 warping의 과정을 거친다. 2000장의 region-proposal이 selective-search에 의해 나오면 ground-truth와 IoU를 비교하여 0.5 보다 큰 경우를 positive로 구분하고 그 외를 negative로 구분한다. 또한 positive랑 negative가 겹치는 객체를 정확히 탐지하기 위하여 IoU overlap threshold를 사용하여 IoU 임계치를 주어 객체 탐지 성능을 높인다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/r-cnn/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/deeplab-v2/" /><link rel="next" href="https://goodyoung.github.io/posts/cs231n/lecture4/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/r-cnn/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs231n/lecture4/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -43,8 +31,8 @@ Object Detection with R-CNN "/>
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/r-cnn\/"
-        },"genre": "posts","keywords": "FCN, Implement, 논문 리뷰, computer vision, segmentation, 논문 구현","wordcount":  344 ,
-        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/r-cnn\/","datePublished": "2024-07-08T21:01:50+09:00","dateModified": "2024-07-08T21:01:50+09:00","publisher": {
+        },"genre": "posts","keywords": "RCNN, Implement, 논문 리뷰, computer vision, object detection, segmentation, 논문 구현","wordcount":  732 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/r-cnn\/","datePublished": "2024-07-10T16:01:50+09:00","dateModified": "2024-07-10T16:01:50+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
                 "@type": "Person",
@@ -85,8 +73,8 @@ Object Detection with R-CNN "/>
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/implement/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Implement</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-08">2024-07-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;344 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;2 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-10">2024-07-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;732 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;4 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -94,70 +82,253 @@ Object Detection with R-CNN "/>
                 </div>
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
+    <li><a href="#개요">개요</a></li>
     <li><a href="#abstract">Abstract</a></li>
     <li><a href="#introduction">Introduction</a></li>
     <li><a href="#object-detection-with-r-cnn">Object Detection with R-CNN</a></li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
-            </div><div class="content" id="content"><h2 id="abstract">Abstract</h2>
-<p>최근 몇 년간 Object-Detection 분야가 정체 상태에 있었다.
-가장 성능이 좋은 방법론은 low-level image feature와 high-level context를 섞는 것이다.
-본 논문에서는 간단하고 확장 가능한 object-algorithm을 제시한다.
-- 이는 VOC2012에서 SOTA 결과 대비 30%나 향상된 mAP를 보여준다.
-본 논문에서는 두가지 방법을 사용한다
-- high-capacity cnn을 하위의 region proposal에 적용시킨다
-- data가 부족할 때, 사전 학습 된 모델을 도메인 특화 미세 조정을 하면 성능이 크게 향상된다
-따라서 region proposal을 cnn과 결합했기 때문에 R-CNN(Regions with CNN features)라고 한다.</p>
+            </div><div class="content" id="content"><h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>Object Detection</code>분야에서 널리 사용되는 딥러닝 모델인 <code>RCNN</code>에 대한 논문 리뷰를 해보려고 한다.</li>
+</ol>
+<br>
+<ol>
+<li><code>RCNN</code>은 이미지 내에서 <strong>객체를 정확하게 탐지하고</strong> <strong>분류하는</strong> 문제를 해결하기 위해 개발되었다.</li>
+</ol>
+<hr>
+<h2 id="abstract">Abstract</h2>
+<ol start="2">
+<li>최근 몇 년간 <code>Object Detection</code> 분야가 정체 상태에 있었다. 그동안 가장 성능이 좋은 방법론은 <code>low-level image feature</code>와 <code>high-level context</code>를 섞는 것이다.</li>
+</ol>
+<br>
+<ol start="3">
+<li>본 논문에서는 간단하고 확장 가능한 <code>object-algorithm</code>을 제시한다.
+<ul>
+<li>이는 <code>VOC2012</code>에서 <code>SOTA</code> 결과 대비 30%나 향상된 <code>mAP</code>를 보여준다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="4">
+<li>본 논문에서는 두가지 방법을 사용한다
+<ul>
+<li><code>high-capacity cnn</code>을 하위의 <code>region proposal</code>에 적용시킨다.
+<ul>
+<li>이를 통해 <code>RCNN</code>이라고 불린다.</li>
+</ul>
+</li>
+<li>data가 부족할 때, <code>사전 학습 된 모델</code>을 <code>도메인 특화 미세 조정</code>을 하면 <strong>성능이 크게 향상된다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="5">
+<li>따라서 <code>region proposal</code>을 <code>CNN</code>과 결합했기 때문에 <code>R-CNN(Regions with CNN features)</code>라고 한다.</li>
+</ol>
+<hr>
 <h2 id="introduction">Introduction</h2>
-<p>지난 10년간 visual recognition task에서의 진전은 SIFT와 HOG의 사용에 의존되어 왔다.</p>
+<ol start="6">
+<li>지난 10년간 <code>visual recognition task</code>에서의 진전은 <code>SIFT</code>와 <code>HOG</code>의 사용에 의존되어 왔다.
 <ul>
 <li>둘 다 컴퓨터 비전에서 널리 사용되는 두 가지 이미지 특징 추출 기법이다.</li>
-<li>SIFT: 다양한 스케일과 회전에 대해 불변인 키포인트와 불변인 특징을 만드는 기법</li>
-<li>HOG: 이미지의 지역적인 형태나 외곽선을 표현하는 방법으로, 물체 탐지, 특히 사람 탐지에 사용된다.</li>
+<li><code>SIFT</code>: 다양한 스케일과 회전에 대해 <strong>불변인 키포인트</strong>와 <strong>불변인 특징</strong>을 만드는 기법이다.</li>
+<li><code>HOG</code>: 이미지의 <strong>지역적인 형태나 외곽선</strong>을 표현하는 방법으로, <strong>물체 탐지, 특히 사람 탐지</strong>에 사용된다.</li>
 </ul>
-<p>2010~2012년가지 소폭적인 개선만 이루어 졌다. AlexNet의 개발로 인하여 CNN이 크게 향상이 되었다.
-그 후 Classification이 Detection의 결과에 어느정도의 영향을 미치는지에 대해 관건이었다. 본 논문은 HOG와 같은 기법들과 비교하여 CNN이 Object-Detection 성능을 향상시켰음을 시사한다.
-이러한 결과를 얻기 위하여 두가지 문제에 집중하였다.
-- deep network에서의 localizing object
-- 작은 크기의 detection data로 높은 capacity model로 훈련하기</p>
-<p>classification과는 달리 객체 탐지에서는 localization이 문제이다. 이를 해결하기 위한 방법은 2가지 방법이 있다.
-- regression problem으로 설정
-- 실용적으로 좋지 않다. (30%의 결과가 나온다)
-- sliding-window detector를 구축
-- 본 논문의 CNN은 좀 더 깊은(다섯 개의 CNN layer) layer를 구축하였는데 이는 높은 spatial resolution을 유지하기 어렵다.
-- 따라서 이는 객체의 정확한 위치를 찾는데 어려움이 있다는 것이고 이 역시 아직 남아있는 과제임을 나타낸다.</p>
-<p>대신에 본 논문은 이러한 문제를 <code>recognition using region</code>을 통해 해결하려고 한다.
-Region-Proposal을 통해 2000개의 카테고리를 만들고 이를 CNN을 사용해 고정적인 길이의 특징 벡터를 추출 한다. 이때 입력되는 이미지의 사이즈도 고정되어야 하기 때문에 아핀 변환 등으로 이미지를 추출한 후 입력으로 사용한다. 그 후 이를 선형 SVM으로 분류한다.</p>
-<p>이는 영역의 크기에 상관없이 동일한 크기로 변환이 된다. (Figure 1). 본 논문에서는 이를 Region-Proposal과 CNN을 같이 사용하므로 <code>R-CNN</code>이라고 한다.</p>
-<p>두번째의 문제는 라벨 데이터의 부족,
-비지도 사전 훈련을 허용.
-- 지도학습의 미세 조정</p>
-<p>ILSVRC인 임의의 큰 데이터로 지도 학습을 한 모델에 PASCAL의 작은 데이터를 domain 특화 미세 조정을 하는 패러다임을 제시한다.
-미세조정을 하면서 33%가 올랐다.</p>
+</li>
+</ol>
+<br>
+<ol start="7">
+<li>2010~2012년가지 <strong>소폭적인 개선</strong>만 이루어 졌다. <code>AlexNet</code>의 개발로 인하여 <code>CNN</code>이 크게 향상이 되었다.</li>
+</ol>
+<br>
+<ol start="8">
+<li>그 후 <code>Classification</code>이 <code>Object Detection</code>의 결과에 어느정도의 영향을 미치는지에 대해 관건이었다.</li>
+</ol>
+<br>
+<ol start="9">
+<li>본 논문은 <code>HOG</code>와 같은 기법들과 비교하여 <code>CNN</code>이 <code>Object Detection</code> 성능을 향상시켰음을 보여준다.</li>
+</ol>
+<br>
+<ol start="10">
+<li>이러한 결과를 얻기 위하여 <code>두가지 문제</code>에 집중하였다.
+<ul>
+<li><code>Deep network</code>에서의 <code>localizing object</code></li>
+<li><strong>작은 양의</strong> <code>detection data</code>로 <code>높은 capacity model</code> 훈련하기</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="11">
+<li><code>Classification</code>과는 달리 <code>Object Detection</code>에서는 <code>localization</code>이 문제이다.이를 해결하기 위한 방법은 2가지 방법이 있다.
+<ul>
+<li><code>Regression problem</code>으로 설정
+<ul>
+<li>실용적으로 좋지 않다. (30%의 결과가 나온다)</li>
+</ul>
+</li>
+<li><code>Sliding-window detector</code>를 구축
+<ul>
+<li>본 논문의 <code>CNN</code>은 <strong>좀 더 깊은</strong>(다섯 개의 CNN layer) layer를 구축하였는데 이는 <code>높은 spatial resolution</code>을 유지하기 어렵다.</li>
+<li>따라서 이는 <strong>객체의 정확한 위치를 찾는데 어려움이 있다</strong>는 것이고 <strong>이 역시 아직 남아있는 과제</strong>임을 나타낸다.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/paper/rcnn/overview.png" height="100%"  width="49%"> </div>
+<br>
+<ol start="12">
+<li>본 논문은 첫 번째 문제를 <code>Recognition using region</code>을 통해 해결하려고 한다.</li>
+</ol>
+<br>
+<ol start="13">
+<li><code>위 그림 </code>처럼 <code>Region-proposal</code>을 통해 <code>2000개의 카테고리</code>를 만들고 이를 <code>CNN</code>을 사용해 <code>고정적인 길이의 특징 벡터</code>를 추출 한다.</li>
+</ol>
+<br>
+<ol start="14">
+<li>이때 <strong>입력되는 이미지의 사이즈도 고정</strong>되어야 하기 때문에 <code>아핀 변환</code> 등으로 이미지를 추출한 후 입력으로 사용한다. 그 후 <strong>이를 선형 SVM으로 분류</strong>한다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>이는 영역의 크기에 상관없이 <strong>동일한 크기로 변환</strong>이 된다. 본 논문에서는 이를 <code>Region-proposal</code>과 <code>CNN</code>을 같이 사용하므로 <code>R-CNN</code>이라고 한다.</li>
+</ol>
+<br>
+<ol start="16">
+<li>본 논문은 두 번째의 문제를 사전 학습 미세조정에 따른 <strong>비지도 사전 훈련</strong>을 허용하여 해결했다.</li>
+</ol>
+<br>
+<ol start="17">
+<li><code>ILSVRC</code>인 임의의 큰 데이터로 지도 학습을 한 모델에 <code>PASCAL</code>의 <code>작은 데이터를 domain 특화 미세 조정</code>을 하는 패러다임을 제시한다. 이를 통해 결과가 <code>33%</code>가 올랐다.</li>
+</ol>
+<hr>
 <h2 id="object-detection-with-r-cnn">Object Detection with R-CNN</h2>
+<div style="text-align:center;">
+<img src="/images/paper/rcnn/overview-2.png" height="100%"  width="80%"> </div>
+<ol start="18">
+<li>크게 <code>3가지 모듈</code>을 포함하고 있다.
+<ul>
+<li>Category-independent <code>region proposal</code></li>
+<li>Large <code>Convolutional neural network</code></li>
+<li>Class specific linear SVM</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="19">
+<li>
+<p>본 논문에서는 <code>Region-proposal</code>을 생성하기 위해 <code>Selective Search</code>방법을 이용한다.</p>
+<img src="/images/paper/rcnn/selective-search.png" height="100%"  width="80%">
+<ul>
+<li><code>Selective Search</code>란 색상, 질감, 영역크기 등을 이용해 <code>non-objective segmentation</code>을 수행한다. 이 작업을 통해 <code>좌측 제일 하단 그림</code>과 같이 많은 small segmented areas들을 얻을 수 있다.</li>
+<li><code>Bottom-up</code> 방식으로 <code>small segemented areas</code>들을 합쳐서 <code>더 큰 segemented areas</code>들을 만든다.</li>
+<li><code>두 번째의 작업</code>을 반복하여 최종적으로 <code>2000개의</code> <code>region proposal</code>을 생성한다.
+<br></li>
+</ul>
+</li>
+<li>
+<p>또한 본 논문에서는 <a href="https://papers.nips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf" target="_blank" rel="noopener noreffer ">AlexNet</a>의 모델을 사용하여 $227 * 227$의 고정적 크기인 이미지를 받게 한다.</p>
+</li>
+</ol>
+<br>
+<ol start="21">
+<li>따라서 임의의 다양한 크기를 가진 영역들을 고정된 크기로 바꾸는 작업인 <code>warping</code>의 과정을 거친다.</li>
+</ol>
+<br>
+<ol start="22">
+<li>2000장의 <code>region-proposal</code>이 <code>selective-search</code>에 의해 나오면 <code>ground-truth</code>와 <code>IoU</code>를 비교하여 <code>0.5 보다 큰 경우</code>를 <code>positive</code>로 구분하고 그 외를 <code>negative</code>로 구분한다.
+<ul>
+<li>또한 <code>positive</code>랑 <code>negative</code>가 겹치는 객체를 <strong>정확히 탐지하기</strong> 위하여 <code>IoU overlap threshold</code>를 사용하여 <code>IoU 임계치</code>를 주어 <strong>객체 탐지 성능을</strong> 높인다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="23">
+<li>또한 기존의 <code>pre-trained</code>된 <code>AlexNet</code>의 마지막 layer를 수정해서 <code>기존 ImageNet</code>인 <code>1000-way classification</code>이 아닌 $N+1$way classification을 <code>Stochastic Gradient Descent (SGD)</code>를 통해 수행하게 된다.
+<ul>
+<li>$N$은 <code>object calss</code>의 수</li>
+<li>$1$은 배경인지 판단하기 위한 <code>backgroud</code>이다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="24">
+<li>이때 수정한 <code>layer</code>는 <code>R-CNN</code>모델 사용 시 사용하지 않는다. 왜냐하면 이 <code>layer</code>는 <code>fine-tuning</code>을 위해 사용한 것이고 원래 <code>R-CNN</code>에서의 <code>CNN</code>의 목표는 <code>4096 dimensional feature vector</code>를 추출하는 것 이기 때문이다.</li>
+</ol>
+<br>
+<ol start="25">
+<li>이렇게 추출된 <code>feature vector</code>를 이용해 <code>linear SVMs</code>를 학습한다. <strong>(SVM은 객체의 종류만큼 필요하다.)</strong>
+<ul>
+<li>단순히 <code>N-way softmax layer</code>를 통해 분류를 진행하지 않고 <code>SVM</code>을 통해 분류하는 것이 <strong>성능이 더 좋게 나온다고</strong> 말한다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="26">
+<li>이때 <code>SVM</code>을 이용하여 분류할 때 학습이 <strong>한 차례 끝난 후</strong> <code>hard negative mining</code>기법을 적용한다.</li>
+</ol>
+<br>
+<figure><a class="lightgallery" href="/images/paper/rcnn/hard-negative.png" title="/images/paper/rcnn/hard-negative.png" data-thumbnail="/images/paper/rcnn/hard-negative.png" data-sub-html="<h2>[그림 1] hard negative mining</h2>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/images/paper/rcnn/hard-negative.png"
+            data-srcset="/images/paper/rcnn/hard-negative.png, /images/paper/rcnn/hard-negative.png 1.5x, /images/paper/rcnn/hard-negative.png 2x"
+            data-sizes="auto"
+            alt="/images/paper/rcnn/hard-negative.png" width="20%" />
+    </a><figcaption class="image-caption">[그림 1] hard negative mining</figcaption>
+    </figure>
+<ol start="27">
+<li><code>Hard negative mining</code>이란 모델이 예측에 실패하는 <code>어려운(hard) sample</code>들을 모으는 기법으로, <code>hard negative mining</code>을 통해 수집된 데이터를 활용하여 모델을 보다 <strong>robust 학습시키는 것이 가능</strong>해진다.</li>
+</ol>
+<br>
+<ol start="28">
+<li>예를 들어 이미지에서 <code>사람의 안면의 위치를 탐지하는 모델</code>을 학습시킨다고 할 때, <code>사람의 안면</code>은 <code>positive sample</code>이며, 그외의 <code>배경</code>은 <code>negative sample</code>이다. 이 때 모델이 <strong>배경이라고 예측했으며, 실제로 배경인 bounding box는</strong> <code>True Negative</code>에 해당하는 sample이다. 반면에 <strong>모델이 안면이라고 예측했지만, 실제로 배경인 경우</strong>는 <code>False Positive sample</code>에 해당한다.</li>
+</ol>
+<br>
+<ol start="29">
+<li>모델은 주로 <code>False Positive</code>라고 예측하는 오류를 주로 범한다. 이는 <code>Object Detection</code> 시, 객체의 위치에 해당하는 <code>positive sample</code>보다 배경에 해당하는 <code>negative sample</code>이 **훨씬 많은 클래스 불균형(class imbalance)**으로 인해 발생한다.
+<ul>
+<li>탐지하려는 객체보다 배경이 더 많기 때문이다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="30">
+<li>따라서 <code>위 [그림 1]</code>처럼 모델이 잘못 판단한 <code>False Positive sample</code>을 <strong>학습 과정에서 추가하여 재학습</strong>하면 모델은 보다 <strong>robust해지며</strong>, <code>False Positive</code>라고 판단하는 <strong>오류가 줄어든다.</strong>
+<img src="/images/paper/rcnn/hard-negative-2.png" height="100%"  width="50%"></li>
+</ol>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://herbwood.tistory.com/5" target="_blank" rel="noopener noreffer ">https://herbwood.tistory.com/5</a></li>
+<li><a href="https://velog.io/@skhim520/R-CNN-%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0" target="_blank" rel="noopener noreffer ">https://velog.io/@skhim520/R-CNN-%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0</a></li>
+<li><a href="https://bkshin.tistory.com/entry/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0-R-CNN-%ED%86%BA%EC%95%84%EB%B3%B4%EA%B8%B0" target="_blank" rel="noopener noreffer ">https://bkshin.tistory.com/entry/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0-R-CNN-%ED%86%BA%EC%95%84%EB%B3%B4%EA%B8%B0</a></li>
+</ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
-                <span>Updated on 2024-07-08</span>
+                <span>Updated on 2024-07-10</span>
             </div></div>
         <div class="post-info-line">
             <div class="post-info-md"></div>
             <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation" data-hashtags="FCN,Implement,논문 리뷰,computer vision,segmentation,논문 구현"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-hashtag="FCN"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/r-cnn/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation" data-hashtags="RCNN,Implement,논문 리뷰,computer vision,object detection,segmentation,논문 구현"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-hashtag="RCNN"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/r-cnn/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/r-cnn/" data-title="[Paper Review]Rich feature hierarchies for accurate object detection and semantic segmentation" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
             </div>
         </div>
     </div>
 
     <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/fcn/">FCN</a>,&nbsp;<a href="/tags/implement/">Implement</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EA%B5%AC%ED%98%84/">논문 구현</a></section>
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/rcnn/">RCNN</a>,&nbsp;<a href="/tags/implement/">Implement</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/object-detection/">object detection</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EA%B5%AC%ED%98%84/">논문 구현</a></section>
         <section>
             <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/paper/deeplab-v2/" class="prev" rel="prev" title="[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,and Fully Connected CRFs(DeepLab V2)</a>
-            <a href="/posts/cs231n/lecture4/" class="next" rel="next" title="[CS231n] 04.Introduction to Neural Networks">[CS231n] 04.Introduction to Neural Networks<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+    <div class="post-nav"><a href="/posts/cs231n/lecture4/" class="prev" rel="prev" title="[CS231n] 04.Introduction to Neural Networks"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS231n] 04.Introduction to Neural Networks</a></div>
 </div>
 <div id="comments"><div id="utterances" class="comment"></div><noscript>
                 Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
@@ -167,7 +338,10 @@ Region-Proposal을 통해 2000개의 카테고리를 만들고 이를 CNN을 사
 </footer>
 </div>
 </body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
 
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
 </html>
 
 <script>
