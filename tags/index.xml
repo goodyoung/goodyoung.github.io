@@ -3,7 +3,31 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 10 Jul 2024 16:01:50 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 17 Jul 2024 15:36:30 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>Chain Rule</title>
+    <link>https://goodyoung.github.io/tags/chain-rule/</link>
+    <pubDate>Wed, 17 Jul 2024 15:36:30 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/chain-rule/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>CS231n</title>
+    <link>https://goodyoung.github.io/tags/cs231n/</link>
+    <pubDate>Wed, 17 Jul 2024 15:36:30 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/cs231n/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>Neural Networks</title>
+    <link>https://goodyoung.github.io/tags/neural-networks/</link>
+    <pubDate>Wed, 17 Jul 2024 15:36:30 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/neural-networks/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
     <title>computer vision</title>
     <link>https://goodyoung.github.io/tags/computer-vision/</link>
     <pubDate>Wed, 10 Jul 2024 16:01:50 &#43;0900</pubDate>
@@ -57,30 +81,6 @@
     <pubDate>Wed, 10 Jul 2024 16:01:50 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Chain Rule</title>
-    <link>https://goodyoung.github.io/tags/chain-rule/</link>
-    <pubDate>Mon, 08 Jul 2024 21:02:03 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/chain-rule/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>CS231n</title>
-    <link>https://goodyoung.github.io/tags/cs231n/</link>
-    <pubDate>Mon, 08 Jul 2024 21:02:03 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/cs231n/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Neural Networks</title>
-    <link>https://goodyoung.github.io/tags/neural-networks/</link>
-    <pubDate>Mon, 08 Jul 2024 21:02:03 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/neural-networks/</guid>
     <description><![CDATA[]]></description>
 </item>
 </channel>
