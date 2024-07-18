@@ -4,15 +4,21 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
-        <title>[]Fast RCNN - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[]Fast RCNN" />
-<meta property="og:description" content="" />
+        <title>[Paper Review]Fast R-CNN - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Fast R-CNN" />
+<meta property="og:description" content="개요 Object Detection분야에서 널리 사용되는 딥러닝 모델인 Fast R-CNN에 대한 논문 리뷰를 해보려고 한다. 이번 Fast R-CNN은 R-CNN의 단점을 고안하고자 나온 모델이다. Introduction 본 논문이 나온 시기의 detection은 classification보다 더 복잡한 모델로 해결을 했는데 multi stage pipeline을 가진 모델들은 slow하고 inelegant하다. 이런 complexity는 object의 localization 때문에 일어난다. 이는 두가지 문제점을 지니고 있는데 수많은 후보 object들이 제안된다 이 후보들이 정확한 localization을 하기 위해 다시 refine해야 된다. 따라서 본 논문에서는 이전 R-CNN과는 달리 single-stage(분류하고 공간 정보를 강화하는) 훈련 기법을 제안한다 VGG16을 사용했으며 R-CNN보다 9배 빠르고, SppNet보다 3배 빠르다. 그리고 논문에서는 이전 모델인 R-CNN의 몇가지 단점을 설명한다. 훈련 시 multi-stage pipeline이다.
+object proposals을 cnn을 통하여 특징 추출을 하고 그것들의 feature를 svm이 분류를 해주고 마지막으로 bounding box regressor를 통해 3단계를 거친다. 훈련 시 공간과 시간적으로 낭비가 된다.
+svm, bounding-box regressor를 할 때, 오버헤드가 심하다 마지막으로 이미지를 test를 할 때 이미지당 47초가 걸린다.
+R-CNN은 계산량 공유 없이 각각의 object마다 계산을 해서 오래걸린다. SppNet은 이러한 점을 극복했다. SppNet은 전체 이미지의 feature map을 계산 한 후 거기서 각각의 object proposal을 분류 한다. proposal을 위해 feature에서 고정된 크기로 추출한다. 그리고 다중 출력 크기로 추출한 다음 그것을 spatial pytamid pooling에서 합친다. 이를 통해 테스트 시간(10~100배)과 훈련 시간(3배)을 크게 줄일 수 있습니다. 근데 이러한 SppNet도 단점이 있다. 여러 단계를 거친 pipeline이라는 것이다. 하지만 R-CNN과 달리, SppNet에서 제안된 미세 조정 알고리즘은 공간 피라미드 풀링 이전의 합성곱 층들을 업데이트할 수 없다. 이러한 제한 사항(고정된 합성곱 층들)은 매우 깊은 네트워크의 정확도를 제한한다. 따라서 이런 단점들을 보안하고자 Fast R-CNN을 고안했다. Fast R-CNN은 몇가지 장점이 있다. 다른 것들 보다 높은 mAP(점수) multi task loss를 사용한 single-stage 훈련 기법 모든 network layer가 update된다. 특징 추출에 disk storage가 필요하지 않다. 사진은 Fast R-CNN의 architecture의 overview이다. Fast R-CNN은 input으로 전체 이미지를 넣고 그와 함께 object proposal (selective search로 구해둠)의 set을 같이 넣는다. 그럼 network는 여러 conv를 거쳐 conv feature map을 생성한다. 그럼 각각의 RoI pooling layer은 추출한다. 고정된 크기의 feature vector가 생성이 된다. (ROI들은 각각 다른 크기를 지녔기 때문) 그 후 Fully Connected (FC)층으로 가며 이것은 또 2가지 분기로 나뉜다. 하나는 (K &#43;1 class의)softmax 확률 추정치를 구한다 다른 하나는 각 K 개의 객체 클래스에 대해 4개의 실수 값을 출력합니다. 4개의 값 집합 각각은 K 개 클래스 중 하나에 대한 세밀한 바운딩 박스 위치를 인코딩합니다. RoI pooling layer RoI pooling layer는 max pooling을 사용하여 region of interest(RoI)를 고정된 크기의 spatial small feature map으로 변환한다. Selective search를 통해 resion proposal을 얻게 된다. 이때 spatial small feature map의 $H, W$의 값은 특정 RoI와는 독립적인 하이퍼 파라미터이다. RoI는 합성곱 특징 맵(conv feature map) 내의 사각형 창을 의미합니다. 각각의 RoI는 **(r,c,h,w)**의 특징을 지니고 있는데 **(r,c)**는 top-left를 의미하고 height와 width는 (h,w)를 의미한다. RoI max pooling은 $h × w$ 크기의 RoI 창을 $h/H × w/W$ 크기의 grid를 만든다. 그 후 grid에 max pooling하여 해당 $H × W$ 크기의 출력 grid 셀에 넣는 방식으로 동작합니다. Pooling은 표준 max pooling에서처럼 각 feature map channel에 독립적으로 적용됩니다. 이는 Sppnet에서 하나의 pyramid level만 사용한 것과 동일하다. 결론적으로 원래 이미지를 CNN에 통과시킨 후 나온 feature map에 이전에 생성한 RoI를 projection시키고, 이 RoI를 FC layer input 크기에 맞게 고정된 크기로 변형할 수가 있다. 이를 통해 RCNN 처럼 2000번의 CNN연산 필요 없이, 단 한번의 연산으로 속도를 대폭 높일 수 있게 된다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/paper/fast-rcnn/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2024-07-17T18:19:31+09:00" />
 <meta property="article:modified_time" content="2024-07-17T18:19:31+09:00" /><meta property="og:site_name" content="My cool site" />
 
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[]Fast RCNN"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Fast R-CNN"/>
+<meta name="twitter:description" content="개요 Object Detection분야에서 널리 사용되는 딥러닝 모델인 Fast R-CNN에 대한 논문 리뷰를 해보려고 한다. 이번 Fast R-CNN은 R-CNN의 단점을 고안하고자 나온 모델이다. Introduction 본 논문이 나온 시기의 detection은 classification보다 더 복잡한 모델로 해결을 했는데 multi stage pipeline을 가진 모델들은 slow하고 inelegant하다. 이런 complexity는 object의 localization 때문에 일어난다. 이는 두가지 문제점을 지니고 있는데 수많은 후보 object들이 제안된다 이 후보들이 정확한 localization을 하기 위해 다시 refine해야 된다. 따라서 본 논문에서는 이전 R-CNN과는 달리 single-stage(분류하고 공간 정보를 강화하는) 훈련 기법을 제안한다 VGG16을 사용했으며 R-CNN보다 9배 빠르고, SppNet보다 3배 빠르다. 그리고 논문에서는 이전 모델인 R-CNN의 몇가지 단점을 설명한다. 훈련 시 multi-stage pipeline이다.
+object proposals을 cnn을 통하여 특징 추출을 하고 그것들의 feature를 svm이 분류를 해주고 마지막으로 bounding box regressor를 통해 3단계를 거친다. 훈련 시 공간과 시간적으로 낭비가 된다.
+svm, bounding-box regressor를 할 때, 오버헤드가 심하다 마지막으로 이미지를 test를 할 때 이미지당 47초가 걸린다.
+R-CNN은 계산량 공유 없이 각각의 object마다 계산을 해서 오래걸린다. SppNet은 이러한 점을 극복했다. SppNet은 전체 이미지의 feature map을 계산 한 후 거기서 각각의 object proposal을 분류 한다. proposal을 위해 feature에서 고정된 크기로 추출한다. 그리고 다중 출력 크기로 추출한 다음 그것을 spatial pytamid pooling에서 합친다. 이를 통해 테스트 시간(10~100배)과 훈련 시간(3배)을 크게 줄일 수 있습니다. 근데 이러한 SppNet도 단점이 있다. 여러 단계를 거친 pipeline이라는 것이다. 하지만 R-CNN과 달리, SppNet에서 제안된 미세 조정 알고리즘은 공간 피라미드 풀링 이전의 합성곱 층들을 업데이트할 수 없다. 이러한 제한 사항(고정된 합성곱 층들)은 매우 깊은 네트워크의 정확도를 제한한다. 따라서 이런 단점들을 보안하고자 Fast R-CNN을 고안했다. Fast R-CNN은 몇가지 장점이 있다. 다른 것들 보다 높은 mAP(점수) multi task loss를 사용한 single-stage 훈련 기법 모든 network layer가 update된다. 특징 추출에 disk storage가 필요하지 않다. 사진은 Fast R-CNN의 architecture의 overview이다. Fast R-CNN은 input으로 전체 이미지를 넣고 그와 함께 object proposal (selective search로 구해둠)의 set을 같이 넣는다. 그럼 network는 여러 conv를 거쳐 conv feature map을 생성한다. 그럼 각각의 RoI pooling layer은 추출한다. 고정된 크기의 feature vector가 생성이 된다. (ROI들은 각각 다른 크기를 지녔기 때문) 그 후 Fully Connected (FC)층으로 가며 이것은 또 2가지 분기로 나뉜다. 하나는 (K &#43;1 class의)softmax 확률 추정치를 구한다 다른 하나는 각 K 개의 객체 클래스에 대해 4개의 실수 값을 출력합니다. 4개의 값 집합 각각은 K 개 클래스 중 하나에 대한 세밀한 바운딩 박스 위치를 인코딩합니다. RoI pooling layer RoI pooling layer는 max pooling을 사용하여 region of interest(RoI)를 고정된 크기의 spatial small feature map으로 변환한다. Selective search를 통해 resion proposal을 얻게 된다. 이때 spatial small feature map의 $H, W$의 값은 특정 RoI와는 독립적인 하이퍼 파라미터이다. RoI는 합성곱 특징 맵(conv feature map) 내의 사각형 창을 의미합니다. 각각의 RoI는 **(r,c,h,w)**의 특징을 지니고 있는데 **(r,c)**는 top-left를 의미하고 height와 width는 (h,w)를 의미한다. RoI max pooling은 $h × w$ 크기의 RoI 창을 $h/H × w/W$ 크기의 grid를 만든다. 그 후 grid에 max pooling하여 해당 $H × W$ 크기의 출력 grid 셀에 넣는 방식으로 동작합니다. Pooling은 표준 max pooling에서처럼 각 feature map channel에 독립적으로 적용됩니다. 이는 Sppnet에서 하나의 pyramid level만 사용한 것과 동일하다. 결론적으로 원래 이미지를 CNN에 통과시킨 후 나온 feature map에 이전에 생성한 RoI를 projection시키고, 이 RoI를 FC layer input 크기에 맞게 고정된 크기로 변형할 수가 있다. 이를 통해 RCNN 처럼 2000번의 CNN연산 필요 없이, 단 한번의 연산으로 속도를 대폭 높일 수 있게 된다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -22,12 +28,12 @@
     {
         "@context": "http://schema.org",
         "@type": "BlogPosting",
-        "headline": "[]Fast RCNN",
+        "headline": "[Paper Review]Fast R-CNN",
         "inLanguage": "en-us",
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/fast-rcnn\/"
-        },"genre": "posts","keywords": "","wordcount":  0 ,
+        },"genre": "posts","keywords": "RCNN, Implement, 논문 리뷰, computer vision, object detection, segmentation, 논문 구현","wordcount":  761 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/fast-rcnn\/","datePublished": "2024-07-17T18:19:31+09:00","dateModified": "2024-07-17T18:19:31+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -67,17 +73,277 @@
                 <div class="container"><div class="toc" id="toc-auto">
             <h2 class="toc-title">Contents</h2>
             <div class="toc-content" id="toc-content-auto"></div>
-        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[]Fast RCNN</h1><div class="post-meta">
-            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Categories</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-17">2024-07-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;0 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;0 minutes&nbsp;</div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Fast R-CNN</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/implement/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Implement</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-17">2024-07-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;761 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;4 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
                     <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
                 </div>
-                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
-            </div><div class="content" id="content"></div><div class="post-footer" id="post-footer">
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#roi-pooling-layer">RoI pooling layer</a></li>
+    <li><a href="#initializing--from--pre-trained--networks">Initializing  from  pre-trained  networks</a></li>
+    <li><a href="#fine-tuning-for-detection">Fine-tuning for detection</a></li>
+    <li><a href="#multi-task-loss">Multi-task loss</a></li>
+    <li><a href="#truncated-svd-for-faster-detectionm">Truncated SVD for faster detectionm</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- <div style="text-align:center;">
+<img src="/images/paper/rcnn/overview.png" height="100%"  width="49%"> </div> -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>Object Detection</code>분야에서 널리 사용되는 딥러닝 모델인 <code>Fast R-CNN</code>에 대한 논문 리뷰를 해보려고 한다.</li>
+</ol>
+<br>
+<ol>
+<li>이번 <code>Fast R-CNN</code>은 <code>R-CNN</code>의 단점을 고안하고자 나온 모델이다.</li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<ol start="2">
+<li>본 논문이 나온 시기의 detection은 <code>classification</code>보다 더 복잡한 모델로 해결을 했는데 <code>multi stage pipeline</code>을 가진 모델들은 slow하고 <code>inelegant하다</code>.</li>
+</ol>
+<br>
+<ol start="3">
+<li>이런 complexity는 object의 <code>localization</code> 때문에 일어난다.</li>
+</ol>
+<br>
+<ol start="4">
+<li>이는 두가지 문제점을 지니고 있는데
+<ul>
+<li>수많은 후보 object들이 제안된다</li>
+<li>이 후보들이 정확한 <code>localization</code>을 하기 위해 다시 <code>refine</code>해야 된다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="5">
+<li>따라서 본 논문에서는 이전 <code>R-CNN</code>과는 달리 <code>single-stage</code>(분류하고 공간 정보를 강화하는) 훈련 기법을 제안한다
+<ul>
+<li>VGG16을 사용했으며 <code>R-CNN</code>보다 <strong>9배</strong> 빠르고, <code>SppNet</code>보다 <strong>3배</strong> 빠르다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="6">
+<li>그리고 논문에서는 이전 모델인 <code>R-CNN</code>의 몇가지 단점을 설명한다.</li>
+</ol>
+<ul>
+<li>
+<p>훈련 시 <code>multi-stage pipeline</code>이다.</p>
+<ul>
+<li><code>object proposals</code>을 cnn을 통하여 <code>특징 추출</code>을 하고</li>
+<li>그것들의 feature를 <code>svm이</code> <code>분류</code>를 해주고</li>
+<li>마지막으로 <code>bounding box regressor를</code> 통해 <code>3단계를</code> 거친다.</li>
+</ul>
+</li>
+<li>
+<p>훈련 시 공간과 시간적으로 낭비가 된다.</p>
+<ul>
+<li>svm, bounding-box regressor를 할 때, <code>오버헤드가 심하다</code></li>
+</ul>
+</li>
+<li>
+<p>마지막으로 이미지를 <strong>test</strong>를 할 때 <strong>이미지당 47초</strong>가 걸린다.</p>
+</li>
+</ul>
+<br>
+<ol start="7">
+<li><code>R-CNN</code>은 계산량 <strong>공유 없이</strong> 각각의 object마다 계산을 해서 <strong>오래걸린다.</strong></li>
+</ol>
+<br>
+<ol start="8">
+<li><code>SppNet은</code> 이러한 점을 극복했다. <code>SppNet</code>은 전체 이미지의 <code>feature map</code>을 계산 한 후 거기서 각각의 <code>object proposal</code>을 분류 한다.</li>
+</ol>
+<br>
+<ol start="9">
+<li>proposal을 위해 feature에서 고정된 크기로 추출한다. 그리고 다중 출력 크기로 추출한 다음 그것을 <code>spatial pytamid pooling</code>에서 합친다.</li>
+</ol>
+<ul>
+<li>이를 통해 테스트 시간(10~100배)과 훈련 시간(3배)을 크게 줄일 수 있습니다.</li>
+</ul>
+<br>
+<ol start="10">
+<li>근데 이러한 <code>SppNet</code>도 단점이 있다. <strong>여러 단계를 거친 pipeline</strong>이라는 것이다.</li>
+</ol>
+<br>
+<ol start="11">
+<li>하지만 <code>R-CNN</code>과 달리, <code>SppNet</code>에서 제안된 <strong>미세 조정 알고리즘</strong>은 공간 피라미드 풀링 이전의 <strong>합성곱 층들을 업데이트할 수 없다.</strong></li>
+</ol>
+<br>
+<ol start="12">
+<li>이러한 제한 사항(고정된 합성곱 층들)은 매우 깊은 네트워크의 정확도를 제한한다. 따라서 이런 단점들을 보안하고자 <code>Fast R-CNN</code>을 고안했다.</li>
+</ol>
+<br>
+<ol start="13">
+<li><code>Fast R-CNN</code>은 <strong>몇가지 장점이</strong> 있다.
+<ul>
+<li>다른 것들 보다 <strong>높은 mAP(점수)</strong></li>
+<li><code>multi task loss</code>를 사용한 <code>single-stage</code> 훈련 기법</li>
+<li><strong>모든 network layer가 update된다.</strong></li>
+<li>특징 추출에 <code>disk storage</code>가 필요하지 않다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/fastrcnn/overall.png" height="100%"  width="70%"> </div>
+<ol start="14">
+<li>사진은 <code>Fast R-CNN</code>의 <code>architecture</code>의 <code>overview</code>이다. <code>Fast R-CNN</code>은 input으로 전체 이미지를 넣고 그와 함께 <code>object proposal (selective search로 구해둠)</code>의 <code>set을</code> 같이 넣는다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>그럼 <code>network는</code> 여러 <code>conv를</code> 거쳐 <code>conv feature map</code>을 생성한다. 그럼 각각의 <code>RoI pooling layer</code>은 추출한다. 고정된 크기의 <code>feature vector</code>가 생성이 된다. (<code>ROI</code>들은 <strong>각각 다른 크기를</strong> 지녔기 때문)</li>
+</ol>
+<br>
+<ol start="16">
+<li>그 후 <code>Fully Connected (FC)</code>층으로 가며 이것은 또 <code>2가지 분기로</code> 나뉜다.
+<ul>
+<li>하나는 (K +1 class의)softmax 확률 추정치를 구한다</li>
+<li>다른 하나는 <code>각 K 개의 객체 클래스에</code> 대해 <strong>4개의 실수 값</strong>을 출력합니다. 4개의 값 집합 각각은 <strong>K 개 클래스 중 하나</strong>에 대한 세밀한 바운딩 박스 위치를 인코딩합니다.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="roi-pooling-layer">RoI pooling layer</h2>
+<div style="text-align:center;">
+<img src="/images/paper/fastrcnn/roi.png" height="100%"  width="70%"> </div>
+<ol start="17">
+<li><code>RoI pooling layer</code>는 <code>max pooling</code>을 사용하여 <code>region of interest(RoI)</code>를 <strong>고정된 크기</strong>의 <strong>spatial small feature map</strong>으로 변환한다.</li>
+</ol>
+<ul>
+<li><code>Selective search</code>를 통해 <code>resion proposal</code>을 얻게 된다.</li>
+</ul>
+<br>
+<ol start="18">
+<li>이때 <code>spatial small feature map</code>의 $H, W$의 값은 <code>특정 RoI</code>와는 <strong>독립적인 하이퍼 파라미터이다</strong>.</li>
+</ol>
+<br>
+<ol start="19">
+<li><code>RoI</code>는 합성곱 특징 맵(conv feature map) 내의 사각형 창을 의미합니다.
+<ul>
+<li>각각의 <code>RoI는</code> **(r,c,h,w)**의 특징을 지니고 있는데 **(r,c)**는 <code>top-left</code>를 의미하고 <strong>height와 width는</strong> <code>(h,w)</code>를 의미한다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="20">
+<li><code>RoI max pooling</code>은 $h × w$ 크기의 <code>RoI 창</code>을 $h/H × w/W$ 크기의 grid를 만든다.</li>
+</ol>
+<br>
+<ol start="21">
+<li>그 후 grid에 <code>max pooling</code>하여 해당 $H × W$ 크기의 <code>출력 grid 셀</code>에 넣는 방식으로 동작합니다.</li>
+</ol>
+<br>
+<ol start="22">
+<li><code>Pooling</code>은 표준 <code>max pooling</code>에서처럼 각 <code>feature map channel</code>에 <strong>독립적으로</strong> 적용됩니다. <u>이는 <code>Sppnet</code>에서 <code>하나의 pyramid level</code>만 사용한 것과 동일하다.</u></li>
+</ol>
+<br>
+<ol start="23">
+<li>결론적으로 원래 이미지를 <code>CNN에</code> 통과시킨 후 나온 <code>feature map에</code> 이전에 생성한 <code>RoI를</code> <code>projection</code>시키고, 이 <code>RoI를</code> <code>FC layer input</code> 크기에 맞게 <strong>고정된 크기로 변형할 수가 있다.</strong></li>
+</ol>
+<br>
+<ol start="24">
+<li>이를 통해 <code>RCNN</code> 처럼 2000번의 CNN연산 필요 없이, 단 <code>한번의 연산으로</code> 속도를 대폭 높일 수 있게 된다.</li>
+</ol>
+<hr>
+<h2 id="initializing--from--pre-trained--networks">Initializing  from  pre-trained  networks</h2>
+<ol start="25">
+<li><code>본 논문</code>에서는 <code>3가지의 network</code> 변화를 주었다.</li>
+</ol>
+<ul>
+<li>
+<p>첫 번째는 Last max pooling layer가 <code>RoI pooling layer</code>로 변경</p>
+<ul>
+<li><code>fc층과 상호작용할</code> 수 있게 H,W가 세팅되어 있다</li>
+</ul>
+</li>
+<li>
+<p>두 번째는 마지막 fc층의 변경이다</p>
+<ul>
+<li>2가지 <code>자식 layer로</code> 분기가 된다
+<ul>
+<li>하나는 <code>확률 분포</code></li>
+<li>하나는 <code>bounding box regressor</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>세 번째는 <code>input data의 수정</code>이다. 다음의 두개가 input에 들어가게 한다.</p>
+<ul>
+<li>list of image</li>
+<li>list of RoI</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="fine-tuning-for-detection">Fine-tuning for detection</h2>
+<ol start="26">
+<li><code>R-CNN이나 SPPNet</code>에서 <code>spatial pyramid pooling layer</code>에서 <code>weight</code>가  update가 되지 않는 이유를 설명 할 것 이다.</li>
+</ol>
+<br>
+<ol start="27">
+<li><code>R-CNN</code>에서는 CNN을 통과한 후 각각 서로다른 모델인 <code>SVM(classification)</code>, <code>bounding box regression(localization)</code> 안으로 들어가 <code>forward</code>됐기 때문에 <code>연산이 공유되지 않는다</code>.</li>
+</ol>
+<br>
+<ol start="28">
+<li>하지만 <code>Fast R-CNN</code>에서는 <code>RoI pooling</code>을 추가하여 CNN을 통과한 후의 <code>feature map</code>을 투영시킬 수 있게 되었다.</li>
+</ol>
+<hr>
+<h2 id="multi-task-loss">Multi-task loss</h2>
+<div style="text-align:center;">
+<img src="/images/paper/fastrcnn/multiloss.png" height="100%"  width="70%"> </div>
+<ol start="29">
+<li><code>Fast R-CNN의</code> <code>Loss function</code>은 위와 같이 <code>classification</code>과 <code>localization loss</code>를 합친 function으로써 한 번의 학습으로 둘 다 학습시킬 수가 있다.</li>
+</ol>
+<br>
+<ol start="30">
+<li><code>R-CNN</code> 모델과 같이 <code>각 모델</code>을 <strong>독립적으로 학습시켜야 하는</strong> 번거로움이 없다는 <code>장점이</code> 있습니다.</li>
+</ol>
+<br>
+<ol start="31">
+<li><code>multi task loss</code>는 <code>0.8~1.1% mAP</code>를 <strong>상승시키는 효과가 있다</strong>고 합니다.</li>
+</ol>
+<hr>
+<h2 id="truncated-svd-for-faster-detectionm">Truncated SVD for faster detectionm</h2>
+<div style="text-align:center;">
+<img src="/images/paper/fastrcnn/svd.png" height="100%"  width="70%"> </div>
+<ol start="32">
+<li><code>특이값 분해(SVD)</code>를 활용하여 연산 시간이 오래 걸리는 FC층을 압축하는 방법을 제시한다.</li>
+</ol>
+<br>
+<ol start="33">
+<li><code>Truncated SVD</code>와 같이 분해된 행렬 중 일부분만을 활용하는 <code>reduced SVD</code>를 일반적으로 많이 사용한다고 합니다.</li>
+</ol>
+<ul>
+<li>$W \approx U \Sigma_t V^T$ 처럼 W를 이 같은 식으로 분해가 가능하도록 한다.</li>
+</ul>
+<br>
+<ol start="34">
+<li>따라서 <code>Truncated SVD</code>를 통해 <code>fc layer</code>의 가중치 행렬이 $W( u* v)$라고 할 때, 파라미터 수를 $u*v$에서 $t(u + v)$로 감소시키는 것이 가능하다.</li>
+</ol>
+<br>
+<ol start="35">
+<li>본 논문에서는 <code>FC층이</code> <code>2가지 분기</code>로 되어있는데 첫 번째 <code>FC Layer</code>는 $\Sigma_t V^T$ 가중치 행렬, 두 번째 <code>FC Layer</code>는 $U$가중치 행렬이다.</li>
+</ol>
+<br>
+<ol start="36">
+<li>이를 통해 <code>FC층</code>을 효율적으로 압축하고 <strong>detection 시간이 30% 정도 감소되었다고 말한다.</strong></li>
+</ol>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://herbwood.tistory.com/8?pidx=3" target="_blank" rel="noopener noreffer ">https://herbwood.tistory.com/8?pidx=3</a></li>
+<li><a href="https://ganghee-lee.tistory.com/36" target="_blank" rel="noopener noreffer ">https://ganghee-lee.tistory.com/36</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
@@ -86,13 +352,13 @@
         <div class="post-info-line">
             <div class="post-info-md"></div>
             <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[]Fast RCNN" data-hashtags=""><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-hashtag=""><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[]Fast RCNN"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[]Fast RCNN"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[]Fast RCNN"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[]Fast RCNN" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[Paper Review]Fast R-CNN" data-hashtags="RCNN,Implement,논문 리뷰,computer vision,object detection,segmentation,논문 구현"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-hashtag="RCNN"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[Paper Review]Fast R-CNN"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[Paper Review]Fast R-CNN"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[Paper Review]Fast R-CNN"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/fast-rcnn/" data-title="[Paper Review]Fast R-CNN" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
             </div>
         </div>
     </div>
 
     <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/">Tags</a></section>
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/rcnn/">RCNN</a>,&nbsp;<a href="/tags/implement/">Implement</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/object-detection/">object detection</a>,&nbsp;<a href="/tags/segmentation/">segmentation</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EA%B5%AC%ED%98%84/">논문 구현</a></section>
         <section>
             <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
         </section>
