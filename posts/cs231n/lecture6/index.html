@@ -5,18 +5,28 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[CS231n] 06.Training Neural Networks - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS231n] 06.Training Neural Networks" />
-<meta property="og:description" content="개요 CS231n의 6강에 대한 내용을 정리 할 것이다." />
+<meta property="og:description" content="개요 CS231n의 6강에 대한 내용을 정리 할 것이다. 저번 강에서는 Convolutional Neural Networks에 대해 배웠고 이번 강에서는 이 Neural Networks를 어떻게 하면 잘 학습시킬 수 있을지에 대해서 배울 것이다. Activation Function Deep Network에 비선형성을 부여하는 Activation Function의 종류들에 대해서 알아볼 것이다. Sigmoid $$\sigma(x) = \frac{1}{1 &#43; e^{-x}}$$
+먼저 첫 번째로 Sigmoid이다. 함수의 모양은 위 그림과 같고 (0,1) 사이의 값을 가지게 된다.Sigmoid가 가지게 되는 몇가지 문제들이 있다. 첫 번째 문제는 경사도를 죽일 수 있는 문제이다.
+이는 입력으로 들어오는 x가 -10, 10이라면 global gradient(이전 노드의 기울기)는 0이 되고 이것이 역전파를 통해 다운스트림($global grdient * local gradient$) 되면 global gradient가 0이므로 아래 노드들은 0으로 수렴하게 되어 기울기가 소실이 된다. 이러한 기울기 소실로 인하여 W의 값을 더이상 update 하지 못하는 문제를 vanishing gradient라고 한다. 두 번째 문제는 output이 zero-center가 아닌 문제이다. 즉, Signmoid의 output이 항상 양수이기 때문에 0을 중심으로 있지 않는 문제가 발생하게 된다. ouput이 항상 양수 이라면 입력값 또한 양수인 것인데, 그렇게 된다면 back propagation에서 $\frac{dl}{df} * \frac{df}{wi}$ 로 W의 기울기를 chain-rule로 구하게 된다. 근데 우리가 이전 4강에서 배운 chain-rule의 pattern 중 mul gate(곱)일 때 grdient가 서로 전환이 된다고 배웠다. 따라서 $\frac{df}{wi}$ 이것이 바로 $x_i$인 것을 알 수 있게 된다. 이때 $x_i$가 이전 layer의 sigmoid 연산을 거친 output이기 때문에 무조건 양수이다. 입력값은 항상 양수라면 back propagation을 할 때 $\frac{dl}{df}$(global gradient이다.)의 부호를 따라가게 되어서 gradient의 부호는 항상 양수이거나 음수가 된다. 부가적으로 gradient의 부호는 다운 스트림으로 내려온 gradient의 부호와 같아진다고 생각하면 쉽다. 이렇게 부호가 모두 양수 또는 음수가 되어버리면 발생하는 문제는 gradient update를 할 때 나타난다. w1,w2가 있다면 gradient update시 항상 (&#43;)(&#43;) 이거나 (-)(-)가 된다. 따라서 위 그림과 같이 파란색 방향(최적의 gradient update)과는 다르게 비효율적으로 지그재그 방향으로 내려가게 되는 상황이 벌어지게 된다. 이를 해결할 수 있는 방법은 input값에 mean을 모두 빼버리면 zero-mean data가 된다. 그렇게 되면 X가 양수/음수를 모두 가지고 있는 상황을 만들 수 있게 된다. 마지막 세 번째 문제는 Sigmoid에서의 exp의 연산의 계산 비용이 많이 들어간다는 것이다. 따라서 위 세 가지의 문제로 잘 사용하지 않게 된다. tanh 다음은 tanh함수이다. 이는 범위를 (-1,1)까지 하여 Sigmoid의 단점인 non-zero-center문제를 해결하게 되었다. 하지만 여전히 그래프를 봐도 확인 할 수 있지만 경사도를 죽일 수 있는 문제는 해결되지 못하였다. 따라서 Network가 깊어지는 모델이 많아진 요즘 활성화 함수로 잘 사용하지 않게 된다. ReLU $$f(x) = max(0,x)$$
+다음은 ReLU함수 이다. 이는 위 두 함수과 다르게 양수에서 경사도를 죽일 수 있는 문제를 해결 하였다. 또한 이 함수는 최대값만 계산하기 때문에 연산이 효율적이고 실제로 앞선 함수들과 비교하여 6배가 빠르다고 한다. 하지만 ReLU함수도 몇가지 문제점이 있다. Non-zero-center문제를 가지고 있고 또한 음수일 경우에는 경사도를 죽일 수 있는 문제가 발생할 수 있다. 따라서 W를 initialization하는 과정에서 잘못되었을 때 dead ReLU가 발생할 수 있다. 따라서 이런 dead ReLU를 피하기 위하여 초기화를 할 때 positive한 bias를 얻게 초기화를 하는 방법도 있지만 효과가 경미하다. 또한 learning rate를 크게 설정하는 대규모 훈련 시 W가 너무 크게 비약해서 학습이 안되는 상황이 발생할 수도 있다. 실제로 ReLU를 사용한 Network에서 10~20% 정도가 dead ReLU에 빠진다고 한다. 문제이긴 하지만 그럼에도 불구하고, train은 잘 된다고 한다. Leaky ReLU $$f(x) = max(0.01x,x)$$
+ReLU와 다르게 음수에도 음수 기울기를 주어 경사도를 죽일 수 있는 문제를 해결하고자 한다. ReLU와 같게 연산이 빠르다는 장점도 있다. PReLU $$f(x) = max(ax,x)$$
+PReLU는 음수 영역에 backpropagation에서의 파라미터로 기울기 값으로 유연성을 더해주어 조금 더 융통성을 가해 주었고 ELU 다음의 ELU는 평균 출력이 더욱 0에 가까워지게 만든 함수이다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/cs231n/lecture6/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-07-17T15:36:30+09:00" />
-<meta property="article:modified_time" content="2024-07-17T15:36:30+09:00" /><meta property="og:site_name" content="My cool site" />
+<meta property="article:published_time" content="2024-07-18T15:36:30+09:00" />
+<meta property="article:modified_time" content="2024-07-18T15:36:30+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS231n] 06.Training Neural Networks"/>
-<meta name="twitter:description" content="개요 CS231n의 6강에 대한 내용을 정리 할 것이다."/>
+<meta name="twitter:description" content="개요 CS231n의 6강에 대한 내용을 정리 할 것이다. 저번 강에서는 Convolutional Neural Networks에 대해 배웠고 이번 강에서는 이 Neural Networks를 어떻게 하면 잘 학습시킬 수 있을지에 대해서 배울 것이다. Activation Function Deep Network에 비선형성을 부여하는 Activation Function의 종류들에 대해서 알아볼 것이다. Sigmoid $$\sigma(x) = \frac{1}{1 &#43; e^{-x}}$$
+먼저 첫 번째로 Sigmoid이다. 함수의 모양은 위 그림과 같고 (0,1) 사이의 값을 가지게 된다.Sigmoid가 가지게 되는 몇가지 문제들이 있다. 첫 번째 문제는 경사도를 죽일 수 있는 문제이다.
+이는 입력으로 들어오는 x가 -10, 10이라면 global gradient(이전 노드의 기울기)는 0이 되고 이것이 역전파를 통해 다운스트림($global grdient * local gradient$) 되면 global gradient가 0이므로 아래 노드들은 0으로 수렴하게 되어 기울기가 소실이 된다. 이러한 기울기 소실로 인하여 W의 값을 더이상 update 하지 못하는 문제를 vanishing gradient라고 한다. 두 번째 문제는 output이 zero-center가 아닌 문제이다. 즉, Signmoid의 output이 항상 양수이기 때문에 0을 중심으로 있지 않는 문제가 발생하게 된다. ouput이 항상 양수 이라면 입력값 또한 양수인 것인데, 그렇게 된다면 back propagation에서 $\frac{dl}{df} * \frac{df}{wi}$ 로 W의 기울기를 chain-rule로 구하게 된다. 근데 우리가 이전 4강에서 배운 chain-rule의 pattern 중 mul gate(곱)일 때 grdient가 서로 전환이 된다고 배웠다. 따라서 $\frac{df}{wi}$ 이것이 바로 $x_i$인 것을 알 수 있게 된다. 이때 $x_i$가 이전 layer의 sigmoid 연산을 거친 output이기 때문에 무조건 양수이다. 입력값은 항상 양수라면 back propagation을 할 때 $\frac{dl}{df}$(global gradient이다.)의 부호를 따라가게 되어서 gradient의 부호는 항상 양수이거나 음수가 된다. 부가적으로 gradient의 부호는 다운 스트림으로 내려온 gradient의 부호와 같아진다고 생각하면 쉽다. 이렇게 부호가 모두 양수 또는 음수가 되어버리면 발생하는 문제는 gradient update를 할 때 나타난다. w1,w2가 있다면 gradient update시 항상 (&#43;)(&#43;) 이거나 (-)(-)가 된다. 따라서 위 그림과 같이 파란색 방향(최적의 gradient update)과는 다르게 비효율적으로 지그재그 방향으로 내려가게 되는 상황이 벌어지게 된다. 이를 해결할 수 있는 방법은 input값에 mean을 모두 빼버리면 zero-mean data가 된다. 그렇게 되면 X가 양수/음수를 모두 가지고 있는 상황을 만들 수 있게 된다. 마지막 세 번째 문제는 Sigmoid에서의 exp의 연산의 계산 비용이 많이 들어간다는 것이다. 따라서 위 세 가지의 문제로 잘 사용하지 않게 된다. tanh 다음은 tanh함수이다. 이는 범위를 (-1,1)까지 하여 Sigmoid의 단점인 non-zero-center문제를 해결하게 되었다. 하지만 여전히 그래프를 봐도 확인 할 수 있지만 경사도를 죽일 수 있는 문제는 해결되지 못하였다. 따라서 Network가 깊어지는 모델이 많아진 요즘 활성화 함수로 잘 사용하지 않게 된다. ReLU $$f(x) = max(0,x)$$
+다음은 ReLU함수 이다. 이는 위 두 함수과 다르게 양수에서 경사도를 죽일 수 있는 문제를 해결 하였다. 또한 이 함수는 최대값만 계산하기 때문에 연산이 효율적이고 실제로 앞선 함수들과 비교하여 6배가 빠르다고 한다. 하지만 ReLU함수도 몇가지 문제점이 있다. Non-zero-center문제를 가지고 있고 또한 음수일 경우에는 경사도를 죽일 수 있는 문제가 발생할 수 있다. 따라서 W를 initialization하는 과정에서 잘못되었을 때 dead ReLU가 발생할 수 있다. 따라서 이런 dead ReLU를 피하기 위하여 초기화를 할 때 positive한 bias를 얻게 초기화를 하는 방법도 있지만 효과가 경미하다. 또한 learning rate를 크게 설정하는 대규모 훈련 시 W가 너무 크게 비약해서 학습이 안되는 상황이 발생할 수도 있다. 실제로 ReLU를 사용한 Network에서 10~20% 정도가 dead ReLU에 빠진다고 한다. 문제이긴 하지만 그럼에도 불구하고, train은 잘 된다고 한다. Leaky ReLU $$f(x) = max(0.01x,x)$$
+ReLU와 다르게 음수에도 음수 기울기를 주어 경사도를 죽일 수 있는 문제를 해결하고자 한다. ReLU와 같게 연산이 빠르다는 장점도 있다. PReLU $$f(x) = max(ax,x)$$
+PReLU는 음수 영역에 backpropagation에서의 파라미터로 기울기 값으로 유연성을 더해주어 조금 더 융통성을 가해 주었고 ELU 다음의 ELU는 평균 출력이 더욱 0에 가까워지게 만든 함수이다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture6/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs231n/lecture5/" /><link rel="next" href="https://goodyoung.github.io/posts/paper/fast-rcnn/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture6/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/fast-rcnn/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -27,8 +37,8 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture6\/"
-        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  8 ,
-        "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture6\/","datePublished": "2024-07-17T15:36:30+09:00","dateModified": "2024-07-17T15:36:30+09:00","publisher": {
+        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  1566 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture6\/","datePublished": "2024-07-18T15:36:30+09:00","dateModified": "2024-07-18T15:36:30+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
                 "@type": "Person",
@@ -69,8 +79,8 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS231n] 06.Training Neural Networks</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-17">2024-07-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;8 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;One minute&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-18">2024-07-18</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1566 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;8 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -79,20 +89,495 @@
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
     <li><a href="#개요">개요</a></li>
+    <li><a href="#activation-function">Activation Function</a>
+      <ul>
+        <li><a href="#sigmoid">Sigmoid</a></li>
+        <li><a href="#tanh">tanh</a></li>
+        <li><a href="#relu">ReLU</a></li>
+        <li><a href="#leaky-relu">Leaky ReLU</a></li>
+        <li><a href="#prelu">PReLU</a></li>
+        <li><a href="#elu">ELU</a></li>
+        <li><a href="#maxout-neuron">Maxout Neuron</a></li>
+      </ul>
+    </li>
+    <li><a href="#data-preprocessing">Data Preprocessing</a></li>
+    <li><a href="#weight-initialization">Weight Initialization</a></li>
+    <li><a href="#batch-normalization">Batch Normalization</a></li>
+    <li><a href="#babysitting-the-learning-process">Babysitting the Learning Process</a></li>
+    <li><a href="#hyperparameter-optimization">Hyperparameter optimization</a></li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
-            </div><div class="content" id="content"><h2 id="개요">개요</h2>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
 <ol start="0">
-<li>
-<p><code>CS231n</code>의 6강에 대한 내용을 정리 할 것이다.</p>
-</li>
-<li></li>
+<li><code>CS231n</code>의 6강에 대한 내용을 정리 할 것이다.</li>
 </ol>
+<br>
+<ol>
+<li>저번 강에서는 <code>Convolutional Neural Networks</code>에 대해 배웠고 이번 강에서는 이 <code>Neural Networks</code>를 어떻게 하면 잘 학습시킬 수 있을지에 대해서 배울 것이다.</li>
+</ol>
+<hr>
+<h2 id="activation-function">Activation Function</h2>
+<ol start="2">
+<li><code>Deep Network</code>에 <code>비선형성</code>을 부여하는 <code>Activation Function</code>의 종류들에 대해서 알아볼 것이다.</li>
+</ol>
+<br>
+<h3 id="sigmoid">Sigmoid</h3>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/sigmoid.png" height="100%" width="40%"> </div>
+<p>$$\sigma(x) = \frac{1}{1 + e^{-x}}$$</p>
+<ol start="3">
+<li>먼저 첫 번째로 <code>Sigmoid</code>이다. 함수의 모양은 <code>위 그림</code>과 같고 (0,1) 사이의 값을 가지게 된다.<code>Sigmoid</code>가 가지게 되는 몇가지 문제들이 있다.</li>
+</ol>
+<br>
+<ol start="4">
+<li>
+<p><code>첫 번째 문제</code>는 <strong>경사도를 죽일 수 있는 문제이다.</strong></p>
+ <img src="/images/cs231n/lecture6/sigmoid-2.png" height="100%" width="70%">
+</li>
+</ol>
+<br>
+<ol start="5">
+<li>이는 입력으로 들어오는 <strong>x가 -10, 10이라면</strong> <code>global gradient(이전 노드의 기울기)</code>는 0이 되고 이것이 <strong>역전파를</strong> 통해 다운스트림($global grdient * local gradient$) 되면 <code>global gradient</code>가 0이므로 <strong>아래 노드들은 0으로 수렴하게 되어 기울기가 소실이 된다.</strong>
+<ul>
+<li>이러한 기울기 소실로 인하여 <code>W</code>의 값을 더이상 update 하지 못하는 문제를 <code>vanishing gradient</code>라고 한다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/zero-center.png" height="100%" width="77%"> </div>
+<ol start="6">
+<li><code>두 번째 문제</code>는 output이 <strong>zero-center가 아닌 문제</strong>이다. 즉, <code>Signmoid</code>의 output이 항상 <strong>양수</strong>이기 때문에 <strong>0을 중심으로 있지 않는 문제</strong>가 발생하게 된다.</li>
+</ol>
+<br>
+<ol start="7">
+<li>ouput이 항상 <strong>양수</strong> 이라면 입력값 또한 <strong>양수인</strong> 것인데, 그렇게 된다면 <code>back propagation</code>에서 $\frac{dl}{df} * \frac{df}{wi}$ 로 <code>W</code>의 기울기를 <code>chain-rule</code>로 구하게 된다.</li>
+</ol>
+<br>
+<ol start="8">
+<li>근데 우리가 이전 <code>4강</code>에서 배운 <code>chain-rule</code>의 <code>pattern</code> 중 <code>mul gate(곱)</code>일 때 <code>grdient</code>가 <strong>서로 전환이 된다고</strong> 배웠다. 따라서 $\frac{df}{wi}$ 이것이 바로 $x_i$인 것을 알 수 있게 된다.
+<ul>
+<li>이때 $x_i$가 이전 layer의 sigmoid 연산을 거친 output이기 때문에 무조건 양수이다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="9">
+<li>입력값은 항상 <strong>양수라면</strong> <code>back propagation</code>을 할 때 $\frac{dl}{df}$(<code>global gradient</code>이다.)의 부호를 따라가게 되어서 <code>gradient</code>의 <strong>부호는 항상 양수이거나 음수가 된다.</strong>
+<ul>
+<li>부가적으로 <code>gradient</code>의 부호는 다운 스트림으로 내려온 <code>gradient</code>의 <strong>부호와 같아진다고</strong> 생각하면 쉽다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="10">
+<li>이렇게 부호가 모두 양수 또는 음수가 되어버리면 발생하는 문제는 <code>gradient update</code>를 할 때 나타난다.</li>
+</ol>
+<br>
+<ol start="11">
+<li><code>w1,w2</code>가 있다면 <code>gradient update</code>시 항상 (+)(+) 이거나 (-)(-)가 된다. 따라서 위 그림과 같이 파란색 방향(최적의 <code>gradient update</code>)과는 다르게 <strong>비효율적으로 지그재그 방향</strong>으로 내려가게 되는 상황이 벌어지게 된다.</li>
+</ol>
+<br>
+<ol start="12">
+<li>이를 <strong>해결할 수 있는 방법은</strong> <code>input값에</code> <strong>mean을 모두 빼버리면</strong> <code>zero-mean data</code>가 된다. 그렇게 되면 X가 양수/음수를 모두 가지고 있는 상황을 만들 수 있게 된다.</li>
+</ol>
+<br>
+<ol start="13">
+<li>마지막 <code>세 번째 문제</code>는 <code>Sigmoid</code>에서의 <code>exp의</code> <strong>연산의 계산 비용이 많이</strong> 들어간다는 것이다.
+<ul>
+<li><strong>따라서 위 세 가지의 문제로 잘 사용하지 않게 된다.</strong></li>
+</ul>
+</li>
+</ol>
+<h3 id="tanh">tanh</h3>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/tanh.png" height="100%" width="40%"> </div>
+<ol start="14">
+<li>다음은 <code>tanh</code>함수이다. 이는 범위를 (-1,1)까지 하여 <code>Sigmoid</code>의 단점인 <code>non-zero-center</code>문제를 해결하게 되었다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>하지만 여전히 그래프를 봐도 확인 할 수 있지만 <strong>경사도를 죽일 수 있는 문제는</strong> 해결되지 못하였다. 따라서 <code>Network</code>가 깊어지는 모델이 많아진 요즘 <strong>활성화 함수로 잘 사용하지 않게 된다.</strong></li>
+</ol>
+<h3 id="relu">ReLU</h3>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/relu.png" height="100%" width="40%"> </div>
+<p>$$f(x) = max(0,x)$$</p>
+<ol start="16">
+<li>다음은 <code>ReLU</code>함수 이다. 이는 <code>위 두 함수</code>과 다르게 양수에서 <strong>경사도를 죽일 수 있는 문제</strong>를 해결 하였다.</li>
+</ol>
+<br>
+<ol start="17">
+<li>또한 이 함수는 <code>최대값만</code> 계산하기 때문에 연산이 효율적이고 실제로 앞선 함수들과 비교하여 <strong>6배가 빠르다고 한다.</strong></li>
+</ol>
+<br>
+<ol start="18">
+<li>하지만 <code>ReLU</code>함수도 몇가지 문제점이 있다. <code>Non-zero-center</code>문제를 가지고 있고 또한 음수일 경우에는 <strong>경사도를 죽일 수 있는 문제</strong>가 발생할 수 있다.</li>
+</ol>
+<br>
+<ol start="19">
+<li>따라서 <code>W</code>를 <code>initialization</code>하는 과정에서 잘못되었을 때 <code>dead ReLU</code>가 발생할 수 있다.
+<ul>
+<li>따라서 이런 <code>dead ReLU</code>를 피하기 위하여 초기화를 할 때 <strong>positive한 bias를</strong> 얻게 초기화를 하는 방법도 있지만 <strong>효과가 경미하다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="20">
+<li>또한 <code>learning rate</code>를 크게 설정하는 대규모 훈련 시 <code>W</code>가 너무 크게 비약해서 학습이 안되는 상황이 발생할 수도 있다.</li>
+</ol>
+<br>
+<ol start="21">
+<li>실제로 <code>ReLU</code>를 사용한 <code>Network</code>에서 <code>10~20%</code> 정도가 <code>dead ReLU</code>에 빠진다고 한다.
+<ul>
+<li>문제이긴 하지만 그럼에도 불구하고, <code>train은</code> <strong>잘 된다고 한다.</strong></li>
+</ul>
+</li>
+</ol>
+<h3 id="leaky-relu">Leaky ReLU</h3>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/leakyrelu.png" height="100%" width="40%"> </div>
+<p>$$f(x) = max(0.01x,x)$$</p>
+<ol start="22">
+<li><code>ReLU</code>와 다르게 음수에도 <code>음수 기울기를</code> 주어 <strong>경사도를 죽일 수 있는 문제</strong>를 해결하고자 한다.
+<ul>
+<li><code>ReLU</code>와 같게 연산이 빠르다는 장점도 있다.</li>
+</ul>
+</li>
+</ol>
+<h3 id="prelu">PReLU</h3>
+<p>$$f(x) = max(ax,x)$$</p>
+<ol start="23">
+<li><code>PReLU</code>는 음수 영역에 <code>backpropagation</code>에서의 <code>파라미터로 기울기 값</code>으로 유연성을 더해주어 조금 더 융통성을 가해 주었고</li>
+</ol>
+<h3 id="elu">ELU</h3>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/leakyrelu.png" height="100%" width="40%"> </div>
+<ol start="24">
+<li>다음의 <code>ELU</code>는 평균 출력이 더욱 0에 가까워지게 만든 함수이다. 그래서 다음과 같은 장점이 있다.
+<ul>
+<li>노이즈에 더욱 견고해진다.</li>
+<li><code>Leaky ReLU</code>와 비교했을 때 비활성화 상태를 더욱 <code>robust</code>하게 얻을 수 있다.</li>
+</ul>
+</li>
+</ol>
+<h3 id="maxout-neuron">Maxout Neuron</h3>
+<p>$$\max(w_1^T x + b_1, w_2^T x + b_2)$$</p>
+<ol start="25">
+<li>다은은 <code>Maxout Neuron</code>이다. 파라미터를 더 두어서 두가지의 function의 max를 취하게 된다.
+<ul>
+<li><strong>경사도를 죽일 수 있는 문제</strong>는 사라졌지만 <strong>뉴런 당 parameter가 2배로 증가하는</strong> 단점이 있다.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="data-preprocessing">Data Preprocessing</h2>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/preprocessing.png" height="100%" width="76%"> </div>
+<ol start="26">
+<li>다음은 좋은 데이터를 만들기 위한 <code>data preprocessing</code>과정에 대해 설명할 것이다.</li>
+</ol>
+<br>
+<ol start="27">
+<li>일반적으로 <code>image 데이터의</code> 경우에는 <code>zero-mean</code><strong>만</strong> 전처리를 수행한다.
+<ul>
+<li>입력값이 전부 양수이면 <code>W</code>가 <code>한 방향으로만</code> 업데이트가 일어나기 때문에 <strong>비효율적이다.</strong></li>
+<li>오직 <code>첫 layer</code>에서만 <code>zero - centering</code>이 되고, 그 이후에 네트워크가 깊어지면 깊어질수록 <strong>활성화 함수로 값이 양수만 나와서</strong> <strong>첫 layer 정도에만 의미가 있다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="28">
+<li><code>image</code>의 경우에는 <code>normalize</code>를 <strong>많이 하지 않는다.</strong>
+<ul>
+<li>왜냐하면 image의 경우 각 위치에는 이미 <strong>상대적으로 규모와 분포가 있기 때문이다</strong>.</li>
+<li>이미지는 <strong>픽셀 값이 전부 같은 범위(0~255)이기</strong> 때문이다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="29">
+<li>또한 image의 경우 <code>일부 작업(PCA, Whitening)</code>을 하지 않는다.
+<ul>
+<li>일반적으로 <code>원본 image</code> 위에 <code>convolution layer</code>를 통하여 <strong>공간 구조를 포함한 특징 추출을 하기 때문이다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="30">
+<li><code>Zero-mean</code>의 전처리를 할 경우 훈련데이터에서 얻은 경험적인 <strong>image의 평균을</strong> test데이터에서 <strong>그대로 사용한다.</strong></li>
+</ol>
+<br>
+<ol start="31">
+<li>이때 <code>mean의 값</code>을 <code>이미지의 전체 데이터</code>로 할지, 아니면 <code>각각 독립된 채널마다의 mean으로</code> 이용할 지 선택할 수 있는데, 이는 <strong>큰 차이는 나지 않는다고 한다.</strong></li>
+</ol>
+<hr>
+<h2 id="weight-initialization">Weight Initialization</h2>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/winit.png" height="100%" width="76%"> </div>
+<ol start="32">
+<li>다음은 <code>W</code>를 <strong>초기화 하는 방법</strong>에 대해서 알아볼 것이다.</li>
+</ol>
+<br>
+<ol start="33">
+<li>위 그림처럼 <strong>w가 0으로 초기화가 된다는</strong> 질문을 남긴다. 그렇게 되면 입력값에서부터 뉴런이 <strong>모두 동일한 결과를 내놓는다.</strong></li>
+</ol>
+<br>
+<ol start="34">
+<li>따라서 <code>W</code>를 초기화 시키는 여러 방법에 대해서 설명한다. 첫 번째 방법은 <code>Small random number</code>이다.
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">W</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">D</span><span class="p">,</span><span class="n">H</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+</ol>
+<br>
+<ol start="35">
+<li>이 방법은 분포에서 샘플링을 할 수 있는 <code>작은 난수</code>로 설정하는 방법이다.
+<ul>
+<li>대칭성이 없어져서 <code>small network</code>에서는 잘 작동하지만 <code>deep network</code>에서는 <strong>문제이다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/result.png" height="100%" width="76%"> </div>
+<ol start="36">
+<li><code>위 그림</code>은 <code>activation function</code>으로 <code>tanh</code>, <code>hidden layer 10개</code>, 뉴런이 총 500개 인것을 <code>Small random number</code>의 방법을 사용하여 실험해본 결과를 각 <code>layer</code>마다 분포를 확인한 것이다.
+<ul>
+<li><code>그림의 윗 부분</code>을 보면 <code>tanh가</code> <code>zero-center</code>이기 때문에 layer를 지날 수록 <strong>mean이 0으로 나온다.</strong>
+<ul>
+<li>표준편차는 0으로 붕괴된다.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="37">
+<li><code>그림의 아랫 부분</code>을 보면 <code>첫 layer에는</code> <code>가우시안 분포</code>를 띄지만 점점 무너지는 것을 확인할 수 있게 된다. 왜냐하면 <code>각 layer</code>에 <strong>작은 숫자를</strong> 곱하면($W*x$에서 W가 임의의 작은 수이므로 <u>작은 수를 계속 곱하니까</u>) <strong>모든 값이 빠르게 줄어들고 무너지는 것을 확인할 수 있다.</strong></li>
+</ol>
+<br>
+<ol start="38">
+<li>또한 이때 <code>back propagation</code>을 할 때는 <strong>입력 값이 매우 작다.</strong> $W*X$ gate에서 <code>W</code>의 <code>local gradient</code>는 <strong>X이다.</strong> 따라서 X가 작기 때문에 가중치가 <strong>매우 작은 기울기를 얻고 업데이트되지 않는다.</strong>
+<ul>
+<li><code>vanishing gradient</code> 현상이 일어난다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/result-3.png" height="100%" width="76%"> </div>
+<ol start="39">
+<li><code>두 번째 방법</code>은 <code>W</code>의 값을 반대로 크게 한다면?
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">W</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">fan_in</span><span class="p">,</span> <span class="n">fan_out</span><span class="p">)</span> <span class="c1"># input, output의 수</span>
+</span></span></code></pre></div></li>
+</ol>
+<br>
+<ol start="40">
+<li>출력 값들이 1과 -1쪽으로만 가서 <code>explode</code>가 된다.
+<ul>
+<li>따라서 <code>tanh</code>에서 <strong>1,-1은 각각 기울기가 0인 지점이다.</strong> 따라서 gradient가 0이 되어 update가 되지 않는다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/result-2.png" height="100%" width="76%"> </div>
+<ol start="41">
+<li>앞 선 두 방식 말고 <code>W</code>의 값을 입력의 수를 계산하여 <code>입력 수를</code> <code>np.sqrt</code>로 나누어 스케일링을 해주는 방식이 있다.
+- 이는 작은 숫자면 작은 숫자로 나누고 더 큰 가중치를 얻으면 더 큰 가중치가 필요하다
+- 즉, 상대적으로 <strong>입력값의 개수에 따라 값을 조절하여</strong> 초기화 하기 때문에 <strong>합리적인 방식이다.</strong></li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/result-4.png" height="100%" width="76%"> </div>
+<ol start="42">
+<li>이 방식에 <code>tanh</code>말고 <code>ReLU</code>를 사용하면 다시 문제가 발생한다. 왜냐하면 <code>ReLU</code>를 사용하면 실제로 얻는 <strong>분산이 반으로 줄기</strong> 때문에 매번 유닛의 약 <strong>반을 0으로 설정된다.</strong>
+<ul>
+<li><code>ReLU</code>의 <strong>음수 부분은 전부 0으로 되기 떄문이다.</strong></li>
+<li>따라서 <code>위 그림</code>을 보면 표준편차가 <strong>0에 점점 가까워 지는 것을 확인 할 수 있게 된다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/result-5.png" height="100%" width="76%"> </div>
+<ol start="43">
+<li>이러한 문제를 해결하기 위하여 <strong>2로 더 나눈 추가 항목</strong>을 사용하여 이를 설명할 수 있다. <strong>(카이밍혜 방법)</strong>
+<ul>
+<li><strong>뉴런이 ReLU로 인하여 절반이 죽어버린다는 근거로 2를 더 나눈 것이다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="44">
+<li>마지막 layer의 그래프를 보면 좀 더 나아지는 것을 확인 할 수 있게 된다.
+<ul>
+<li>따라서 <strong>작은 차이에도 weight의 값들에 대해서 주의를 기울이면, 큰 차이가 난다는 것을 강조합니다.</strong></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="batch-normalization">Batch Normalization</h2>
+<ol start="45">
+<li><code>Deep Networks</code>를 지나면 <code>W</code>, <code>activation function</code>들에 의해 초기 데이터가 변할 수 있다. 따라서 <code>Depp Networks</code>를 지나도 매 층마다 데이터의 분포를 재조절하여 교정하는 방법이 <code>Batch Normalization</code>이다.</li>
+</ol>
+<br>
+<ol start="46">
+<li>즉, 현재 <code>batch</code>에서의 <code>평균과 분산</code>을 이용해서 훈련 처음부터 <code>batch normalization</code>을 취해주어 모든 층에서 <code>정규 분포를</code> 따르게 하는 것이다.
+<ul>
+<li><code>Batch</code>란 은닉층에 들어온 <code>dataset</code>을 말한다.</li>
+<li>이를 사용하면 앞서 배운 <code>W initialization</code>말고 <code>Batch Normalization</code>을 두어 <code>network</code>의 모든 레이어에서 <code>unit 가우스 분포</code>를 가질 수 있는 좋은 위치에 놓도록 할 수 있게 된다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/batchnorm.png" height="100%" width="76%"> </div>
+<ol start="47">
+<li><code>위 그림</code>과 같이 현재의 <code>batch</code> 에서 <code>N개의 D차원</code> input data가 있을 때 <code>빨간색 화살표</code>대로 각각의 차원마다(feature element) <code>mean과</code> <code>variance</code>를 계산할 수 있다.
+<ul>
+<li>이것이 <code>한 batch</code> 단위에서의 <code>normalize</code>이다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/batchnorm-2.png" height="100%" width="76%"> </div>
+<ol start="48">
+<li><code>Activation Function</code>을 거치기 전에 <code>convolutional</code>과 <code>fc</code>층 뒤에 <code>BN</code>을 넣어주게 된다.
+<ul>
+<li><code>Convolutional</code>층에서는 공간적 정보가 손실이 되면 안되기 때문에 <code>activation map</code>당 하나의 평균, 표준편차를 구하여 <code>normalize</code>를 수행하게 된다.</li>
+<li><code>Batch normalization</code>은 <code>tanh (-1~+1)</code>로 가는 입력값들을 <code>tanh</code>함수의 <code>linear</code>한 부분(기울기가 존재하는 범위)으로 <strong>범위를 강제하는 것이다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/batchnorm-3.png" height="100%" width="76%"> </div>
+<ol start="49">
+<li>이렇게 <code>normalize</code>를 한 값을 다시 변환하고 싶을 때 <code>위 그림의 scale and shift의 식</code>을 이용하면 된다.
+<ul>
+<li><code>감마</code>는 <code>표준 편차</code>이기 때문에 <code>scaling의</code> 효과를 주고, <code>베타는</code> <code>평균 값이기</code> 때문에 <code>shift의</code> 효과를 주는 것입니다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="50">
+<li>
+<p><code>Batch normalization</code>이 structure를 흐릴 수 있다는 생각이 들 수 있는데 데이터를 <code>scaling, shfting</code> 해주는 것이기 때문에 <strong>데이터의 구조는 바뀌지 않습니다.</strong></p>
+<ul>
+<li><code>선형변환</code>이기 때문에 공간 구조가 무너지지 않다고 생각하면 이해하기 쉬울 것이다.
+<ul>
+<li>처음부터 <code>그래프의 개형이</code> 변하지 않는다.
+<br></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>Data leakage</code>의 이유 때문에 <code>test dataset</code> 에서 <code>batch norm</code>을 할때에는 <code>train dataset</code> 에서 이용한 mean과 variance를 이용한다.</p>
+</li>
+</ol>
+<hr>
+<h2 id="babysitting-the-learning-process">Babysitting the Learning Process</h2>
+<ol start="52">
+<li>모델의 전체적인 학습 과정을 어떻게 바라봐야하는지, 등의 전체적인 프레임을 살펴본다.</li>
+</ol>
+<br>
+<ol start="53">
+<li><code>첫 번째로</code> <code>preprocessing data</code>이다. 보통 image 데이터는 <code>zero-mean</code>을 사용한다.</li>
+</ol>
+<br>
+<ol start="54">
+<li><code>두 번째</code>로 <code>choose the architecture</code>이다. 그 다음으로 <code>network</code>를 초기화 하는 것이다.
+<ul>
+<li>이를 통해 <code>forward pass를</code> 하고 <code>loss가</code> 합리적인지 확인하고 싶다.</li>
+<li>또한 <code>정규화를</code> 추가를 했을 때 <code>loss가 증가하는지도</code> 확인해야한다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="55">
+<li>그리고 학습을 시키는데, <code>sanity check</code>으로 확인하여 <code>매우 작은 데이터가</code> <strong>완벽하게 과적합 하는지 확인을 한다.</strong></li>
+</ol>
+<br>
+<ol start="56">
+<li>이제 전체 데이터를 학습 시키고, <code>Loss를</code> 확인하면서 <code>Learning Rate를</code> 조정한다.</li>
+</ol>
+<br>
+<ol start="57">
+<li>또한 <code>loss는</code> 그대로인데 <code>accuracy가</code> <strong>증가한 이유가 무엇일까?</strong>
+<ul>
+<li>확률이 여전히 꽤 분산되어 있기 때문이다.</li>
+<li>이 확률들을 올바른 방향으로 약간 이동하게 하면 loss는 그대로지만 정확도가 크게 높아질 것이다.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="hyperparameter-optimization">Hyperparameter optimization</h2>
+<ol start="58">
+<li>적절한 <code>hyperparameter</code>를 찾는 방법으로 <code>cross-validation</code>를 설명한다. 그것의 방법은 아래와 같다.
+<ul>
+<li><code>Frist stage</code>: only a few epochs to get rough idea (좋은지 안좋은지 빠르게 알 수 있게 된다.)</li>
+<li><code>Second stage</code>: 더 오래 길게 수행한다.</li>
+<li>감지하기 위한 팁이 있다면 <code>loss가</code> 기존과 <strong>3배가 증가하면 종료</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="59">
+<li>
+<p>다음 방법으로는 <code>Grid search</code>, <code>Random search</code>방법이다.
+<br></p>
+</li>
+<li>
+<p><code>Grid Search</code>는 주어진 범위를 랜덤이 아닌 <strong>등간격으로</strong> 탐색한다는 점에서 <code>random search</code>와 차이점이 있다.</p>
+<ul>
+<li>이 경우 <code>특정부분의 특징을 가진</code> <strong>parameter가 무시되기</strong> 때문에 <code>random search</code> 방법이 <strong>선호된다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="61">
+<li><code>Random search</code>의 방법은 <code>58번의</code> 방법과 같이 랜덤하게 사용하면 된다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/lossfunction.png" height="100%" width="76%"> </div>
+<ol start="62">
+<li>다음은 <code>loss를</code> 해석하는 방법에 대한 설명이 나온다. 위 그림을 보면 <code>lr값은</code> <code>update의</code> 속도와 방향의 정확도를 전부 가지고 있는 <strong>빨간색 그래프가 제일 좋다.</strong></li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/lossfunc-1.png" height="100%" width="76%"> </div>
+<ol start="63">
+<li>다음 그림은 lr의 값을 <strong>너무 작게 선정</strong> 했을 때 발생할 수 있는 문제를 나타낸다. lr의 값을 제대로 설정하지 못하여 <strong>gradient의 업데이트가 제대로 일어나지 않아서</strong> 최적의 방향을 찾는 시간이 너무 오래 걸린 것이다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture6/train.png" height="100%" width="76%"> </div>
+<ol start="64">
+<li>또한 위 그림은 <code>validaiton의 acc값</code>과 <code>training의 acc값</code>의 차이가 크면 안된 다는 사실을 알려준다. 왜냐하면 <strong>train에 과적합이</strong> 되었다는 사실이기 때문이다.
+<ul>
+<li>따라서 과적합을 줄여주기 위한 방법으로 <code>규제화</code>, <code>데이터 셋 더 확보</code> 등을 생각할 수 있을 것 같다.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://inhovation97.tistory.com/23" target="_blank" rel="noopener noreffer ">https://inhovation97.tistory.com/23</a></li>
+<li><a href="https://bookandmed.tistory.com/54" target="_blank" rel="noopener noreffer ">https://bookandmed.tistory.com/54</a></li>
+</ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
-                <span>Updated on 2024-07-17</span>
+                <span>Updated on 2024-07-18</span>
             </div></div>
         <div class="post-info-line">
             <div class="post-info-md"></div>
@@ -109,8 +594,7 @@
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/cs231n/lecture5/" class="prev" rel="prev" title="[CS231n] 05.Convolutional Neural Networks"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS231n] 05.Convolutional Neural Networks</a>
-            <a href="/posts/paper/fast-rcnn/" class="next" rel="next" title="[Paper Review]Fast R-CNN">[Paper Review]Fast R-CNN<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+    <div class="post-nav"><a href="/posts/paper/fast-rcnn/" class="prev" rel="prev" title="[Paper Review]Fast R-CNN"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Fast R-CNN</a></div>
 </div>
 <div id="comments"><div id="utterances" class="comment"></div><noscript>
                 Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.

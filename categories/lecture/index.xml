@@ -3,13 +3,18 @@
         <title>Lecture - Category - Good Young</title>
         <link>https://goodyoung.github.io/categories/lecture/</link>
         <description>Lecture - Category - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 17 Jul 2024 15:36:30 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/lecture/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 18 Jul 2024 15:36:30 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/lecture/" rel="self" type="application/rss+xml" /><item>
     <title>[CS231n] 06.Training Neural Networks</title>
     <link>https://goodyoung.github.io/posts/cs231n/lecture6/</link>
-    <pubDate>Wed, 17 Jul 2024 15:36:30 &#43;0900</pubDate>
+    <pubDate>Thu, 18 Jul 2024 15:36:30 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/posts/cs231n/lecture6/</guid>
-    <description><![CDATA[개요 CS231n의 6강에 대한 내용을 정리 할 것이다.]]></description>
+    <description><![CDATA[개요 CS231n의 6강에 대한 내용을 정리 할 것이다. 저번 강에서는 Convolutional Neural Networks에 대해 배웠고 이번 강에서는 이 Neural Networks를 어떻게 하면 잘 학습시킬 수 있을지에 대해서 배울 것이다. Activation Function Deep Network에 비선형성을 부여하는 Activation Function의 종류들에 대해서 알아볼 것이다. Sigmoid $$\sigma(x) = \frac{1}{1 + e^{-x}}$$
+먼저 첫 번째로 Sigmoid이다. 함수의 모양은 위 그림과 같고 (0,1) 사이의 값을 가지게 된다.Sigmoid가 가지게 되는 몇가지 문제들이 있다. 첫 번째 문제는 경사도를 죽일 수 있는 문제이다.
+이는 입력으로 들어오는 x가 -10, 10이라면 global gradient(이전 노드의 기울기)는 0이 되고 이것이 역전파를 통해 다운스트림($global grdient * local gradient$) 되면 global gradient가 0이므로 아래 노드들은 0으로 수렴하게 되어 기울기가 소실이 된다. 이러한 기울기 소실로 인하여 W의 값을 더이상 update 하지 못하는 문제를 vanishing gradient라고 한다. 두 번째 문제는 output이 zero-center가 아닌 문제이다. 즉, Signmoid의 output이 항상 양수이기 때문에 0을 중심으로 있지 않는 문제가 발생하게 된다. ouput이 항상 양수 이라면 입력값 또한 양수인 것인데, 그렇게 된다면 back propagation에서 $\frac{dl}{df} * \frac{df}{wi}$ 로 W의 기울기를 chain-rule로 구하게 된다. 근데 우리가 이전 4강에서 배운 chain-rule의 pattern 중 mul gate(곱)일 때 grdient가 서로 전환이 된다고 배웠다. 따라서 $\frac{df}{wi}$ 이것이 바로 $x_i$인 것을 알 수 있게 된다. 이때 $x_i$가 이전 layer의 sigmoid 연산을 거친 output이기 때문에 무조건 양수이다. 입력값은 항상 양수라면 back propagation을 할 때 $\frac{dl}{df}$(global gradient이다.)의 부호를 따라가게 되어서 gradient의 부호는 항상 양수이거나 음수가 된다. 부가적으로 gradient의 부호는 다운 스트림으로 내려온 gradient의 부호와 같아진다고 생각하면 쉽다. 이렇게 부호가 모두 양수 또는 음수가 되어버리면 발생하는 문제는 gradient update를 할 때 나타난다. w1,w2가 있다면 gradient update시 항상 (+)(+) 이거나 (-)(-)가 된다. 따라서 위 그림과 같이 파란색 방향(최적의 gradient update)과는 다르게 비효율적으로 지그재그 방향으로 내려가게 되는 상황이 벌어지게 된다. 이를 해결할 수 있는 방법은 input값에 mean을 모두 빼버리면 zero-mean data가 된다. 그렇게 되면 X가 양수/음수를 모두 가지고 있는 상황을 만들 수 있게 된다. 마지막 세 번째 문제는 Sigmoid에서의 exp의 연산의 계산 비용이 많이 들어간다는 것이다. 따라서 위 세 가지의 문제로 잘 사용하지 않게 된다. tanh 다음은 tanh함수이다. 이는 범위를 (-1,1)까지 하여 Sigmoid의 단점인 non-zero-center문제를 해결하게 되었다. 하지만 여전히 그래프를 봐도 확인 할 수 있지만 경사도를 죽일 수 있는 문제는 해결되지 못하였다. 따라서 Network가 깊어지는 모델이 많아진 요즘 활성화 함수로 잘 사용하지 않게 된다. ReLU $$f(x) = max(0,x)$$
+다음은 ReLU함수 이다. 이는 위 두 함수과 다르게 양수에서 경사도를 죽일 수 있는 문제를 해결 하였다. 또한 이 함수는 최대값만 계산하기 때문에 연산이 효율적이고 실제로 앞선 함수들과 비교하여 6배가 빠르다고 한다. 하지만 ReLU함수도 몇가지 문제점이 있다. Non-zero-center문제를 가지고 있고 또한 음수일 경우에는 경사도를 죽일 수 있는 문제가 발생할 수 있다. 따라서 W를 initialization하는 과정에서 잘못되었을 때 dead ReLU가 발생할 수 있다. 따라서 이런 dead ReLU를 피하기 위하여 초기화를 할 때 positive한 bias를 얻게 초기화를 하는 방법도 있지만 효과가 경미하다. 또한 learning rate를 크게 설정하는 대규모 훈련 시 W가 너무 크게 비약해서 학습이 안되는 상황이 발생할 수도 있다. 실제로 ReLU를 사용한 Network에서 10~20% 정도가 dead ReLU에 빠진다고 한다. 문제이긴 하지만 그럼에도 불구하고, train은 잘 된다고 한다. Leaky ReLU $$f(x) = max(0.01x,x)$$
+ReLU와 다르게 음수에도 음수 기울기를 주어 경사도를 죽일 수 있는 문제를 해결하고자 한다. ReLU와 같게 연산이 빠르다는 장점도 있다. PReLU $$f(x) = max(ax,x)$$
+PReLU는 음수 영역에 backpropagation에서의 파라미터로 기울기 값으로 유연성을 더해주어 조금 더 융통성을 가해 주었고 ELU 다음의 ELU는 평균 출력이 더욱 0에 가까워지게 만든 함수이다.]]></description>
 </item>
 <item>
     <title>[CS231n] 05.Convolutional Neural Networks</title>
