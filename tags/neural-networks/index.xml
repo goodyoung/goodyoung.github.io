@@ -3,8 +3,41 @@
         <title>Neural Networks - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/neural-networks/</link>
         <description>Neural Networks - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 18 Jul 2024 15:36:30 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/neural-networks/" rel="self" type="application/rss+xml" /><item>
-    <title>[CS231n] 06.Training Neural Networks</title>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 22 Jul 2024 10:29:23 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/neural-networks/" rel="self" type="application/rss+xml" /><item>
+    <title>[CS231n] 07.Training Neural Networks II</title>
+    <link>https://goodyoung.github.io/posts/cs231n/lecture7/</link>
+    <pubDate>Mon, 22 Jul 2024 10:29:23 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs231n/lecture7/</guid>
+    <description><![CDATA[개요 CS231n의 7강에 대한 내용을 정리 할 것이다. 저번 강에서는 Training Neural Networks에 대해 배웠고 이번 강에서는 그것에 추가적인 내용을 배울 것이다. Fancier Optimization Stochastic Gradient Descent(SGD) (SGD 그림)
+이전까지 Stochastic Gradient Descent(SGD)에 대해서 배웠다. 이는 매우 간단한 Optimization의 기법인데, SGD에는 여러 문제가 있다. 이 문제들에 대해서 살펴볼 예정이다.
+먼저 Taco shell problem이다. 위 그림이고 W1,W2가 있을 때, 손실 함수가 매우 느리게 작동한다. SGD와 같은 목적함수는 방향이 최소값을 향한 방향으로 정렬되어 있지 않고 지그재그의 형식으로 움직이게 된다.
+Loss가 수직 방향으로만 sensitive해서 덜 민감한 수평 방향으로 진행 속도가 매우 느려지고 수직 방향으로는 빠르게 진행되어 지그재그의 형태로 학습을 하게 된다. 이것은 고차원에서 더 흔해진다. (graph 그림)
+다른 문제는 Local minima과 Saddle point (안장점)이 있다.
+x축이 하나의 파라미터를 뜻하고 y축이 loss를 뜻할 때 위 그림에서 SGD는 local minima일 때 멈춘다.
+왜냐하면 SGD는 기울기를 계산하고 반대 기울기 방향으로 진행하기 때문에 빨간색 위치에서 gradient가 0이기 때문에 멈추게 된다.
+이는 아래 그래프 처럼 Saddle point에서도 똑같이 기울기가 0이기 때문에 멈추게 된다.
+Saddle point: 어떤 방향에서는 손실이 증가, 어떤 방향에서는 손실이 감소하는 그 중간 지점
+High dimension에서는 saddle point가 local minima보다 더 흔하다. Saddle point의 근처 지점에서도 문제가 된다. Saddle point의 근처에 있을 때 마다 우리는 매우 느린 진행을 하게 될 것이다. 다른 문제는 SGD의 S이다. 확률적으로 모든 dataset의 loss를 계산하기엔 계산 비용이 많이 들어서 우리는 mini Batch의 방법을 사용하여 값을 추정한다.
+하지만 이는 W의 값을 쪼개서 사용하므로 noisy data일 수 있다는 것이다.
+기본적인 전체 배치를 사용하더라고 이런 모든 문제들은 해결되지 않는다.
+SGD + Momentum 앞서 말한 문제들을 해결하기 위한 기본적인 idea가 있다. 그것은 바로 Momentum의 개념이다.
+Momentum이란 시간이 지남에 따라 속도를 유지하고 기울기 추정치를 속도에 추가한다는 것이다. 기울기 방향이 아닌 속도 방향으로 gradient update가 일어난다.
+마찰 상수인 rho도 존재. 마찰에 의해 속도를 감소시킨다음 gradient에 추가한다.
+vx = 0 while True: dx = compute_gradient(x) # gradient 계산 vx = rho * vx + dx # 마찰 상수로 속도 감소 그것을 gradient에 추가 x += learning_rate * vx # 내려가기 (그래프)
+이는 위 문제들을 다 해결하게 된다. 앞선 그래프에서 Local minima이든 Saddle point가 속도가 빨라지는 것과 같은 물리적인 해석을 할 수 있게 된다.
+이제 속도가 있으면 기울기가 없더라도 해당 점은 여전히 속도를 가진다. 이러면 극복할 수 있게 된다.
+따라서 위 그림처럼 지그재그들이 서로 상쇄되고 민감한 방향 (수직 방향)으로 걷는 양을 효과적으로 줄이고 덜 민감한 차원을 가로지르는 하강을 가속할 것이다.
+그래서 시간이 지남에 따라 속도가 증가가 되고 노이즈가 기울기 추정에서 평균화가 된다.
+그래서 SGD와는 다르게 부드러운 경로를 취하게 된다. (Momentum 그래프) 18. 위 그림은 Momentum의 종류를 나타낸 것이다.
+기존 momentum은 현재 지점(빨간색)에서 기울기를 추정한 후 속도 벡터와 섞어서 사용하는 반면 Nesterov momentum은 기존 속도방향으로 나아간 후 그 시점에서 기울기를 추정한다. 그 후 원래 지점으로 돌아가서 이 두개를 섞는 방법이다.
+Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할 수 있게 된다. 이는 Convex optimization에서는 잘 작동하지만, Neural Network와 같은 non-convex의 문제에서는 보장된 방식은 아니다.
+(Nesterov momentum 식 사진 )
+우리는 항상 동일한 지점에서 loss를 평가하고 싶다. 하지만 Nesterov momentum은 그것이 아니기 때문에 따라서 이 식을 조금 더 변형하면 아래의 식과 같이 항상 동일한 지점에서 손실과 기울기를 평가할 수 있게 된다.
+하단의 박스를 보면 현재 시점에서 $v_{t+1}$를 더하고 현재의 $v_{t+1}$와 이전 속도 $v_{t}$의 차이를 더해주면 항상 동일한 지점 $\tilde{x_t}$ 에서 평가하게 된다.]]></description>
+</item>
+<item>
+    <title>[CS231n] 06.Training Neural Networks I</title>
     <link>https://goodyoung.github.io/posts/cs231n/lecture6/</link>
     <pubDate>Thu, 18 Jul 2024 15:36:30 &#43;0900</pubDate>
     <author>GoodYoung</author>

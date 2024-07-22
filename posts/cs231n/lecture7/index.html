@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[CS231n] 07.Training Neural Networks II - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS231n] 07.Training Neural Networks II" />
+<meta property="og:description" content="개요 CS231n의 7강에 대한 내용을 정리 할 것이다. 저번 강에서는 Training Neural Networks에 대해 배웠고 이번 강에서는 그것에 추가적인 내용을 배울 것이다. Fancier Optimization Stochastic Gradient Descent(SGD) (SGD 그림)
+이전까지 Stochastic Gradient Descent(SGD)에 대해서 배웠다. 이는 매우 간단한 Optimization의 기법인데, SGD에는 여러 문제가 있다. 이 문제들에 대해서 살펴볼 예정이다.
+먼저 Taco shell problem이다. 위 그림이고 W1,W2가 있을 때, 손실 함수가 매우 느리게 작동한다. SGD와 같은 목적함수는 방향이 최소값을 향한 방향으로 정렬되어 있지 않고 지그재그의 형식으로 움직이게 된다.
+Loss가 수직 방향으로만 sensitive해서 덜 민감한 수평 방향으로 진행 속도가 매우 느려지고 수직 방향으로는 빠르게 진행되어 지그재그의 형태로 학습을 하게 된다. 이것은 고차원에서 더 흔해진다. (graph 그림)
+다른 문제는 Local minima과 Saddle point (안장점)이 있다.
+x축이 하나의 파라미터를 뜻하고 y축이 loss를 뜻할 때 위 그림에서 SGD는 local minima일 때 멈춘다.
+왜냐하면 SGD는 기울기를 계산하고 반대 기울기 방향으로 진행하기 때문에 빨간색 위치에서 gradient가 0이기 때문에 멈추게 된다.
+이는 아래 그래프 처럼 Saddle point에서도 똑같이 기울기가 0이기 때문에 멈추게 된다.
+Saddle point: 어떤 방향에서는 손실이 증가, 어떤 방향에서는 손실이 감소하는 그 중간 지점
+High dimension에서는 saddle point가 local minima보다 더 흔하다. Saddle point의 근처 지점에서도 문제가 된다. Saddle point의 근처에 있을 때 마다 우리는 매우 느린 진행을 하게 될 것이다. 다른 문제는 SGD의 S이다. 확률적으로 모든 dataset의 loss를 계산하기엔 계산 비용이 많이 들어서 우리는 mini Batch의 방법을 사용하여 값을 추정한다.
+하지만 이는 W의 값을 쪼개서 사용하므로 noisy data일 수 있다는 것이다.
+기본적인 전체 배치를 사용하더라고 이런 모든 문제들은 해결되지 않는다.
+SGD &#43; Momentum 앞서 말한 문제들을 해결하기 위한 기본적인 idea가 있다. 그것은 바로 Momentum의 개념이다.
+Momentum이란 시간이 지남에 따라 속도를 유지하고 기울기 추정치를 속도에 추가한다는 것이다. 기울기 방향이 아닌 속도 방향으로 gradient update가 일어난다.
+마찰 상수인 rho도 존재. 마찰에 의해 속도를 감소시킨다음 gradient에 추가한다.
+vx = 0 while True: dx = compute_gradient(x) # gradient 계산 vx = rho * vx &#43; dx # 마찰 상수로 속도 감소 그것을 gradient에 추가 x &#43;= learning_rate * vx # 내려가기 (그래프)
+이는 위 문제들을 다 해결하게 된다. 앞선 그래프에서 Local minima이든 Saddle point가 속도가 빨라지는 것과 같은 물리적인 해석을 할 수 있게 된다.
+이제 속도가 있으면 기울기가 없더라도 해당 점은 여전히 속도를 가진다. 이러면 극복할 수 있게 된다.
+따라서 위 그림처럼 지그재그들이 서로 상쇄되고 민감한 방향 (수직 방향)으로 걷는 양을 효과적으로 줄이고 덜 민감한 차원을 가로지르는 하강을 가속할 것이다.
+그래서 시간이 지남에 따라 속도가 증가가 되고 노이즈가 기울기 추정에서 평균화가 된다.
+그래서 SGD와는 다르게 부드러운 경로를 취하게 된다. (Momentum 그래프) 18. 위 그림은 Momentum의 종류를 나타낸 것이다.
+기존 momentum은 현재 지점(빨간색)에서 기울기를 추정한 후 속도 벡터와 섞어서 사용하는 반면 Nesterov momentum은 기존 속도방향으로 나아간 후 그 시점에서 기울기를 추정한다. 그 후 원래 지점으로 돌아가서 이 두개를 섞는 방법이다.
+Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할 수 있게 된다. 이는 Convex optimization에서는 잘 작동하지만, Neural Network와 같은 non-convex의 문제에서는 보장된 방식은 아니다.
+(Nesterov momentum 식 사진 )
+우리는 항상 동일한 지점에서 loss를 평가하고 싶다. 하지만 Nesterov momentum은 그것이 아니기 때문에 따라서 이 식을 조금 더 변형하면 아래의 식과 같이 항상 동일한 지점에서 손실과 기울기를 평가할 수 있게 된다.
+하단의 박스를 보면 현재 시점에서 $v_{t&#43;1}$를 더하고 현재의 $v_{t&#43;1}$와 이전 속도 $v_{t}$의 차이를 더해주면 항상 동일한 지점 $\tilde{x_t}$ 에서 평가하게 된다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/cs231n/lecture7/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-07-22T10:29:23+09:00" />
+<meta property="article:modified_time" content="2024-07-22T10:29:23+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS231n] 07.Training Neural Networks II"/>
+<meta name="twitter:description" content="개요 CS231n의 7강에 대한 내용을 정리 할 것이다. 저번 강에서는 Training Neural Networks에 대해 배웠고 이번 강에서는 그것에 추가적인 내용을 배울 것이다. Fancier Optimization Stochastic Gradient Descent(SGD) (SGD 그림)
+이전까지 Stochastic Gradient Descent(SGD)에 대해서 배웠다. 이는 매우 간단한 Optimization의 기법인데, SGD에는 여러 문제가 있다. 이 문제들에 대해서 살펴볼 예정이다.
+먼저 Taco shell problem이다. 위 그림이고 W1,W2가 있을 때, 손실 함수가 매우 느리게 작동한다. SGD와 같은 목적함수는 방향이 최소값을 향한 방향으로 정렬되어 있지 않고 지그재그의 형식으로 움직이게 된다.
+Loss가 수직 방향으로만 sensitive해서 덜 민감한 수평 방향으로 진행 속도가 매우 느려지고 수직 방향으로는 빠르게 진행되어 지그재그의 형태로 학습을 하게 된다. 이것은 고차원에서 더 흔해진다. (graph 그림)
+다른 문제는 Local minima과 Saddle point (안장점)이 있다.
+x축이 하나의 파라미터를 뜻하고 y축이 loss를 뜻할 때 위 그림에서 SGD는 local minima일 때 멈춘다.
+왜냐하면 SGD는 기울기를 계산하고 반대 기울기 방향으로 진행하기 때문에 빨간색 위치에서 gradient가 0이기 때문에 멈추게 된다.
+이는 아래 그래프 처럼 Saddle point에서도 똑같이 기울기가 0이기 때문에 멈추게 된다.
+Saddle point: 어떤 방향에서는 손실이 증가, 어떤 방향에서는 손실이 감소하는 그 중간 지점
+High dimension에서는 saddle point가 local minima보다 더 흔하다. Saddle point의 근처 지점에서도 문제가 된다. Saddle point의 근처에 있을 때 마다 우리는 매우 느린 진행을 하게 될 것이다. 다른 문제는 SGD의 S이다. 확률적으로 모든 dataset의 loss를 계산하기엔 계산 비용이 많이 들어서 우리는 mini Batch의 방법을 사용하여 값을 추정한다.
+하지만 이는 W의 값을 쪼개서 사용하므로 noisy data일 수 있다는 것이다.
+기본적인 전체 배치를 사용하더라고 이런 모든 문제들은 해결되지 않는다.
+SGD &#43; Momentum 앞서 말한 문제들을 해결하기 위한 기본적인 idea가 있다. 그것은 바로 Momentum의 개념이다.
+Momentum이란 시간이 지남에 따라 속도를 유지하고 기울기 추정치를 속도에 추가한다는 것이다. 기울기 방향이 아닌 속도 방향으로 gradient update가 일어난다.
+마찰 상수인 rho도 존재. 마찰에 의해 속도를 감소시킨다음 gradient에 추가한다.
+vx = 0 while True: dx = compute_gradient(x) # gradient 계산 vx = rho * vx &#43; dx # 마찰 상수로 속도 감소 그것을 gradient에 추가 x &#43;= learning_rate * vx # 내려가기 (그래프)
+이는 위 문제들을 다 해결하게 된다. 앞선 그래프에서 Local minima이든 Saddle point가 속도가 빨라지는 것과 같은 물리적인 해석을 할 수 있게 된다.
+이제 속도가 있으면 기울기가 없더라도 해당 점은 여전히 속도를 가진다. 이러면 극복할 수 있게 된다.
+따라서 위 그림처럼 지그재그들이 서로 상쇄되고 민감한 방향 (수직 방향)으로 걷는 양을 효과적으로 줄이고 덜 민감한 차원을 가로지르는 하강을 가속할 것이다.
+그래서 시간이 지남에 따라 속도가 증가가 되고 노이즈가 기울기 추정에서 평균화가 된다.
+그래서 SGD와는 다르게 부드러운 경로를 취하게 된다. (Momentum 그래프) 18. 위 그림은 Momentum의 종류를 나타낸 것이다.
+기존 momentum은 현재 지점(빨간색)에서 기울기를 추정한 후 속도 벡터와 섞어서 사용하는 반면 Nesterov momentum은 기존 속도방향으로 나아간 후 그 시점에서 기울기를 추정한다. 그 후 원래 지점으로 돌아가서 이 두개를 섞는 방법이다.
+Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할 수 있게 된다. 이는 Convex optimization에서는 잘 작동하지만, Neural Network와 같은 non-convex의 문제에서는 보장된 방식은 아니다.
+(Nesterov momentum 식 사진 )
+우리는 항상 동일한 지점에서 loss를 평가하고 싶다. 하지만 Nesterov momentum은 그것이 아니기 때문에 따라서 이 식을 조금 더 변형하면 아래의 식과 같이 항상 동일한 지점에서 손실과 기울기를 평가할 수 있게 된다.
+하단의 박스를 보면 현재 시점에서 $v_{t&#43;1}$를 더하고 현재의 $v_{t&#43;1}$와 이전 속도 $v_{t}$의 차이를 더해주면 항상 동일한 지점 $\tilde{x_t}$ 에서 평가하게 된다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture7/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs231n/lecture6/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[CS231n] 07.Training Neural Networks II",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture7\/"
+        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  1451 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture7\/","datePublished": "2024-07-22T10:29:23+09:00","dateModified": "2024-07-22T10:29:23+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS231n] 07.Training Neural Networks II</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-22">2024-07-22</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1451 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;7 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#fancier-optimization">Fancier Optimization</a>
+      <ul>
+        <li><a href="#stochastic-gradient-descentsgd">Stochastic Gradient Descent(SGD)</a></li>
+        <li><a href="#sgd--momentum">SGD + Momentum</a></li>
+        <li><a href="#adagrad">AdaGrad</a></li>
+        <li><a href="#rmsprop">RMSProp</a></li>
+        <li><a href="#adam">Adam</a></li>
+        <li><a href="#learning-rate">Learning rate</a></li>
+      </ul>
+    </li>
+    <li><a href="#first--second-order-optimization">First &amp; Second Order Optimization</a></li>
+    <li><a href="#ensemble">Ensemble</a></li>
+    <li><a href="#regularization">Regularization</a>
+      <ul>
+        <li><a href="#dropout">Dropout</a></li>
+      </ul>
+    </li>
+    <li><a href="#data-augmentation">Data Augmentation</a></li>
+    <li><a href="#transfer-learning">Transfer Learning</a></li>
+    <li><a href="#59-위-표를-보면-transfer-learning에-4가지의-경우가-나오게-된다">(표 4개)
+59. <code>위 표</code>를 보면 <code>Transfer Learning</code>에 <code>4가지의 경우가</code> 나오게 된다.</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>CS231n</code>의 7강에 대한 내용을 정리 할 것이다.</li>
+</ol>
+<br>
+<ol>
+<li>저번 강에서는 <code>Training Neural Networks</code>에 대해 배웠고 이번 강에서는 그것에 추가적인 내용을 배울 것이다.</li>
+</ol>
+<hr>
+<h2 id="fancier-optimization">Fancier Optimization</h2>
+<h3 id="stochastic-gradient-descentsgd">Stochastic Gradient Descent(SGD)</h3>
+<p>(SGD 그림)</p>
+<ol start="2">
+<li>
+<p>이전까지 <code>Stochastic Gradient Descent(SGD)</code>에 대해서 배웠다. 이는 매우 간단한 Optimization의 기법인데, <code>SGD</code>에는 여러 문제가 있다. 이 문제들에 대해서 살펴볼 예정이다.</p>
+</li>
+<li>
+<p>먼저 <code>Taco shell problem</code>이다. <code>위 그림</code>이고 <code>W1</code>,<code>W2</code>가 있을 때, 손실 함수가 매우 느리게 작동한다. <code>SGD</code>와 같은 목적함수는 방향이 최소값을 향한 방향으로 정렬되어 있지 않고 지그재그의 형식으로 움직이게 된다.</p>
+</li>
+</ol>
+<ul>
+<li><code>Loss</code>가 수직 방향으로만 <code>sensitive해서</code> 덜 민감한 수평 방향으로 진행 속도가 매우 느려지고 수직 방향으로는 빠르게 진행되어 지그재그의 형태로 학습을 하게 된다.</li>
+<li>이것은 <code>고차원에서</code> 더 흔해진다.</li>
+</ul>
+<p>(graph 그림)</p>
+<ol start="4">
+<li>
+<p>다른 문제는 <code>Local minima</code>과 <code>Saddle point (안장점)</code>이 있다.</p>
+</li>
+<li>
+<p>x축이 하나의 파라미터를 뜻하고 y축이 loss를 뜻할 때 <code>위 그림</code>에서 <code>SGD</code>는 <code>local minima</code>일 때 멈춘다.</p>
+</li>
+<li>
+<p>왜냐하면 SGD는 기울기를 계산하고 반대 기울기 방향으로 진행하기 때문에 빨간색 위치에서 gradient가 0이기 때문에 멈추게 된다.</p>
+</li>
+<li>
+<p>이는 아래 그래프 처럼 <code>Saddle point</code>에서도 똑같이 기울기가 0이기 때문에 멈추게 된다.</p>
+</li>
+</ol>
+<ul>
+<li>
+<blockquote>
+<p><code>Saddle point</code>: 어떤 방향에서는 손실이 증가, 어떤 방향에서는 손실이 감소하는 그 중간 지점</p>
+</blockquote>
+</li>
+<li><code>High dimension</code>에서는 <code>saddle point</code>가 <code>local minima</code>보다 더 흔하다.</li>
+<li><code>Saddle point</code>의 근처 지점에서도 문제가 된다.
+<ul>
+<li><code>Saddle point</code>의 근처에 있을 때 마다 우리는 매우 느린 진행을 하게 될 것이다.</li>
+</ul>
+</li>
+</ul>
+<ol start="8">
+<li>
+<p>다른 문제는 <code>SGD</code>의 <code>S</code>이다. 확률적으로 모든 <code>dataset의</code> <code>loss</code>를 계산하기엔 계산 비용이 많이 들어서 우리는 <code>mini Batch의</code> 방법을 사용하여 값을 추정한다.</p>
+</li>
+<li>
+<p>하지만 이는 W의 값을 쪼개서 사용하므로 <code>noisy data</code>일 수 있다는 것이다.</p>
+</li>
+<li>
+<p><strong>기본적인 전체 배치를 사용하더라고 이런 <code>모든 문제들은</code> 해결되지 않는다.</strong></p>
+</li>
+</ol>
+<h3 id="sgd--momentum">SGD + Momentum</h3>
+<ol start="11">
+<li>
+<p>앞서 말한 문제들을 해결하기 위한 <strong>기본적인 idea가 있다.</strong> 그것은 바로 <code>Momentum</code>의 개념이다.</p>
+</li>
+<li>
+<p><code>Momentum</code>이란 시간이 지남에 따라 속도를 유지하고 기울기 추정치를 속도에 추가한다는 것이다. 기울기 방향이 아닌 속도 방향으로 <code>gradient update</code>가 일어난다.</p>
+</li>
+<li>
+<p>마찰 상수인 <code>rho</code>도 존재. 마찰에 의해 속도를 감소시킨다음 gradient에 추가한다.</p>
+</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">vx</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">dx</span> <span class="o">=</span> <span class="n">compute_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># gradient 계산</span>
+</span></span><span class="line"><span class="cl">  <span class="n">vx</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">vx</span> <span class="o">+</span> <span class="n">dx</span>   <span class="c1"># 마찰 상수로 속도 감소 그것을 gradient에 추가</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">+=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">vx</span> <span class="c1"># 내려가기</span>
+</span></span></code></pre></div><p>(그래프)</p>
+<ol start="14">
+<li>
+<p>이는 위 문제들을 다 해결하게 된다. 앞선 그래프에서 <code>Local minima</code>이든 <code>Saddle point</code>가 속도가 빨라지는 것과 같은 물리적인 해석을 할 수 있게 된다.</p>
+</li>
+<li>
+<p>이제 속도가 있으면 기울기가 없더라도 해당 점은 여전히 속도를 가진다. <strong>이러면 극복할 수 있게 된다.</strong></p>
+</li>
+<li>
+<p>따라서 위 그림처럼 <code>지그재그들이</code> 서로 상쇄되고 <code>민감한 방향 (수직 방향)으로</code> 걷는 양을 효과적으로 줄이고 <strong>덜 민감한 차원을 가로지르는 하강을 가속할 것이다.</strong></p>
+</li>
+<li>
+<p>그래서 시간이 지남에 따라 속도가 증가가 되고 노이즈가 <strong>기울기 추정에서 평균화가 된다.</strong></p>
+</li>
+</ol>
+<ul>
+<li>그래서 <code>SGD</code>와는 다르게 <strong>부드러운 경로를 취하게 된다.</strong></li>
+</ul>
+<p>(Momentum 그래프)
+18. 위 그림은 <code>Momentum의 종류</code>를 나타낸 것이다.</p>
+<ol start="19">
+<li>
+<p>기존 <code>momentum은</code> 현재 지점(빨간색)에서 <strong>기울기를 추정한 후 속도 벡터와 섞어서 사용하는</strong> 반면 <code>Nesterov momentum</code>은 <strong>기존 속도방향으로 나아간 후 그 시점에서 기울기를 추정한다.</strong> 그 후 원래 지점으로 돌아가서 이 두개를 섞는 방법이다.</p>
+</li>
+<li>
+<p><code>Nesterov momentum</code>은 기존보다 정보를 더 혼합하는 것으로 생각할 수 있게 된다. 이는 <code>Convex optimization</code>에서는 잘 작동하지만, <code>Neural Network</code>와 같은 <code>non-convex</code>의 문제에서는 보장된 방식은 아니다.</p>
+</li>
+</ol>
+<p>(Nesterov momentum 식 사진 )</p>
+<ol start="21">
+<li>
+<p>우리는 항상 동일한 지점에서 loss를 평가하고 싶다. 하지만 <code>Nesterov momentum</code>은 <strong>그것이 아니기 때문에</strong> 따라서 이 식을 조금 더 변형하면 <code>아래의 식과</code> 같이 <code>항상 동일한 지점에서</code> 손실과 기울기를 평가할 수 있게 된다.</p>
+</li>
+<li>
+<p>하단의 박스를 보면 현재 시점에서 $v_{t+1}$를 더하고  현재의 $v_{t+1}$와 이전 속도 $v_{t}$의 차이를 더해주면 <strong>항상 동일한 지점 $\tilde{x_t}$ 에서 평가하게 된다.</strong></p>
+</li>
+<li>
+<p><code>Sharp minima</code>는 과적합일 수 있게 된다.</p>
+</li>
+</ol>
+<ul>
+<li><code>Dataset</code>을 2배로 늘리게 되면 전체 최적화 환경이 바뀔 것이고 이 <code>sharp minima</code>가 사라질 수 있게 된다.</li>
+<li><strong>매우 평평한 최솟값이 아마 더 robust하기</strong> 때문에 이런 곳에 도달하고 싶다는 직관을 얻게 된다.</li>
+</ul>
+<h3 id="adagrad">AdaGrad</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">grad_squared</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">dx</span> <span class="o">=</span> <span class="n">compute_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">grad_squared</span> <span class="o">+=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dx</span> <span class="c1"># 제곱 항</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">grad_squared</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+</span></span></code></pre></div><ol start="24">
+<li>속도 항 <strong>대신에 gradient 제곱 항이 있다.</strong></li>
+</ol>
+<ul>
+<li>이 제곱 기울기 추정치를 계속 업데이트 하기 때문에 단계가 실제로 점점 작아질 것이다.</li>
+</ul>
+<ol start="25">
+<li>
+<p><code>Small gradient</code>인 경우에는 <code>grad_squared</code>가 작은 값으로 나눠주니 <strong>속도가 더 잘붙습니다.</strong></p>
+</li>
+<li>
+<p><code>Large gradient</code>인 경우에는 <strong>큰 수로 나누어서</strong> <code>wiggling dimension</code>은 slowdown해서 천천히 내려오게 된다.</p>
+</li>
+<li>
+<p><code>Non-convex</code>보다 <code>convex</code> 상황에서 <code>adagrad</code>가 더욱 효과가 좋다.</p>
+</li>
+</ol>
+<h3 id="rmsprop">RMSProp</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">grad_squared</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">dx</span> <span class="o">=</span> <span class="n">compute_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">grad_squared</span> <span class="o">+=</span> <span class="n">decay_rate</span> <span class="o">*</span> <span class="n">grad_squared</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">decay_rate</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">*</span><span class="n">dx</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">grad_squared</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+</span></span></code></pre></div><ol start="28">
+<li>제곱 추정치가 계속 증가하는 것이 아니라 <strong>실제로 감소하도록 한다.</strong></li>
+<li>이는 실제 gradient에 대한 momentum이 아니라 <strong>제곱 gradient에 대한 momentum이</strong> 있다.</li>
+</ol>
+<h3 id="adam">Adam</h3>
+<ol start="30">
+<li>가속도를 이용한 <code>momentum과</code> <code>squared gradient</code>를 사용하는 아이디어 2가지를 봤다. <code>Adam</code>은 이 두가지 방법을 모두 섞은 방법이다.</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="n">first_momentum</span><span class="p">,</span> <span class="n">second_momentum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="n">dx</span> <span class="o">=</span> <span class="n">compute_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">first_moment</span> <span class="o">=</span> <span class="n">beta1</span> <span class="o">*</span> <span class="n">first_moment</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span> <span class="n">beta1</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span>
+</span></span><span class="line"><span class="cl">  <span class="n">second_moment</span> <span class="o">=</span> <span class="n">beta2</span> <span class="o">*</span> <span class="n">second_moment</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">beta2</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dx</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">first_moment</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">second_moment</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+</span></span></code></pre></div><ol start="31">
+<li>
+<p><strong>속도를 나타내는 <code>first_moment</code>를 제곱 추정치를 나타내는 <code>second_moment</code>의 제곱근으로 나눈다.</strong></p>
+</li>
+<li>
+<p>이도 문제가 있다. <code>첫 번째 단계에서</code> 어떤 일이 일어나는가 이다. 첫번째 단계에서 <code>second_moment가</code> <strong>거의 0에 가깝다.</strong> (beta2 -&gt; 0.9 | 0.99) 따라서 아주 작은 수로 나누게 되니까 초반에 <code>large step이</code> 가능하다. 따라서 <strong>매우 크게 이동하여 이상한 공간에서 update를 하게 될 가능성이 있다.</strong></p>
+</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="n">first_momentum</span><span class="p">,</span> <span class="n">second_momentum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="n">dx</span> <span class="o">=</span> <span class="n">compute_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">first_moment</span> <span class="o">=</span> <span class="n">beta1</span> <span class="o">*</span> <span class="n">first_moment</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span> <span class="n">beta1</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span>
+</span></span><span class="line"><span class="cl">  <span class="n">second_moment</span> <span class="o">=</span> <span class="n">beta2</span> <span class="o">*</span> <span class="n">second_moment</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">beta2</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dx</span>  
+</span></span><span class="line"><span class="cl">  <span class="c1">## Bias correction</span>
+</span></span><span class="line"><span class="cl">  <span class="n">first_unbias</span> <span class="o">=</span> <span class="n">first_moment</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">beta</span><span class="o">**</span><span class="n">t</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">second_unbias</span> <span class="o">=</span> <span class="n">second_moment</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">beta2</span> <span class="o">**</span> <span class="n">t</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">first_moment</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">second_moment</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+</span></span></code></pre></div><ol start="33">
+<li>따라서 위의 문제를 해결하기 위하여 <strong>unbias항을</strong> 추가하였다. <code>Adam</code>이 가장 많이 쓰이는 알고리즘이다.</li>
+</ol>
+<h3 id="learning-rate">Learning rate</h3>
+<ol start="34">
+<li>
+<p>위의 경사하강법 알고리즘은 <code>learning rate</code>를 하이퍼 파라미터로 갖는다.</p>
+</li>
+<li>
+<p>최선의 방법은 초기의 <strong>큰 학습률을 사용해 빠르게 최소 loss로 수렴하도록 하고</strong>, 뒤로 갈수록 <strong>학습률을 낮춘다.</strong></p>
+</li>
+</ol>
+<hr>
+<h2 id="first--second-order-optimization">First &amp; Second Order Optimization</h2>
+<p>(First, second 사진)</p>
+<ol start="36">
+<li>이제 이 위에까지는 <code>1차 미분 방식을</code> 사용한 <code>1차 최적화 알고리즘이다</code>.</li>
+</ol>
+<ul>
+<li>
+<blockquote>
+<p>1차 미분 방식$y = f(x)$에서 $y=0$인 지점을 찾기 위하여 $x_{n+1} = x_n - f(x_n)/f^\prime(x_n)$ 의 수열은 y=0인 특정 $x_{n}$에 수렴하게 되는 것이다.</p>
+</blockquote>
+<ul>
+<li><code>Gradient</code>들을 통하여 <code>선형 근사치를</code> 계산</li>
+</ul>
+</li>
+</ul>
+<ol start="38">
+<li>1차, 2차 도함수 정보 모두 사용하는 <code>2차 최적화 알고리즘이</code> 있다.</li>
+</ol>
+<ul>
+<li>
+<blockquote>
+<p>2차 근사: <code>위 그림</code>처럼 정지점에서 기존함수에 근사하는 2차함수를 찾는 것을 말한다.</p>
+</blockquote>
+<ul>
+<li>1차 근사 방법보다 더 빨리 최적점에 도달할 수 있게 된다.</li>
+</ul>
+</li>
+<li>하지만 O(N^2)의 시간이 걸려서 <code>L-BFGS</code>방법이 나온다.</li>
+</ul>
+<ol start="39">
+<li>2차 근사 방법은 확률적인 정보를 훌륭하게 처리하지 않고 <code>non-convex</code>에 잘 작용이 되지 않는다.</li>
+</ol>
+<hr>
+<h2 id="ensemble">Ensemble</h2>
+<ol start="40">
+<li>
+<p>지금까지 <code>훈련 오류를</code> <strong>줄이는 방법이지만</strong> 실제로 우리는 test의 결과에 더욱 더 관심이 있다.</p>
+</li>
+<li>
+<p><code>Train error와 ``test error를</code> 줄이는 것에 관심이 있다. 그것의 방법에 대해서 좀 더 소개할 것이다.</p>
+</li>
+<li>
+<p>그 방법으로 <code>model ensemble</code>이 있다. 여러 모델을 따로 학습을 시켜 <strong>그 평균 값을 사용하는</strong> 것이다. 이는 <strong>과적합이 조금 줄어들고</strong> 몇퍼센트 정도 성능이 약간 향상되는 경향을 보인다.</p>
+</li>
+</ol>
+<ul>
+<li>때로는 하나의 모델로 check point를 둬서 이를 평균내는 방식이 있다.</li>
+</ul>
+<hr>
+<h2 id="regularization">Regularization</h2>
+<ol start="43">
+<li><code>Ensemble</code>도 <code>unseen data</code>에 대해 성능을 향상시키려는 방법 중 하나이지만 <code>Regularization</code>의 방법은 <strong>모델이 overfitting하는 것을 방지하기 위해</strong> 무언가(정규항 등)을 추가하여 <strong>모델을 규제하는 것이다.</strong></li>
+</ol>
+<h3 id="dropout">Dropout</h3>
+<p>(dropout 그림)</p>
+<ol start="44">
+<li><code>Dropout</code>을 통해 순방향 전달이 이루어지면 모든 계층에서 일부 뉴런을 0으로 설정하게 된다. <strong>하나의 레이어에 한 번만 실행이 된다.</strong></li>
+</ol>
+<ul>
+<li><code>Activation</code>을 0으로 만든다.</li>
+<li><code>FC층에서도</code> 하지만 <code>Convolutional층에서도</code> 이루어진다.
+<ul>
+<li>Feature map 중 <strong>무작위 삭제 할 수도 있다.</strong></li>
+</ul>
+</li>
+</ul>
+<ol start="45">
+<li>
+<p>일부 뉴런을 0으로 만드는 <code>dropout</code>이 좋은 이유가 무엇일까? 에 대한 답변으로는 <strong>능력을 저해시키는 것이 아니라</strong> 복잡한 feature를 지닌 수를 줄여 <code>co-adaptation</code>의 <strong>특징을 막는다는 것이다.</strong></p>
+</li>
+<li>
+<p><code>Dropout</code>을 model 내에서의 앙상블이라고 표현한다고합니다.</p>
+</li>
+<li>
+<p><code>Test</code>에서는 output을 random하게 내놓는 다고 하여 <code>기존의 항에</code> $z$라는 <code>random mask</code>를 추가하였다. 하지만 <code>test</code>할 때 random한 결과를 내놓으면 안되므로 다른 방법을 생각한다.</p>
+</li>
+</ol>
+<p>(y=fw(x,z) 이거 나온 그림)</p>
+<ol start="48">
+<li>바로 이러한 <code>random</code>성을 <code>average out</code>하려는 시도이다. <code>위 그림</code>처럼 적분을 통해서 누적 확률값을 이용하고 싶지만, 적분 적용이 쉽지 않다.01x</li>
+</ol>
+<p>(drop out 식)
+49. 따라서 <code>single neuron이</code> 있을 때 네트워크를 train과정에서 분할해서 생각하면 <code>위 그림</code>처럼 4개의 dropout mask가 나오게 된다. 그것을 간략하게 한 것이 <code>위의 저 식</code>이다.</p>
+<ul>
+<li>이는 <code>적분을 local cheap 방식으로</code> 근사시킨 것이다.</li>
+</ul>
+<ol start="50">
+<li>따라서 <code>test를</code> 할 때 확률(p)를 곱해주면 (output at test time = expected output at training time) 이 된다.</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">H1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">W1</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span> <span class="o">+</span> <span class="n">b1</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span>
+</span></span><span class="line"><span class="cl"><span class="n">H2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">W2</span><span class="p">,</span> <span class="n">H1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b2</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span>
+</span></span></code></pre></div><ol start="51">
+<li>하지만 <code>test time</code>에는 <code>computational적인 부분</code>도 고려를 해야하므로 p를 곱하는 것도 안하고 싶을 수 있다. <strong>그럴 땐 train에 약간의 trick을 사용하여 해결한다.</strong>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 기존</span>
+</span></span><span class="line"><span class="cl"><span class="n">U1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">H1</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">p</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Inverted Dropout</span>
+</span></span><span class="line"><span class="cl"><span class="n">U2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">H2</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">p</span> <span class="o">/</span> <span class="n">p</span>
+</span></span></code></pre></div></li>
+</ol>
+<p>(dropout 식 사진)
+52. <code>Dropout</code>은 <code>z</code>를 추가하여 train에 <strong>너무 fit하지 않게 네트워크에 random성을 추가하는 것이다.</strong> 그리고 이런 randomness들의 <code>average out</code>하여 test에도 적용을 하게 되는 것이다.</p>
+<ul>
+<li>이는 지난 강에서 배운 <code>Batch Normalization</code>과 비슷하다.
+<ul>
+<li><code>Batch normalization</code>도 <code>일반화를</code> 위해 학습 중에 1개의 data point가 각각 다른 여러 minibatch에서 <strong>다른 data들과 배치를 이루게 된다.</strong></li>
+<li><code>Test시에는</code> 이 미니배치의 확률들(랜덤성)을 global 추정값들을 써서 <code>average out</code>.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="data-augmentation">Data Augmentation</h2>
+<ol start="53">
+<li>다음으로 <code>Data Augmentation</code>방법에 대해 설명이 나온다. <code>Data Augmentation</code>에는 여러 다른 방법들이 있으므로 적절히 찾아서 사용하면 된다.</li>
+</ol>
+<ul>
+<li><code>Label</code>은 보존한 채로 <strong>이미지를 변형시켜서 학습을 시키는 방법이다.</strong></li>
+</ul>
+<hr>
+<h2 id="transfer-learning">Transfer Learning</h2>
+<ol start="54">
+<li>우리가 <strong>보통 크고 강력한 모델을 사용하고 싶지만</strong> <code>data의 수</code>가 <strong>작을 경우</strong>, <strong>작은 데이터에</strong> <code>overfitting</code>이 된다.</li>
+</ol>
+<p>(1,2,3 나오는 이미지)
+55. 이를 해결하려고 <code>Transfer Learning</code>이 나오게 되었다.</p>
+<ol start="56">
+<li>
+<p><code>위 그림</code>을 보면 <code>1</code>에서 훈련시킨 모델을 현재의 <strong>작은 데이터셋에 적용시키는 것이다.</strong></p>
+</li>
+<li>
+<p>따라서 기존 <strong>1000개의 카테고리를 C개의 카테고리로 줄인다고 생각을 하면</strong> 가장 마지막 <code>FC layer만 가중치 초기화를</code> 시키고 다른 layer들은 <code>freeze를</code> 시킨다.</p>
+</li>
+<li>
+<p><code>3</code>은 data의 양에 따라서 train을 <strong>다시 시킬 layer를 조정해주는</strong> <code>fine tuning</code>을 생각해볼 수 있다.</p>
+</li>
+</ol>
+<ul>
+<li>이때 learning rate를 조금 더 줄이면 효율적이다.</li>
+</ul>
+<h2 id="59-위-표를-보면-transfer-learning에-4가지의-경우가-나오게-된다">(표 4개)
+59. <code>위 표</code>를 보면 <code>Transfer Learning</code>에 <code>4가지의 경우가</code> 나오게 된다.</h2>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://inhovation97.tistory.com/24" target="_blank" rel="noopener noreffer ">https://inhovation97.tistory.com/24</a></li>
+<li><a href="https://chasuyeon.tistory.com/entry/cs231n-7%EA%B0%95-%EC%A0%95%EB%A6%AC-Training-Neural-Networks" target="_blank" rel="noopener noreffer ">https://chasuyeon.tistory.com/entry/cs231n-7%EA%B0%95-%EC%A0%95%EB%A6%AC-Training-Neural-Networks</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-07-22</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/cs231n/lecture7/" data-title="[CS231n] 07.Training Neural Networks II" data-hashtags="Chain Rule,Neural Networks,CS231n"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/cs231n/lecture7/" data-hashtag="Chain Rule"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/cs231n/lecture7/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/cs231n/lecture7/" data-title="[CS231n] 07.Training Neural Networks II"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/cs231n/lecture7/" data-title="[CS231n] 07.Training Neural Networks II"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/cs231n/lecture7/" data-title="[CS231n] 07.Training Neural Networks II"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/cs231n/lecture7/" data-title="[CS231n] 07.Training Neural Networks II" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/chain-rule/">Chain Rule</a>,&nbsp;<a href="/tags/neural-networks/">Neural Networks</a>,&nbsp;<a href="/tags/cs231n/">CS231n</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/cs231n/lecture6/" class="prev" rel="prev" title="[CS231n] 06.Training Neural Networks I"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS231n] 06.Training Neural Networks I</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
