@@ -66,7 +66,7 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture7/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs231n/lecture6/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture7/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs231n/lecture6/" /><link rel="next" href="https://goodyoung.github.io/posts/paper/transformer/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -77,7 +77,7 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture7\/"
-        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  1451 ,
+        },"genre": "posts","keywords": "Chain Rule, Neural Networks, CS231n","wordcount":  1450 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture7\/","datePublished": "2024-07-22T10:29:23+09:00","dateModified": "2024-07-22T10:29:23+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -119,7 +119,7 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS231n] 07.Training Neural Networks II</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-22">2024-07-22</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1451 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-22">2024-07-22</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1450 words&nbsp;
                 <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;7 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
@@ -148,8 +148,6 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
     </li>
     <li><a href="#data-augmentation">Data Augmentation</a></li>
     <li><a href="#transfer-learning">Transfer Learning</a></li>
-    <li><a href="#59-위-표를-보면-transfer-learning에-4가지의-경우가-나오게-된다">(표 4개)
-59. <code>위 표</code>를 보면 <code>Transfer Learning</code>에 <code>4가지의 경우가</code> 나오게 된다.</a></li>
     <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
@@ -491,8 +489,11 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
 <ul>
 <li>이때 learning rate를 조금 더 줄이면 효율적이다.</li>
 </ul>
-<h2 id="59-위-표를-보면-transfer-learning에-4가지의-경우가-나오게-된다">(표 4개)
-59. <code>위 표</code>를 보면 <code>Transfer Learning</code>에 <code>4가지의 경우가</code> 나오게 된다.</h2>
+<p>(표 4개)</p>
+<ol start="59">
+<li><code>위 표</code>를 보면 <code>Transfer Learning</code>에 <code>4가지의 경우가</code> 나오게 된다.</li>
+</ol>
+<hr>
 <h2 id="reference">Reference</h2>
 <ul>
 <li><a href="https://inhovation97.tistory.com/24" target="_blank" rel="noopener noreffer ">https://inhovation97.tistory.com/24</a></li>
@@ -519,7 +520,8 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/cs231n/lecture6/" class="prev" rel="prev" title="[CS231n] 06.Training Neural Networks I"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS231n] 06.Training Neural Networks I</a></div>
+    <div class="post-nav"><a href="/posts/cs231n/lecture6/" class="prev" rel="prev" title="[CS231n] 06.Training Neural Networks I"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS231n] 06.Training Neural Networks I</a>
+            <a href="/posts/paper/transformer/" class="next" rel="next" title="[Paper Review]Attention Is All You Need">[Paper Review]Attention Is All You Need<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
 </div>
 <div id="comments"><div id="utterances" class="comment"></div><noscript>
                 Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
