@@ -3,10 +3,10 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 24 Jul 2024 11:32:59 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 31 Jul 2024 19:28:04 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
     <title>computer vision</title>
     <link>https://goodyoung.github.io/tags/computer-vision/</link>
-    <pubDate>Wed, 24 Jul 2024 11:32:59 &#43;0900</pubDate>
+    <pubDate>Wed, 31 Jul 2024 19:28:04 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/computer-vision/</guid>
     <description><![CDATA[]]></description>
@@ -14,7 +14,7 @@
 <item>
     <title>Self-Attention</title>
     <link>https://goodyoung.github.io/tags/self-attention/</link>
-    <pubDate>Wed, 24 Jul 2024 11:32:59 &#43;0900</pubDate>
+    <pubDate>Wed, 31 Jul 2024 19:28:04 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/self-attention/</guid>
     <description><![CDATA[]]></description>
@@ -22,17 +22,57 @@
 <item>
     <title>Transformer</title>
     <link>https://goodyoung.github.io/tags/transformer/</link>
-    <pubDate>Wed, 24 Jul 2024 11:32:59 &#43;0900</pubDate>
+    <pubDate>Wed, 31 Jul 2024 19:28:04 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/transformer/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
+    <title>ViT</title>
+    <link>https://goodyoung.github.io/tags/vit/</link>
+    <pubDate>Wed, 31 Jul 2024 19:28:04 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/vit/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
     <title>논문 리뷰</title>
     <link>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</link>
-    <pubDate>Wed, 24 Jul 2024 11:32:59 &#43;0900</pubDate>
+    <pubDate>Wed, 31 Jul 2024 19:28:04 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>CS231n</title>
+    <link>https://goodyoung.github.io/tags/cs231n/</link>
+    <pubDate>Tue, 30 Jul 2024 22:58:52 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/cs231n/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>GoogLenet</title>
+    <link>https://goodyoung.github.io/tags/googlenet/</link>
+    <pubDate>Tue, 30 Jul 2024 22:58:52 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/googlenet/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>Neural Networks</title>
+    <link>https://goodyoung.github.io/tags/neural-networks/</link>
+    <pubDate>Tue, 30 Jul 2024 22:58:52 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/neural-networks/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>ResNet</title>
+    <link>https://goodyoung.github.io/tags/resnet/</link>
+    <pubDate>Tue, 30 Jul 2024 22:58:52 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/resnet/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
@@ -41,46 +81,6 @@
     <pubDate>Mon, 22 Jul 2024 10:29:23 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/chain-rule/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>CS231n</title>
-    <link>https://goodyoung.github.io/tags/cs231n/</link>
-    <pubDate>Mon, 22 Jul 2024 10:29:23 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/cs231n/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Neural Networks</title>
-    <link>https://goodyoung.github.io/tags/neural-networks/</link>
-    <pubDate>Mon, 22 Jul 2024 10:29:23 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/neural-networks/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Activation Functions</title>
-    <link>https://goodyoung.github.io/tags/activation-functions/</link>
-    <pubDate>Thu, 18 Jul 2024 15:36:30 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/activation-functions/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Weight Initialization</title>
-    <link>https://goodyoung.github.io/tags/weight-initialization/</link>
-    <pubDate>Thu, 18 Jul 2024 15:36:30 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/weight-initialization/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Fast-RCNN</title>
-    <link>https://goodyoung.github.io/tags/fast-rcnn/</link>
-    <pubDate>Wed, 17 Jul 2024 18:19:31 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/fast-rcnn/</guid>
     <description><![CDATA[]]></description>
 </item>
 </channel>
