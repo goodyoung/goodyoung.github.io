@@ -16,8 +16,8 @@ $\frac{\partial x}{\partial x} = 1$ 이므로 다음과 같이 표현할 수 있
 Residual connection이 없는 경우, $(\frac{\partial F(x)}{\partial x})$가 매우 작아지면 기울기 소실 문제가 발생할 수 있다. 하지만, Residual connection이 있는 경우, $(\frac{\partial F(x)}{\partial x} &#43; 1)$의 형태로 계산되므로, $(\frac{\partial F(x)}{\partial x})$가 0에 가까워지더라도, 항상 1이 더해지기 때문에 기울기가 완전히 사라지지 않게 되어 vanishing gradient 현상도 해결이 될 수 있다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/cs231n/lecture9/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-07-30T22:58:52+09:00" />
-<meta property="article:modified_time" content="2024-07-30T22:58:52+09:00" /><meta property="og:site_name" content="My cool site" />
+<meta property="article:published_time" content="2024-08-11T22:58:52+09:00" />
+<meta property="article:modified_time" content="2024-08-11T22:58:52+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS231n] 09.CNN Architectures"/>
 <meta name="twitter:description" content="개요 CS231n의 9강에 대한 내용을 정리 할 것이다. 9강에 나오는 CNN Architecture중에 GoogLeNet과 ResNet에 대해서 살펴볼 예정이다. GoogLeNet 이때부터 이제 Network를 깊게 효율적을 만들기 시작했다. Network가 깊어질수록 학습하는데 걸리는 컴퓨팅 시간이 많이 걸린다. 따라서 Network를 깊고 효율적으로 만들기 위해서 GoogLeNet에서는 Inception module을 추가하였다. Inception Module이란 로컬 네트워크의 한 유형이다. 이는 네트워크의 네트워크 (Network In Network(NiN))의 개념에 바탕을 두고 있다.
@@ -32,7 +32,7 @@ Residual connection이 없는 경우, $(\frac{\partial F(x)}{\partial x})$가 �
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture9/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/transformer/" /><link rel="next" href="https://goodyoung.github.io/posts/paper/vit/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs231n/lecture9/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/vit/" /><link rel="next" href="https://goodyoung.github.io/posts/paper/deit/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -44,7 +44,7 @@ Residual connection이 없는 경우, $(\frac{\partial F(x)}{\partial x})$가 �
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture9\/"
         },"genre": "posts","keywords": "GoogLenet, ResNet, Neural Networks, CS231n","wordcount":  543 ,
-        "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture9\/","datePublished": "2024-07-30T22:58:52+09:00","dateModified": "2024-07-30T22:58:52+09:00","publisher": {
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs231n\/lecture9\/","datePublished": "2024-08-11T22:58:52+09:00","dateModified": "2024-08-11T22:58:52+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
                 "@type": "Person",
@@ -85,7 +85,7 @@ Residual connection이 없는 경우, $(\frac{\partial F(x)}{\partial x})$가 �
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS231n] 09.CNN Architectures</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-07-30">2024-07-30</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;543 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-08-11">2024-08-11</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;543 words&nbsp;
                 <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
@@ -287,7 +287,7 @@ $$\frac{\partial L}{\partial x} = \frac{\partial L}{\partial y} \cdot \frac{\par
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
-                <span>Updated on 2024-07-30</span>
+                <span>Updated on 2024-08-11</span>
             </div></div>
         <div class="post-info-line">
             <div class="post-info-md"></div>
@@ -304,8 +304,8 @@ $$\frac{\partial L}{\partial x} = \frac{\partial L}{\partial y} \cdot \frac{\par
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/paper/transformer/" class="prev" rel="prev" title="[Paper Review]Attention Is All You Need"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Attention Is All You Need</a>
-            <a href="/posts/paper/vit/" class="next" rel="next" title="[Paper Review]AN IMAGE IS WORTH 16X16 WORDS: TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE(ViT)">[Paper Review]AN IMAGE IS WORTH 16X16 WORDS: TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE(ViT)<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+    <div class="post-nav"><a href="/posts/paper/vit/" class="prev" rel="prev" title="[Paper Review]AN IMAGE IS WORTH 16X16 WORDS: TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE(ViT)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]AN IMAGE IS WORTH 16X16 WORDS: TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE(ViT)</a>
+            <a href="/posts/paper/deit/" class="next" rel="next" title="[Paper Review]Training data-efficient image transformers &amp; distillation through attention(DeiT)">[Paper Review]Training data-efficient image transformers & distillation through attention(DeiT)<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
 </div>
 <div id="comments"><div id="utterances" class="comment"></div><noscript>
                 Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.

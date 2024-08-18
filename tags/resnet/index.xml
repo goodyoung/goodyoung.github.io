@@ -3,10 +3,10 @@
         <title>ResNet - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/resnet/</link>
         <description>ResNet - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 30 Jul 2024 22:58:52 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/resnet/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 11 Aug 2024 22:58:52 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/resnet/" rel="self" type="application/rss+xml" /><item>
     <title>[CS231n] 09.CNN Architectures</title>
     <link>https://goodyoung.github.io/posts/cs231n/lecture9/</link>
-    <pubDate>Tue, 30 Jul 2024 22:58:52 &#43;0900</pubDate>
+    <pubDate>Sun, 11 Aug 2024 22:58:52 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/posts/cs231n/lecture9/</guid>
     <description><![CDATA[개요 CS231n의 9강에 대한 내용을 정리 할 것이다. 9강에 나오는 CNN Architecture중에 GoogLeNet과 ResNet에 대해서 살펴볼 예정이다. GoogLeNet 이때부터 이제 Network를 깊게 효율적을 만들기 시작했다. Network가 깊어질수록 학습하는데 걸리는 컴퓨팅 시간이 많이 걸린다. 따라서 Network를 깊고 효율적으로 만들기 위해서 GoogLeNet에서는 Inception module을 추가하였다. Inception Module이란 로컬 네트워크의 한 유형이다. 이는 네트워크의 네트워크 (Network In Network(NiN))의 개념에 바탕을 두고 있다.
