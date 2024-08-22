@@ -5,60 +5,22 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[Paper Review]Training data-efficient image transformers &amp; distillation through attention(DeiT) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Training data-efficient image transformers &amp; distillation through attention(DeiT)" />
-<meta property="og:description" content="개요 ViT의 단점을 보완하고자 나온 논문인 DeiT에 대한 리뷰를 할 것이다. Abstract Convolution Neural Networks은 image classification에서 대규모 훈련 세트를 같이 사용한 주요 설계 방식이었다.
-점점 NLP에서도 attention 기반 모델들의 사용이 많아지고 있었다. 따라서 Vision분야에서도 attention 기반과 CNN을 합치는 하이브리드 아키텍쳐가 있었다.
-그 결과 ViT가 나오게 되었는데 이는 3억 개의 사설 라벨 이미지 데이터셋으로 학습을 했다.
-ViT의 논문에서는 Do not generalize well when trained on insufficient amounts of data으로 설명을 하였고 이를 위해선 방대한 컴퓨팅 자원이 필요했다.
-따라서 본 논문에서는 ViT보다 훨씬 적은 데이터로 학습된 Data-efficient image Transformer(DeiT) 모델을 제시한다.
-적은 데이터로 학습을 하기 위해서 Knowledge Distillation의 방법을 사용하며 그것을 이루기 위하여 token-based 방식을 취한다.
-본 논문에 나온 연구를 요약하자면 다음과 같다.
-이번 DeiT는 CNN이 없는 neural network가 외부 데이터 없이 ImageNet의 훈련만으로 SOTA들과 경쟁을 할 수 있게 된다. Distillation token의 기반으로 지식 증류를 하여 기존 증류 방식보다 현저히 더 우수한 성능을 보여준다. 전이 학습을 할 때 경쟁력을 유지하는 성능을 보여 일반화가 잘 되어있다는 것을 알 수 있게 된다. Vision transformer: overview 다음 내용은 본 논문에서 기반을 둔 아키텍쳐인 ViT에 관한 간략한 요약에 관한 내용들이다.
-이 내용들은 ViT 논문 리뷰에서 정리를 해두었으니 자세한 내용은 해당 리뷰를 가서 확인 하면 될 것 같다.
-ViT의 Multi-head Self-Attention, Transformer Block 구성, Class token에 대한 설명이 나와 있다.
-또한 더 낮은 해상도로 훈련하고 더 높은 해상도에서 네트워크를 fine-tuning하는 것이 바람직하다고 나온다.
-이 방법은 전체 훈련 속도를 높이고 데이터 증강 방식에서 정확도를 향상시킨다. 해상도를 높이고 훈련을 다시 할 때 패치 크기는 동일하게 유지하므로 입력 패치의 개수는 변하지 않지만 위치 임베딩은 조정이 필요하다.
-따라서 해상도를 변경할 때 위치 인코딩을 interpolate하는 방법을 사용한다.
-Distillation through attention 이번 내용은 Knowledge Distillation을 통해 ViT를 학습시키는 방법에 대해서 설명을 한다.
-방법에 대해서 설명하기 앞서 Knowledge Distillation의 기본 개념인 Soft distillation과 Hard-label distillation에 대한 설명을 한다.
-$$L_{\text{global}} = (1 - \lambda) L_{\text{CE}}\left( \psi(Z_s), y \right) &#43;\lambda \tau^2 \text{KL}\left( \psi\left(\frac{Z_s}{\tau}\right), \psi\left(\frac{Z_t}{\tau}\right) \right)$$
+<meta property="og:description" content="개요 ViT의 단점을 보완하고자 나온 논문인 DeiT에 대한 리뷰를 할 것이다. Abstract Convolution Neural Networks은 image classification에서 대규모 훈련 세트를 같이 사용한 주요 설계 방식이었다. 점점 NLP에서도 attention 기반 모델들의 사용이 많아지고 있었다. 따라서 Vision분야에서도 attention 기반과 CNN을 합치는 하이브리드 아키텍쳐가 있었다. 그 결과 ViT가 나오게 되었는데 이는 3억 개의 사설 라벨 이미지 데이터셋으로 학습을 했다. ViT의 논문에서는 Do not generalize well when trained on insufficient amounts of data으로 설명을 하였고 이를 위해선 방대한 컴퓨팅 자원이 필요했다. 따라서 본 논문에서는 ViT보다 훨씬 적은 데이터로 학습된 Data-efficient image Transformer(DeiT) 모델을 제시한다. 적은 데이터로 학습을 하기 위해서 Knowledge Distillation의 방법을 사용하며 그것을 이루기 위하여 token-based 방식을 취한다. 본 논문에 나온 연구를 요약하자면 다음과 같다. 이번 DeiT는 CNN이 없는 neural network가 외부 데이터 없이 ImageNet의 훈련만으로 SOTA들과 경쟁을 할 수 있게 된다. Distillation token의 기반으로 지식 증류를 하여 기존 증류 방식보다 현저히 더 우수한 성능을 보여준다. 전이 학습을 할 때 경쟁력을 유지하는 성능을 보여 일반화가 잘 되어있다는 것을 알 수 있게 된다. Vision transformer: overview 다음 내용은 본 논문에서 기반을 둔 아키텍쳐인 ViT에 관한 간략한 요약에 관한 내용들이다. 이 내용들은 ViT 논문 리뷰에서 정리를 해두었으니 자세한 내용은 해당 리뷰를 가서 확인 하면 될 것 같다. ViT의 Multi-head Self-Attention, Transformer Block 구성, Class token에 대한 설명이 나와 있다. 또한 더 낮은 해상도로 훈련하고 더 높은 해상도에서 네트워크를 fine-tuning하는 것이 바람직하다고 나온다. 이 방법은 전체 훈련 속도를 높이고 데이터 증강 방식에서 정확도를 향상시킨다. 해상도를 높이고 훈련을 다시 할 때 패치 크기는 동일하게 유지하므로 입력 패치의 개수는 변하지 않지만 위치 임베딩은 조정이 필요하다. 따라서 해상도를 변경할 때 위치 인코딩을 interpolate하는 방법을 사용한다. Distillation through attention 이번 내용은 Knowledge Distillation을 통해 ViT를 학습시키는 방법에 대해서 설명을 한다. 방법에 대해서 설명하기 앞서 Knowledge Distillation의 기본 개념인 Soft distillation과 Hard-label distillation에 대한 설명을 한다. $$L_{\text{global}} = (1 - \lambda) L_{\text{CE}}\left( \psi(Z_s), y \right) &#43;\lambda \tau^2 \text{KL}\left( \psi\left(\frac{Z_s}{\tau}\right), \psi\left(\frac{Z_t}{\tau}\right) \right)$$
 Sort distillation은 위 식과 같이 Cross entropy loss를 사용하고 교사 모델 loss($Z_t$)와 학생 모델 loss($Z_s$)를 온도 $\tau$를 사용하여 증류를 한다. $$L_{\text{global}}^{\text{hardDistill}} = \frac{1}{2} L_{\text{CE}}\left( \psi(Z_s), y \right) &#43; \frac{1}{2} L_{\text{CE}}\left( \psi(Z_s), y_t \right)$$
-또한 Hard distillation은 실제 레이블로 변형한 형태로 argmax 함수로 표현을 하는데 이는 특정 이미지에 대해 교사와 관련된 하드 라벨은 특정 데이터 augmentation 방법에 따라 변경이 될 수 있다고 한다.
-또한 Hard distillation에 Label Smoothing 기법을 사용하여 훈련 데이터의 레이블에 약간의 불확실성을 추가를 하여 Soft distillation으로 변형할 수도 있다고 한다.
-Label Smoothing을 적용하면 원래 레이블이 $[1,0,0]$이라면 $[ 1 - \epsilon, \frac{\epsilon}{K - 1}, \frac{\epsilon}{K - 1}]$ 으로 Soft distillation이 가능하게 변경될 수 있게 된다. 이를 사용하면 과적합 방지,일반화 성능 향상, 손실 함수 안정화의 장점을 얻게 된다. 본 논문에서는 $\epsilon = 0.1$로 설정하여 훈련을 진행하였다고 한다. Knowledge Distillation 추가적으로 Knowledge Distillation에 대해서 알아보자면 딥러닝에서 지식 증류는 큰 모델(Teacher Network)로부터 증류한 지식을 작은 모델(Student Network)로 transfer하는 일련의 과정이라고 할 수 있다.
-이는 방대한 양의 데이터로 학습한 모델을 model deployment의 관점으로 봤을 때 더 가벼운 모델을 만들기 위하여 복잡한 모델의 일반화 능력을 가벼운 모델에게 transfer하는 것을 말한다.
-Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher와 Student의 output을 loss fn으로 계산하고 있다. 또한 오른쪽 아래 부분은 Student의 hard prediction을 Ground truth와 loss fn을 계산하는 구조가 보인다." />
+또한 Hard distillation은 실제 레이블로 변형한 형태로 argmax 함수로 표현을 하는데 이는 특정 이미지에 대해 교사와 관련된 하드 라벨은 특정 데이터 augmentation 방법에 따라 변경이 될 수 있다고 한다. 또한 Hard distillation에 Label Smoothing 기법을 사용하여 훈련 데이터의 레이블에 약간의 불확실성을 추가를 하여 Soft distillation으로 변형할 수도 있다고 한다. Label Smoothing을 적용하면 원래 레이블이 $[1,0,0]$이라면 $[ 1 - \epsilon, \frac{\epsilon}{K - 1}, \frac{\epsilon}{K - 1}]$ 으로 Soft distillation이 가능하게 변경될 수 있게 된다. 이를 사용하면 과적합 방지,일반화 성능 향상, 손실 함수 안정화의 장점을 얻게 된다. 본 논문에서는 $\epsilon = 0.1$로 설정하여 훈련을 진행하였다고 한다. Knowledge Distillation 추가적으로 Knowledge Distillation에 대해서 알아보자면 딥러닝에서 지식 증류는 큰 모델(Teacher Network)로부터 증류한 지식을 작은 모델(Student Network)로 transfer하는 일련의 과정이라고 할 수 있다. 이는 방대한 양의 데이터로 학습한 모델을 model deployment의 관점으로 봤을 때 더 가벼운 모델을 만들기 위하여 복잡한 모델의 일반화 능력을 가벼운 모델에게 transfer하는 것을 말한다. Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher와 Student의 output을 loss fn으로 계산하고 있다. 또한 오른쪽 아래 부분은 Student의 hard prediction을 Ground truth와 loss fn을 계산하는 구조가 보인다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/paper/deit/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2024-08-18T21:02:30+09:00" />
 <meta property="article:modified_time" content="2024-08-18T21:02:30+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Training data-efficient image transformers &amp; distillation through attention(DeiT)"/>
-<meta name="twitter:description" content="개요 ViT의 단점을 보완하고자 나온 논문인 DeiT에 대한 리뷰를 할 것이다. Abstract Convolution Neural Networks은 image classification에서 대규모 훈련 세트를 같이 사용한 주요 설계 방식이었다.
-점점 NLP에서도 attention 기반 모델들의 사용이 많아지고 있었다. 따라서 Vision분야에서도 attention 기반과 CNN을 합치는 하이브리드 아키텍쳐가 있었다.
-그 결과 ViT가 나오게 되었는데 이는 3억 개의 사설 라벨 이미지 데이터셋으로 학습을 했다.
-ViT의 논문에서는 Do not generalize well when trained on insufficient amounts of data으로 설명을 하였고 이를 위해선 방대한 컴퓨팅 자원이 필요했다.
-따라서 본 논문에서는 ViT보다 훨씬 적은 데이터로 학습된 Data-efficient image Transformer(DeiT) 모델을 제시한다.
-적은 데이터로 학습을 하기 위해서 Knowledge Distillation의 방법을 사용하며 그것을 이루기 위하여 token-based 방식을 취한다.
-본 논문에 나온 연구를 요약하자면 다음과 같다.
-이번 DeiT는 CNN이 없는 neural network가 외부 데이터 없이 ImageNet의 훈련만으로 SOTA들과 경쟁을 할 수 있게 된다. Distillation token의 기반으로 지식 증류를 하여 기존 증류 방식보다 현저히 더 우수한 성능을 보여준다. 전이 학습을 할 때 경쟁력을 유지하는 성능을 보여 일반화가 잘 되어있다는 것을 알 수 있게 된다. Vision transformer: overview 다음 내용은 본 논문에서 기반을 둔 아키텍쳐인 ViT에 관한 간략한 요약에 관한 내용들이다.
-이 내용들은 ViT 논문 리뷰에서 정리를 해두었으니 자세한 내용은 해당 리뷰를 가서 확인 하면 될 것 같다.
-ViT의 Multi-head Self-Attention, Transformer Block 구성, Class token에 대한 설명이 나와 있다.
-또한 더 낮은 해상도로 훈련하고 더 높은 해상도에서 네트워크를 fine-tuning하는 것이 바람직하다고 나온다.
-이 방법은 전체 훈련 속도를 높이고 데이터 증강 방식에서 정확도를 향상시킨다. 해상도를 높이고 훈련을 다시 할 때 패치 크기는 동일하게 유지하므로 입력 패치의 개수는 변하지 않지만 위치 임베딩은 조정이 필요하다.
-따라서 해상도를 변경할 때 위치 인코딩을 interpolate하는 방법을 사용한다.
-Distillation through attention 이번 내용은 Knowledge Distillation을 통해 ViT를 학습시키는 방법에 대해서 설명을 한다.
-방법에 대해서 설명하기 앞서 Knowledge Distillation의 기본 개념인 Soft distillation과 Hard-label distillation에 대한 설명을 한다.
-$$L_{\text{global}} = (1 - \lambda) L_{\text{CE}}\left( \psi(Z_s), y \right) &#43;\lambda \tau^2 \text{KL}\left( \psi\left(\frac{Z_s}{\tau}\right), \psi\left(\frac{Z_t}{\tau}\right) \right)$$
+<meta name="twitter:description" content="개요 ViT의 단점을 보완하고자 나온 논문인 DeiT에 대한 리뷰를 할 것이다. Abstract Convolution Neural Networks은 image classification에서 대규모 훈련 세트를 같이 사용한 주요 설계 방식이었다. 점점 NLP에서도 attention 기반 모델들의 사용이 많아지고 있었다. 따라서 Vision분야에서도 attention 기반과 CNN을 합치는 하이브리드 아키텍쳐가 있었다. 그 결과 ViT가 나오게 되었는데 이는 3억 개의 사설 라벨 이미지 데이터셋으로 학습을 했다. ViT의 논문에서는 Do not generalize well when trained on insufficient amounts of data으로 설명을 하였고 이를 위해선 방대한 컴퓨팅 자원이 필요했다. 따라서 본 논문에서는 ViT보다 훨씬 적은 데이터로 학습된 Data-efficient image Transformer(DeiT) 모델을 제시한다. 적은 데이터로 학습을 하기 위해서 Knowledge Distillation의 방법을 사용하며 그것을 이루기 위하여 token-based 방식을 취한다. 본 논문에 나온 연구를 요약하자면 다음과 같다. 이번 DeiT는 CNN이 없는 neural network가 외부 데이터 없이 ImageNet의 훈련만으로 SOTA들과 경쟁을 할 수 있게 된다. Distillation token의 기반으로 지식 증류를 하여 기존 증류 방식보다 현저히 더 우수한 성능을 보여준다. 전이 학습을 할 때 경쟁력을 유지하는 성능을 보여 일반화가 잘 되어있다는 것을 알 수 있게 된다. Vision transformer: overview 다음 내용은 본 논문에서 기반을 둔 아키텍쳐인 ViT에 관한 간략한 요약에 관한 내용들이다. 이 내용들은 ViT 논문 리뷰에서 정리를 해두었으니 자세한 내용은 해당 리뷰를 가서 확인 하면 될 것 같다. ViT의 Multi-head Self-Attention, Transformer Block 구성, Class token에 대한 설명이 나와 있다. 또한 더 낮은 해상도로 훈련하고 더 높은 해상도에서 네트워크를 fine-tuning하는 것이 바람직하다고 나온다. 이 방법은 전체 훈련 속도를 높이고 데이터 증강 방식에서 정확도를 향상시킨다. 해상도를 높이고 훈련을 다시 할 때 패치 크기는 동일하게 유지하므로 입력 패치의 개수는 변하지 않지만 위치 임베딩은 조정이 필요하다. 따라서 해상도를 변경할 때 위치 인코딩을 interpolate하는 방법을 사용한다. Distillation through attention 이번 내용은 Knowledge Distillation을 통해 ViT를 학습시키는 방법에 대해서 설명을 한다. 방법에 대해서 설명하기 앞서 Knowledge Distillation의 기본 개념인 Soft distillation과 Hard-label distillation에 대한 설명을 한다. $$L_{\text{global}} = (1 - \lambda) L_{\text{CE}}\left( \psi(Z_s), y \right) &#43;\lambda \tau^2 \text{KL}\left( \psi\left(\frac{Z_s}{\tau}\right), \psi\left(\frac{Z_t}{\tau}\right) \right)$$
 Sort distillation은 위 식과 같이 Cross entropy loss를 사용하고 교사 모델 loss($Z_t$)와 학생 모델 loss($Z_s$)를 온도 $\tau$를 사용하여 증류를 한다. $$L_{\text{global}}^{\text{hardDistill}} = \frac{1}{2} L_{\text{CE}}\left( \psi(Z_s), y \right) &#43; \frac{1}{2} L_{\text{CE}}\left( \psi(Z_s), y_t \right)$$
-또한 Hard distillation은 실제 레이블로 변형한 형태로 argmax 함수로 표현을 하는데 이는 특정 이미지에 대해 교사와 관련된 하드 라벨은 특정 데이터 augmentation 방법에 따라 변경이 될 수 있다고 한다.
-또한 Hard distillation에 Label Smoothing 기법을 사용하여 훈련 데이터의 레이블에 약간의 불확실성을 추가를 하여 Soft distillation으로 변형할 수도 있다고 한다.
-Label Smoothing을 적용하면 원래 레이블이 $[1,0,0]$이라면 $[ 1 - \epsilon, \frac{\epsilon}{K - 1}, \frac{\epsilon}{K - 1}]$ 으로 Soft distillation이 가능하게 변경될 수 있게 된다. 이를 사용하면 과적합 방지,일반화 성능 향상, 손실 함수 안정화의 장점을 얻게 된다. 본 논문에서는 $\epsilon = 0.1$로 설정하여 훈련을 진행하였다고 한다. Knowledge Distillation 추가적으로 Knowledge Distillation에 대해서 알아보자면 딥러닝에서 지식 증류는 큰 모델(Teacher Network)로부터 증류한 지식을 작은 모델(Student Network)로 transfer하는 일련의 과정이라고 할 수 있다.
-이는 방대한 양의 데이터로 학습한 모델을 model deployment의 관점으로 봤을 때 더 가벼운 모델을 만들기 위하여 복잡한 모델의 일반화 능력을 가벼운 모델에게 transfer하는 것을 말한다.
-Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher와 Student의 output을 loss fn으로 계산하고 있다. 또한 오른쪽 아래 부분은 Student의 hard prediction을 Ground truth와 loss fn을 계산하는 구조가 보인다."/>
+또한 Hard distillation은 실제 레이블로 변형한 형태로 argmax 함수로 표현을 하는데 이는 특정 이미지에 대해 교사와 관련된 하드 라벨은 특정 데이터 augmentation 방법에 따라 변경이 될 수 있다고 한다. 또한 Hard distillation에 Label Smoothing 기법을 사용하여 훈련 데이터의 레이블에 약간의 불확실성을 추가를 하여 Soft distillation으로 변형할 수도 있다고 한다. Label Smoothing을 적용하면 원래 레이블이 $[1,0,0]$이라면 $[ 1 - \epsilon, \frac{\epsilon}{K - 1}, \frac{\epsilon}{K - 1}]$ 으로 Soft distillation이 가능하게 변경될 수 있게 된다. 이를 사용하면 과적합 방지,일반화 성능 향상, 손실 함수 안정화의 장점을 얻게 된다. 본 논문에서는 $\epsilon = 0.1$로 설정하여 훈련을 진행하였다고 한다. Knowledge Distillation 추가적으로 Knowledge Distillation에 대해서 알아보자면 딥러닝에서 지식 증류는 큰 모델(Teacher Network)로부터 증류한 지식을 작은 모델(Student Network)로 transfer하는 일련의 과정이라고 할 수 있다. 이는 방대한 양의 데이터로 학습한 모델을 model deployment의 관점으로 봤을 때 더 가벼운 모델을 만들기 위하여 복잡한 모델의 일반화 능력을 가벼운 모델에게 transfer하는 것을 말한다. Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher와 Student의 output을 loss fn으로 계산하고 있다. 또한 오른쪽 아래 부분은 Student의 hard prediction을 Ground truth와 loss fn을 계산하는 구조가 보인다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/deit/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs231n/lecture9/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/deit/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs231n/lecture9/" /><link rel="next" href="https://goodyoung.github.io/posts/cs231n/lecture10/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -69,7 +31,7 @@ Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/deit\/"
-        },"genre": "posts","keywords": "Self-Attention, 논문 리뷰, computer vision, Transformer, DeiT","wordcount":  794 ,
+        },"genre": "posts","keywords": "Self-Attention, 논문 리뷰, computer vision, Transformer, DeiT","wordcount":  837 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/deit\/","datePublished": "2024-08-18T21:02:30+09:00","dateModified": "2024-08-18T21:02:30+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -111,7 +73,7 @@ Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Training data-efficient image transformers & distillation through attention(DeiT)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-08-18">2024-08-18</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;794 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-08-18">2024-08-18</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;837 words&nbsp;
                 <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;4 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
@@ -128,6 +90,7 @@ Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher
         <li><a href="#knowledge-distillation">Knowledge Distillation</a></li>
       </ul>
     </li>
+    <li><a href="#code">Code</a></li>
     <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
@@ -141,26 +104,31 @@ Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher
 </ol>
 <h2 id="abstract">Abstract</h2>
 <ol>
-<li>
-<p><code>Convolution Neural Networks</code>은 <code>image classification</code>에서 대규모 훈련 세트를 같이 사용한 주요 설계 방식이었다.</p>
-</li>
-<li>
-<p>점점 NLP에서도 attention 기반 모델들의 사용이 많아지고 있었다. 따라서 <code>Vision</code>분야에서도 <code>attention</code> 기반과 <code>CNN</code>을 합치는 하이브리드 아키텍쳐가 있었다.</p>
-</li>
-<li>
-<p>그 결과 <code>ViT</code>가 나오게 되었는데 이는 <strong>3억 개의</strong> 사설 라벨 이미지 데이터셋으로 학습을 했다.</p>
-</li>
-<li>
-<p><code>ViT</code>의 논문에서는 <strong>Do not generalize well when trained on insufficient amounts of data</strong>으로 설명을 하였고 이를 위해선 방대한 컴퓨팅 자원이 필요했다.</p>
-</li>
-<li>
-<p>따라서 본 논문에서는 <code>ViT</code>보다 <strong>훨씬 적은 데이터로</strong> 학습된 <code>Data-efficient image Transformer(DeiT)</code> 모델을 제시한다.</p>
-</li>
-<li>
-<p>적은 데이터로 학습을 하기 위해서 <code>Knowledge Distillation</code>의 방법을 사용하며 그것을 이루기 위하여 <code>token-based</code> 방식을 취한다.</p>
-</li>
-<li>
-<p>본 논문에 나온 연구를 요약하자면 다음과 같다.</p>
+<li><code>Convolution Neural Networks</code>은 <code>image classification</code>에서 대규모 훈련 세트를 같이 사용한 주요 설계 방식이었다.</li>
+</ol>
+<br>
+<ol start="2">
+<li>점점 NLP에서도 attention 기반 모델들의 사용이 많아지고 있었다. 따라서 <code>Vision</code>분야에서도 <code>attention</code> 기반과 <code>CNN</code>을 합치는 하이브리드 아키텍쳐가 있었다.</li>
+</ol>
+<br>
+<ol start="3">
+<li>그 결과 <code>ViT</code>가 나오게 되었는데 이는 <strong>3억 개의</strong> 사설 라벨 이미지 데이터셋으로 학습을 했다.</li>
+</ol>
+<br>
+<ol start="4">
+<li><code>ViT</code>의 논문에서는 <strong>Do not generalize well when trained on insufficient amounts of data</strong>으로 설명을 하였고 이를 위해선 방대한 컴퓨팅 자원이 필요했다.</li>
+</ol>
+<br>
+<ol start="5">
+<li>따라서 본 논문에서는 <code>ViT</code>보다 <strong>훨씬 적은 데이터로</strong> 학습된 <code>Data-efficient image Transformer(DeiT)</code> 모델을 제시한다.</li>
+</ol>
+<br>
+<ol start="6">
+<li>적은 데이터로 학습을 하기 위해서 <code>Knowledge Distillation</code>의 방법을 사용하며 그것을 이루기 위하여 <code>token-based</code> 방식을 취한다.</li>
+</ol>
+<br>
+<ol start="7">
+<li>본 논문에 나온 연구를 요약하자면 다음과 같다.
 <ul>
 <li>이번 <code>DeiT</code>는 <code>CNN</code>이 없는 <code>neural network</code>가 외부 데이터 없이 ImageNet의 훈련만으로 <code>SOTA</code>들과 경쟁을 할 수 있게 된다.</li>
 <li><code>Distillation token</code>의 기반으로 <code>지식 증류</code>를 하여 기존 증류 방식보다 현저히 더 우수한 성능을 보여준다.</li>
@@ -168,54 +136,55 @@ Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher
 </ul>
 </li>
 </ol>
+<hr>
 <h2 id="vision-transformer-overview">Vision transformer: overview</h2>
 <ol start="8">
-<li>
-<p>다음 내용은 본 논문에서 기반을 둔 아키텍쳐인 <code>ViT</code>에 관한 간략한 요약에 관한 내용들이다.</p>
-</li>
-<li>
-<p>이 내용들은 <code>ViT</code> 논문 리뷰에서 정리를 해두었으니 자세한 내용은 <a href="https://goodyoung.github.io/posts/paper/vit/" target="_blank" rel="noopener noreffer ">해당 리뷰</a>를 가서 확인 하면 될 것 같다.</p>
-</li>
+<li>다음 내용은 본 논문에서 기반을 둔 아키텍쳐인 <code>ViT</code>에 관한 간략한 요약에 관한 내용들이다.</li>
+</ol>
+<br>
+<ol start="9">
+<li>이 내용들은 <code>ViT</code> 논문 리뷰에서 정리를 해두었으니 자세한 내용은 <a href="https://goodyoung.github.io/posts/paper/vit/" target="_blank" rel="noopener noreffer ">해당 리뷰</a>를 가서 확인 하면 될 것 같다.</li>
 </ol>
 <div style="text-align:center;">
 <img src="/images/paper/ViT/overall.png" height="100%" width="80%"> </div>
 <ol start="10">
-<li>
-<p><code>ViT</code>의 <code>Multi-head Self-Attention</code>, <code>Transformer Block 구성</code>, <code>Class token</code>에 대한 설명이 나와 있다.</p>
-</li>
-<li>
-<p>또한 <strong>더 낮은 해상도로 훈련</strong>하고 더 높은 해상도에서 네트워크를 <code>fine-tuning</code>하는 것이 바람직하다고 나온다.</p>
-</li>
-<li>
-<p>이 방법은 전체 훈련 속도를 높이고 데이터 증강 방식에서 정확도를 향상시킨다. 해상도를 높이고 훈련을 다시 할 때 패치 크기는 동일하게 유지하므로 입력 패치의 개수는 변하지 않지만 <strong>위치 임베딩은 조정이 필요하다.</strong></p>
-</li>
-<li>
-<p>따라서 해상도를 변경할 때 위치 인코딩을 <code>interpolate</code>하는 방법을 사용한다.</p>
-</li>
+<li><code>ViT</code>의 <code>Multi-head Self-Attention</code>, <code>Transformer Block 구성</code>, <code>Class token</code>에 대한 설명이 나와 있다.</li>
 </ol>
+<br>
+<ol start="11">
+<li>또한 <strong>더 낮은 해상도로 훈련</strong>하고 더 높은 해상도에서 네트워크를 <code>fine-tuning</code>하는 것이 바람직하다고 나온다.</li>
+</ol>
+<br>
+<ol start="12">
+<li>이 방법은 전체 훈련 속도를 높이고 데이터 증강 방식에서 정확도를 향상시킨다. 해상도를 높이고 훈련을 다시 할 때 패치 크기는 동일하게 유지하므로 입력 패치의 개수는 변하지 않지만 <strong>위치 임베딩은 조정이 필요하다.</strong></li>
+</ol>
+<br>
+<ol start="13">
+<li>따라서 해상도를 변경할 때 위치 인코딩을 <code>interpolate</code>하는 방법을 사용한다.</li>
+</ol>
+<hr>
 <h2 id="distillation-through-attention">Distillation through attention</h2>
 <div style="text-align:center;">
 <img src="/images/paper/DeiT/distillation-3.png" height="50%" width="90%"> </div>
 <ol start="14">
-<li>
-<p>이번 내용은 <code>Knowledge Distillation</code>을 통해 <code>ViT</code>를 학습시키는 방법에 대해서 설명을 한다.</p>
-</li>
-<li>
-<p>방법에 대해서 설명하기 앞서 <code>Knowledge Distillation</code>의 기본 개념인 <code>Soft distillation</code>과 <code>Hard-label distillation</code>에 대한 설명을 한다.</p>
-</li>
+<li>이번 내용은 <code>Knowledge Distillation</code>을 통해 <code>ViT</code>를 학습시키는 방법에 대해서 설명을 한다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>방법에 대해서 설명하기 앞서 <code>Knowledge Distillation</code>의 기본 개념인 <code>Soft distillation</code>과 <code>Hard-label distillation</code>에 대한 설명을 한다.</li>
 </ol>
 <p>$$L_{\text{global}} = (1 - \lambda) L_{\text{CE}}\left( \psi(Z_s), y \right) +\lambda \tau^2 \text{KL}\left( \psi\left(\frac{Z_s}{\tau}\right), \psi\left(\frac{Z_t}{\tau}\right) \right)$$</p>
 <ol start="16">
 <li><code>Sort distillation</code>은 위 식과 같이 <code>Cross entropy loss</code>를 사용하고 교사 모델 loss($Z_t$)와 학생 모델 loss($Z_s$)를 온도 $\tau$를 사용하여 증류를 한다.</li>
 </ol>
+<br>
 <p>$$L_{\text{global}}^{\text{hardDistill}} = \frac{1}{2} L_{\text{CE}}\left( \psi(Z_s), y \right) + \frac{1}{2} L_{\text{CE}}\left( \psi(Z_s), y_t \right)$$</p>
 <ol start="17">
-<li>
-<p>또한 <code>Hard distillation</code>은 실제 레이블로 변형한 형태로 argmax 함수로 표현을 하는데 이는 특정 이미지에 대해 교사와 관련된 하드 라벨은 특정 데이터 augmentation 방법에 따라 변경이 될 수 있다고 한다.</p>
-</li>
-<li>
-<p>또한 <code>Hard distillation</code>에 <code>Label Smoothing</code> 기법을 사용하여 <strong>훈련 데이터의 레이블에 약간의 불확실성을 추가</strong>를 하여 <code>Soft distillation</code>으로 변형할 수도 있다고 한다.</p>
-</li>
+<li>또한 <code>Hard distillation</code>은 실제 레이블로 변형한 형태로 argmax 함수로 표현을 하는데 이는 특정 이미지에 대해 교사와 관련된 하드 라벨은 특정 데이터 augmentation 방법에 따라 변경이 될 수 있다고 한다.</li>
+</ol>
+<br>
+<ol start="18">
+<li>또한 <code>Hard distillation</code>에 <code>Label Smoothing</code> 기법을 사용하여 <strong>훈련 데이터의 레이블에 약간의 불확실성을 추가</strong>를 하여 <code>Soft distillation</code>으로 변형할 수도 있다고 한다.</li>
 </ol>
 <ul>
 <li><code>Label Smoothing</code>을 적용하면 원래 레이블이 $[1,0,0]$이라면 $[ 1 - \epsilon, \frac{\epsilon}{K - 1}, \frac{\epsilon}{K - 1}]$ 으로 <code>Soft distillation</code>이 가능하게 변경될 수 있게 된다.
@@ -229,66 +198,86 @@ Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher
 <div style="text-align:center;">
 <img src="/images/paper/DeiT/distillation-2.png" height="50%" width="90%"> </div>
 <ol start="19">
-<li>
-<p>추가적으로 <code>Knowledge Distillation</code>에 대해서 알아보자면 딥러닝에서 지식 증류는 <code>큰 모델(Teacher Network)</code>로부터 증류한 지식을 <code>작은 모델(Student Network)</code>로 <code>transfer</code>하는 일련의 과정이라고 할 수 있다.</p>
-</li>
-<li>
-<p>이는 <code>방대한 양의 데이터로 학습한 모델</code>을 <code>model deployment</code>의 관점으로 봤을 때 <code>더 가벼운 모델</code>을 만들기 위하여 <code>복잡한 모델</code>의 일반화 능력을 가벼운 모델에게 <code>transfer</code>하는 것을 말한다.</p>
-</li>
-<li>
-<p><code>Transfer</code>하는 방법은 <code>위 그림</code>의 오른쪽 윗 부분이 있는데 <code>Teacher</code>와 <code>Student</code>의 <code>output</code>을 <code>loss fn</code>으로 계산하고 있다. 또한 오른쪽 아래 부분은 <code>Student</code>의 <code>hard prediction</code>을 <code>Ground truth</code>와 <code>loss fn</code>을 계산하는 구조가 보인다.</p>
-</li>
-<li>
-<p>이때 Teacher에서 loss를 계산할 땐 <code>Hard label</code>이 아닌 <code>Soft label</code>을 사용하고 있는데 왜냐하면 <code>Hard label</code>을 사용한다면 argmax 함수를 사용하여 다른 정보들이 사라지게 된다.</p>
-</li>
+<li>추가적으로 <code>Knowledge Distillation</code>에 대해서 알아보자면 딥러닝에서 지식 증류는 <code>큰 모델(Teacher Network)</code>로부터 증류한 지식을 <code>작은 모델(Student Network)</code>로 <code>transfer</code>하는 일련의 과정이라고 할 수 있다.</li>
+</ol>
+<br>
+<ol start="20">
+<li>이는 <code>방대한 양의 데이터로 학습한 모델</code>을 <code>model deployment</code>의 관점으로 봤을 때 <code>더 가벼운 모델</code>을 만들기 위하여 <code>복잡한 모델</code>의 일반화 능력을 가벼운 모델에게 <code>transfer</code>하는 것을 말한다.</li>
+</ol>
+<br>
+<ol start="21">
+<li><code>Transfer</code>하는 방법은 <code>위 그림</code>의 오른쪽 윗 부분이 있는데 <code>Teacher</code>와 <code>Student</code>의 <code>output</code>을 <code>loss fn</code>으로 계산하고 있다. 또한 오른쪽 아래 부분은 <code>Student</code>의 <code>hard prediction</code>을 <code>Ground truth</code>와 <code>loss fn</code>을 계산하는 구조가 보인다.</li>
+</ol>
+<br>
+<ol start="22">
+<li>이때 Teacher에서 loss를 계산할 땐 <code>Hard label</code>이 아닌 <code>Soft label</code>을 사용하고 있는데 왜냐하면 <code>Hard label</code>을 사용한다면 argmax 함수를 사용하여 다른 정보들이 사라지게 된다.</li>
 </ol>
 <ul>
 <li><code>Hard label</code>: $Bear, Cat, Dog = [0, 1, 0]$</li>
 <li><code>Soft label</code>: $Bear, Cat, Dog = [0.05, 0.75, 0.2]$</li>
 </ul>
+<br>
 <ol start="23">
 <li>따라서 이러한 <strong>정보의 손실 없이</strong> 확률값을 그대로 loss를 계산할 때 사용을 하여 <code>Student</code>를 업데이트 시키는데 하이퍼 파라미터의 설정을 통하여 왼쪽항과 오른쪽항에 대한 가중치인 $a$, Softmax 함수가 <strong>입력값이 큰 것은 아주 크게, 작은 것은 아주 작게 만드는</strong>성질을 완화 해주는 <code>Temperature(T)</code>를 사용하여 <code>Soft label</code>을 사용하는 이점을 최대화 한다.</li>
 </ol>
 <div style="text-align:center;">
 <img src="/images/paper/DeiT/distillation.png" height="50%" width="50%"> </div>
 <ol start="24">
-<li>
-<p>다음은 <code>본 논문</code>에서 본격적으로 <code>Knowledge Distillation</code>을 사용한 방법에 대해서 설명을 할 것이다.</p>
-</li>
-<li>
-<p><code>DeiT</code>에서는 <code>Class Token</code>과 유사하게 사용되는 <code>Distillation Token</code>이라는 것을 추가하였다.</p>
-</li>
-<li>
-<p>이 토큰은 <code>Class Token</code>과 유사하게 <code>self-attention</code>을 통해 <strong>상호작용</strong>을 하며 마지막 레이어를 지나 출력이 된다.</p>
-</li>
-<li>
-<p>이 <code>Distillation Token</code>의 역할은 모델이 <code>Distillation embedding</code>을 통하여 <strong>교사의 출력을 학습하도록 도와주는 역할</strong>을 한다. <strong>즉, Student가 Teacher의 출력을 배우는 역할을 하게 된다.</strong></p>
-</li>
-<li>
-<p><code>Class Token</code>은 이미지가 어떤 클래스에 속하는지 예측하기 위해 사용되는 반면, <code>Distillation Token</code>은 <code>Teacher</code>의 지식을 학습하기 위해 사용되어 <code>Class embedding</code>과는 별도로 학습이 된다.</p>
-</li>
-<li>
-<p>따라서 논문에서는 <code>Class Token</code> 과 <code>Distillation Token</code>이 서로 다른 벡터로 수렴하는 것을 관찰했다. 마지막 레이어에서의 <code>cosine similarity</code>는 <code>0.93</code>으로 유사했다고 나온다. 하지만 <strong>두 벡터가 유사하지만 동일하지는 않으려는 목표</strong>를 가지고 있어서 1보다는 낮게 관찰이 된다.</p>
-</li>
-<li>
-<p>또한 <code>Class Token</code>을 <code>단순히 추가한 것(2개)</code>과 비교해보았을 때 단순히 추가하면 마지막 레이어에서 출력 임베딩의 <code>cosine similarity</code>가 <code>0.999</code>로 <strong>거의 동일하고 추가된 Class Token이 성능에 아무런 기여를 하지 않은 것으로 확인이 되었다.</strong></p>
-</li>
+<li>다음은 <code>본 논문</code>에서 본격적으로 <code>Knowledge Distillation</code>을 사용한 방법에 대해서 설명을 할 것이다.</li>
+</ol>
+<br>
+<ol start="25">
+<li><code>DeiT</code>에서는 <code>Class Token</code>과 유사하게 사용되는 <code>Distillation Token</code>이라는 것을 추가하였다.</li>
+</ol>
+<br>
+<ol start="26">
+<li>이 토큰은 <code>Class Token</code>과 유사하게 <code>self-attention</code>을 통해 <strong>상호작용</strong>을 하며 마지막 레이어를 지나 출력이 된다.</li>
+</ol>
+<br>
+<ol start="27">
+<li>이 <code>Distillation Token</code>의 역할은 모델이 <code>Distillation embedding</code>을 통하여 <strong>교사의 출력을 학습하도록 도와주는 역할</strong>을 한다. <strong>즉, Student가 Teacher의 출력을 배우는 역할을 하게 된다.</strong></li>
+</ol>
+<br>
+<ol start="28">
+<li><code>Class Token</code>은 이미지가 어떤 클래스에 속하는지 예측하기 위해 사용되는 반면, <code>Distillation Token</code>은 <code>Teacher</code>의 지식을 학습하기 위해 사용되어 <code>Class embedding</code>과는 별도로 학습이 된다.</li>
+</ol>
+<br>
+<ol start="29">
+<li>따라서 논문에서는 <code>Class Token</code> 과 <code>Distillation Token</code>이 서로 다른 벡터로 수렴하는 것을 관찰했다. 마지막 레이어에서의 <code>cosine similarity</code>는 <code>0.93</code>으로 유사했다고 나온다. 하지만 <strong>두 벡터가 유사하지만 동일하지는 않으려는 목표</strong>를 가지고 있어서 1보다는 낮게 관찰이 된다.</li>
+</ol>
+<br>
+<ol start="30">
+<li>또한 <code>Class Token</code>을 <code>단순히 추가한 것(2개)</code>과 비교해보았을 때 단순히 추가하면 마지막 레이어에서 출력 임베딩의 <code>cosine similarity</code>가 <code>0.999</code>로 <strong>거의 동일하고 추가된 Class Token이 성능에 아무런 기여를 하지 않은 것으로 확인이 되었다.</strong></li>
 </ol>
 <ul>
 <li>반면 <code>Distillation Token</code>은 성능에 상당한 기여를 하였다.</li>
 </ul>
+<br>
 <ol start="31">
 <li><code>Fine-Tuning</code>을 진행하였을 때도 <code>Teacher</code>의 예측을 모두 사용하여 성능에 이점을 보였다고 한다.</li>
 </ol>
 <ul>
 <li><code>Fine-Tuning</code>을 진행하면서도 <code>knowledge distillation</code>을 사용했다.</li>
 </ul>
+<br>
 <ol start="32">
 <li>또한 마지막 output인 <code>Class embedding</code>과 <code>Distillation embedding</code> 모두 이미지를 분류할 수 있게 되는데 본 논문에서는 두 분류기의 출력을 <code>late fusion</code> 방식을 사용하여 예측을 수행한다.</li>
 </ol>
 <ul>
 <li><code>Late Fusion</code>: 다중 소스의 정보를 결합하여 최종 예측을 생성하는 기법이다.</li>
 </ul>
+<hr>
+<h2 id="code">Code</h2>
+<ol start="33">
+<li>DeiT의 <a href="https://github.com/facebookresearch/deit/blob/main/models.py" target="_blank" rel="noopener noreffer ">model code</a>를 살펴보니 기존 <code>ViT</code>의 형식에 <code>cls token</code>과 <code>distillation token</code>이 함께 부착을 했다는 것을 확인할 수 있다.</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># forward_features Functions</span>
+</span></span><span class="line"><span class="cl"><span class="n">cls_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls_token</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">dist_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_token</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">cls_tokens</span><span class="p">,</span> <span class="n">dist_token</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_embed</span>
+</span></span></code></pre></div><hr>
 <h2 id="reference">Reference</h2>
 <ul>
 <li><a href="https://baeseongsu.github.io/posts/knowledge-distillation/" target="_blank" rel="noopener noreffer ">https://baeseongsu.github.io/posts/knowledge-distillation/</a></li>
@@ -315,7 +304,8 @@ Transfer하는 방법은 위 그림의 오른쪽 윗 부분이 있는데 Teacher
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/cs231n/lecture9/" class="prev" rel="prev" title="[CS231n] 09.CNN Architectures"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS231n] 09.CNN Architectures</a></div>
+    <div class="post-nav"><a href="/posts/cs231n/lecture9/" class="prev" rel="prev" title="[CS231n] 09.CNN Architectures"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS231n] 09.CNN Architectures</a>
+            <a href="/posts/cs231n/lecture10/" class="next" rel="next" title="[CS231n] 10. Recurrent Neural Networks">[CS231n] 10. Recurrent Neural Networks<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
 </div>
 <div id="comments"><div id="utterances" class="comment"></div><noscript>
                 Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.

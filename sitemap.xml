@@ -2,25 +2,28 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
+            <loc>https://goodyoung.github.io/posts/cs231n/lecture10/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/cs231n/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/dl/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/lecture/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/lstm/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/neural-networks/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/posts/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/rnn/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/theory/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/paper/deit/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/computer-vision/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/deit/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/dl/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/categories/paper-review/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/posts/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/self-attention/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/transformer/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</loc><lastmod>2024-08-18T21:02:30&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/cs231n/lecture9/</loc><lastmod>2024-08-11T22:58:52&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/cs231n/</loc><lastmod>2024-08-11T22:58:52&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/googlenet/</loc><lastmod>2024-08-11T22:58:52&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/lecture/</loc><lastmod>2024-08-11T22:58:52&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/neural-networks/</loc><lastmod>2024-08-11T22:58:52&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/resnet/</loc><lastmod>2024-08-11T22:58:52&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/theory/</loc><lastmod>2024-08-11T22:58:52&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/paper/vit/</loc><lastmod>2024-07-31T19:28:04&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/vit/</loc><lastmod>2024-07-31T19:28:04&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/paper/transformer/</loc><lastmod>2024-07-24T11:32:59&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
