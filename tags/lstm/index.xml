@@ -9,26 +9,8 @@
     <pubDate>Wed, 21 Aug 2024 16:55:43 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/posts/cs231n/lecture10/</guid>
-    <description><![CDATA[개요 CS231n의 10강에 대한 내용을 정리 할 것이다. Recurrent Neural Networks 이번 강의에서는 Recurrent Neural Networks에 대해서 설명을 한다. 지금까지의 networks는 one-to-one의 구조를 띈 모델이지만 위 그림과 같이 여러 구조를 띌 수 있게 된다.
-따라서 각 구조 별로 다양한 task로 활용할 수 있다.
-one-to-many image captioning many-to-one sentiment classification many-to-many machine translation videio classification on frame level $$h_t = f_W(h_\text{t-1},x_t)$$
-다음은 RNN의 기본 수식이다. 이전 상태($h_\text{t-1}$, hidden state)와 입력 값($x_t$)을 계산하여 new state로 나오게 된다. 더 자세한 수식은 위 그림과 같다. 위의 수식을 기반으로 RNN의 Computational Graph로 표현을 하게 된다면 위 그림과 같다.
-보면 각 스템에서 다 같은 W를 사용하는 것을 확인할 수 있게 된다.
-위 그림은 RNN에서 Many-to-Many일 때 Loss 계산 까지 표현되는 그림인데 각각의 time-step마다 local gradient를 계산하게 되고 그것이 합쳐진 L까지 가서 upstream gradient로 내려오게 된다.
-다음은 Many-to-One일 때 인데 최종 output인 y가 summarize context를 모든 time-step에 따른 하나의 결과를 담고 있다. 다음은 One-to-Many인데 이것은 fix size 형태로 입력이 되고 variable size인 output을 출력하는 형태이다. 이러한 Many-to-One구조와 One-to-Many를 섞은 구조인 Seq2Seq구조도 있다.
-Encoder에서 다양한 크기의 input이 들어오고 그것의 전체를 요약하는 $h_t$가 있게 된다.
-Encoder에서 나온 vector를 Decoder로 넘겨 다양하게 출력을 할 수 있게 한다.
-이때 입력, 출력의 크기를 조절하기 위하여 입력 토큰, 출력 토큰을 지정하여 모델이 처음과 끝을 알 수 있게 한다. 이 구조는 번역을 하는 task에서 사용할 수 있게 된다. (영어 -&gt; franch) 이제는 하나의 문자를 입력 받고 다음으로 올 문자를 예측하는 모델을 설명할 것이다.
-문자를 모델에 입력하기 위하여 하나의 벡터로 넣기 위하여 embedding 작업을 거치는데 embedding 방법 중 one-hot-encoding의 방법을 사용하였다.
-그 후 그것에 가중치 행렬($W_\text{xh}$)을 곱하여 hidden layer로 들어가고 또 그게 다시 output layer로 출력이 된다.
-여기서 hello라는 결과를 보여야 하기 때문에 맨 처음에 e라는 출력값을 가진다. 하지만 이 경우 잘못 예측을 하여 o로 예측을 한 경우이다.
-다음으로 e가 input으로 들어가고 새로운 hidden state를 만든다. 이러한 과정을 계속 거치면 이 모델은 이전의 문장들의 문맥을 참고하여 다음 문자가 무엇일지 예측을 할 수 있게 되는 것이다.
-그렇다면 이 모델의 Test time에서는 어떻게 작동을 하고 있는지 보여준다. 이 모델을 잘 활용을 하기 위해서는 sampling이라는 샘플링 기법을 활용하는 것이다.
-위 그림은 모델이 output layer를 거쳐 softmax를 취하여 확률 분포를 사용하여 sampling을 한 과정을 나타낸다. 해당 경우에 e는 뽑힐 확률이 굉장히 작았음에도 불구하고 운이 좋게 e가 샘플링 되었다. 또한 이 샘플링으로 나온 e를 다음 input으로 넣어주고 반복 과정을 거쳐 test를 하게 된다.
-가장 높은 스코어를 선택하지 않고 샘플링을 하는 이유는 모델에서 다양성을 얻을 수 있게되기 때문이다.
-항상 h를 첫 input으로 놓는다고 할 때, 확률분포로 샘플링을 하게 된다면 그럴듯한 다양한 문장들을 출력할 수 있어 이것이 출력의 다양성으로 이어진다. 다음은 RNN에서 역전파를 사용했을 때를 나타낸다. 각 스텝마다의 loss를 계산해서 최종적인 output을 나타내게 되는데 시퀀스가 너무 길게 되면 문제가 생길수도 있다고 한다. 길면 메모리 사용량도 많고 학습이 너무 느릴 것이다. data point의 모든 요소에 대한 기울기를 계산하는 것은 엄청난 비용을 초래한다. 따라서 이러한 문제를 해결하기 위하여 나온 방법은 truncated backpropagation이다.
-입력이 너무 길다고 하더라도 train할 때 한 스텝을 일정 단위로 자르고 단계를 진행하기 때문에 위의 문제를 해결할 수 있다.
-이전에 계산한 hidden state는 계속 유지하고 반복해야 한다. backpropagation은 현재 배치만큼만 진행해야 한다. Image Captioning 다음은 Image captioning에 관한 설명이다. Image captioning을 하기 위해선 CNN에 Image를 넣고 CNN의 result vector를 다시 RNN에 넣어서 caption에 사용 될 문자를 하나씩 생성해가는 방식이다.]]></description>
+    <description><![CDATA[개요 CS231n의 10강에 대한 내용을 정리 할 것이다. Recurrent Neural Networks 이번 강의에서는 Recurrent Neural Networks에 대해서 설명을 한다. 지금까지의 networks는 one-to-one의 구조를 띈 모델이지만 위 그림과 같이 여러 구조를 띌 수 있게 된다. 따라서 각 구조 별로 다양한 task로 활용할 수 있다. one-to-many image captioning many-to-one sentiment classification many-to-many machine translation videio classification on frame level $$h_t = f_W(h_\text{t-1},x_t)$$
+다음은 RNN의 기본 수식이다. 이전 상태($h_\text{t-1}$, hidden state)와 입력 값($x_t$)을 계산하여 new state로 나오게 된다. 더 자세한 수식은 위 그림과 같다. 위의 수식을 기반으로 RNN의 Computational Graph로 표현을 하게 된다면 위 그림과 같다. 보면 각 스텝에서 다 같은 W를 사용하는 것을 확인할 수 있게 된다. 위 그림은 RNN에서 Many-to-Many일 때 Loss 계산 까지 표현되는 그림인데 각각의 time-step마다 local gradient를 계산하게 되고 그것이 합쳐진 L까지 가서 upstream gradient로 내려오게 된다. 다음은 Many-to-One일 때 인데 최종 output인 y가 summarize context를 모든 time-step에 따른 하나의 결과를 담고 있다. 다음은 One-to-Many인데 이것은 fix size 형태로 입력이 되고 variable size인 output을 출력하는 형태이다. 이러한 Many-to-One구조와 One-to-Many를 섞은 구조인 Seq2Seq구조도 있다. Encoder에서 다양한 크기의 input이 들어오고 그것의 전체를 요약하는 $h_t$가 있게 된다. Encoder에서 나온 vector를 Decoder로 넘겨 다양하게 출력을 할 수 있게 한다. 이때 입력, 출력의 크기를 조절하기 위하여 입력 토큰, 출력 토큰을 지정하여 모델이 처음과 끝을 알 수 있게 한다. 이 구조는 번역을 하는 task에서 사용할 수 있게 된다. (영어 -&gt; franch) 이제는 하나의 문자를 입력 받고 다음으로 올 문자를 예측하는 모델을 설명할 것이다. 문자를 모델에 입력하기 위하여 하나의 벡터로 넣기 위하여 embedding 작업을 거치는데 embedding 방법 중 one-hot-encoding의 방법을 사용하였다. 그 후 그것에 가중치 행렬($W_\text{xh}$)을 곱하여 hidden layer로 들어가고 또 그게 다시 output layer로 출력이 된다. 여기서 hello라는 결과를 보여야 하기 때문에 맨 처음에 e라는 출력값을 가진다. 하지만 이 경우 잘못 예측을 하여 o로 예측을 한 경우이다. 다음으로 e가 input으로 들어가고 새로운 hidden state를 만든다. 이러한 과정을 계속 거치면 이 모델은 이전의 문장들의 문맥을 참고하여 다음 문자가 무엇일지 예측을 할 수 있게 되는 것이다. 그렇다면 이 모델의 Test time에서는 어떻게 작동을 하고 있는지 보여준다. 이 모델을 잘 활용을 하기 위해서는 sampling이라는 샘플링 기법을 활용하는 것이다. 위 그림은 모델이 output layer를 거쳐 softmax를 취하여 확률 분포를 사용하여 sampling을 한 과정을 나타낸다. 해당 경우에 e는 뽑힐 확률이 굉장히 작았음에도 불구하고 운이 좋게 e가 샘플링 되었다. 또한 이 샘플링으로 나온 e를 다음 input으로 넣어주고 반복 과정을 거쳐 test를 하게 된다. 가장 높은 스코어를 선택하지 않고 샘플링을 하는 이유는 모델에서 다양성을 얻을 수 있게되기 때문이다. 항상 h를 첫 input으로 놓는다고 할 때, 확률분포로 샘플링을 하게 된다면 그럴듯한 다양한 문장들을 출력할 수 있어 이것이 출력의 다양성으로 이어진다. 다음은 RNN에서 역전파를 사용했을 때를 나타낸다. 각 스텝마다의 loss를 계산해서 최종적인 output을 나타내게 되는데 시퀀스가 너무 길게 되면 문제가 생길수도 있다고 한다. 길면 메모리 사용량도 많고 학습이 너무 느릴 것이다. data point의 모든 요소에 대한 기울기를 계산하는 것은 엄청난 비용을 초래한다. 따라서 이러한 문제를 해결하기 위하여 나온 방법은 truncated backpropagation이다. 입력이 너무 길다고 하더라도 train할 때 한 스텝을 일정 단위로 자르고 단계를 진행하기 때문에 위의 문제를 해결할 수 있다. 이전에 계산한 hidden state는 계속 유지하고 반복해야 한다. backpropagation은 현재 배치만큼만 진행해야 한다. Image Captioning 다음은 Image captioning에 관한 설명이다. Image captioning을 하기 위해선 CNN에 Image를 넣고 CNN의 result vector를 다시 RNN에 넣어서 caption에 사용 될 문자를 하나씩 생성해가는 방식이다.]]></description>
 </item>
 </channel>
 </rss>
