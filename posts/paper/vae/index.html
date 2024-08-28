@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[Paper Review]Auto-Encoding Variational Bayes(VAE) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Auto-Encoding Variational Bayes(VAE)" />
+<meta property="og:description" content="개요 Generative분야에서 기초가 되는 논문인 VAE에 관한 리뷰를 할 것이다. Introduction 연속적인 latent variable(잠재변수)나 파라미터가 계산이 힘든 후방 확률 분포를 가지는 확률 모델을 어떻게 효과적으로 추론하고 훈련을 시키는 방법에 대해 설명이 나온다. 디코더만으로 학습 및 훈련을 진행할 수 없어서 인코더를 가져온 것이다. 해당 내용은 Method 부분에서 자세하게 다룰 것이다. 기존의 방법인 Variational Bayesian(VB) 방법은 계산하기 힘든 사후 확률을 적절하게 최적화 한다. 하지만 이 방법은 후방 확률에 대한 기대값의 분석적 해결책을 요구하며, 일반적인 경우에도 계산이 어렵다. 그래서 본 논문에서 기존 변동의 lower bound의 reparameterization가 어떻게 간단하고 다른 비편향적인 estimator의 lower bound를 만드는지 알려준다. Stochastic Gradient Variational Bayes(SGVB) estimator가 posterior inference(후방 추론)을 잘 하도록 한다. 이는 확률적 경사 하강법을 사용하여 곧바로 최적화도 된다. 독립적이고 동일한 분포를 띄는 이 latent variable에서 본 논문은 Auto-Encoding VB 알고리즘을 제안한다. SGVB estimator를 사용하여 추론과 learning을 neural network인 recognition model에 효율적으로 적용한다. 비싼 추론 없이 모델 param을 효과적으로 배우는 방법을 사용한다. 해당 estimator를 사용하면 효과적인 후방 추론을 수행하게 하여 최적화가 된다. 위처럼 neural network에서 recognition으로 사용하게 되면 variational auto-encoder(VAE)가 된다. Method 어떠한 dataset이 있을 때 실제 파라미터 $\theta$와 latent variable $z^\text{(i)}$ 는 우리가 알 수 없다. 따라서 본 논문에선 Intractability하고 large dataset에도 잘 최적화 할 수 있는 알고리즘을 개발을 한다. 그렇게 하기 위하여 세가지 문제를 설명한다. 파라미터 $\theta$ 에 대한 효율적인 근사를 하는 문제 관찰된 값 $x$와 $\theta$를 기반으로 latent variable $z$를 효율적인 사후 추론 하는 문제 $x$의 효율적인 근사 추론하는 문제 이미지 노이즈 제거(denoising), 이미지 복원, 초해상도 등 가능 이런 문제를 해결하기 위하여 recognition model ($q_{\phi}(z \mid x)$)을 도입하였다. 이는 $p_{\theta}(x \mid z)$를 가장 근사화 하는 네트워크 이다. 이 네트워크의 목표는 decoder에서 training data(x)의 likelihood를 최대화 하고 싶은 것이다. 따라서 해당 목표를 수학 식으로 표현하자면 아래와 같다. 이는 x가 나올 수 있는 확률 ($p_{\theta}(x)$)이 가장 커지는 distribution을 찾는 것으로 생각하면 된다. $$p_{\theta}(x) = \int p_{\theta}(z) , p_{\theta}(x \mid z) \ dz $$
+이때 위 식은 아래의 식에서 나왔다. $$\frac{P(x, z)}{P_{\theta}(z)} = p(x \mid z)$$
+따라서 식을 정리하면 아래와 같다. $$p_{\theta}(x) = \int P(x, z) \ dz $$
+위 식을 해석하면 x와 z가 동시에 일어날 확률을 모든 z에 대해서 적분하면 그것이 x의 확률이 되는 것이다. 하지만 문제는 모든 z에 대해서 적분을 하기가 intractability하는 것이다. 이 문제를 해결하기 위하여 확률적 인코더인 $q_{\phi}(z \mid x)$ (encoder)가 나오게 되었다. Evidence LowerBOund (ELBO) 다음은 data likelihood를 어떻게 최적화 하는지에 대해서 설명을 할 것이다. 먼저 우리의 목적인 $p_{\theta}(x^i)$의 식을 풀어보자면 아래와 같다. $$\log p_{\theta}(x^{(i)}) = E_{z \sim q_{\phi}(z \mid x^{(i)})} \left[ \log p_{\theta}(x^{(i)}) \right]$$
+적분에서 기대값으로 변경하기 위하여 log를 씌우고 Decoder에서 $z$가 $q_{\phi}(z \mid x^{(i)})$ (encoder)의 분포를 따를 때를 의미한다. 위 식을 조금 더 분해하면 아래와 같다. 베이즈 정리를 사용하여 식을 변형하고 상수를 곱하였다. $$= E_{z} \left[ \log \frac{p_{\theta}(x^{(i)} \mid z) p_{\theta}(z)}{p_{\theta}(z \mid x^{(i)})} \right] (\therefore p(z \mid x^{(i)}) = \frac{p(x^{(i)} \mid z) p(z)}{p(x^{(i)})})$$ $$= E_{z} \left[ \log \frac{p_{\theta}(x^{(i)} \mid z) p_{\theta}(z)}{p_{\theta}(z \mid x^{(i)})} \frac{q_{\phi}(z \mid x^{(i)})}{q_{\phi}(z \mid x^{(i)})} \right] $$
+위 식에서 log 변환을 하여 아래와 같은 식을 만들게 된다. $$ = E_{z} \left[ \log p_{\theta}(x^{(i)} \mid z) \right] - E_{z} \left[ \log \frac{q_{\phi}(z \mid x^{(i)})}{p_{\theta}(z)} \right] &#43; E_{z} \left[ \log \frac{q_{\phi}(z \mid x^{(i)})}{p_{\theta}(z \mid x^{(i)})} \right] $$
+다음의 형태를 KL-divergence의 형태로 변경을 하게 되면 최종적인 아래의 식이 나오게 된다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/paper/vae/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-08-26T18:21:20+09:00" />
+<meta property="article:modified_time" content="2024-08-26T18:21:20+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Auto-Encoding Variational Bayes(VAE)"/>
+<meta name="twitter:description" content="개요 Generative분야에서 기초가 되는 논문인 VAE에 관한 리뷰를 할 것이다. Introduction 연속적인 latent variable(잠재변수)나 파라미터가 계산이 힘든 후방 확률 분포를 가지는 확률 모델을 어떻게 효과적으로 추론하고 훈련을 시키는 방법에 대해 설명이 나온다. 디코더만으로 학습 및 훈련을 진행할 수 없어서 인코더를 가져온 것이다. 해당 내용은 Method 부분에서 자세하게 다룰 것이다. 기존의 방법인 Variational Bayesian(VB) 방법은 계산하기 힘든 사후 확률을 적절하게 최적화 한다. 하지만 이 방법은 후방 확률에 대한 기대값의 분석적 해결책을 요구하며, 일반적인 경우에도 계산이 어렵다. 그래서 본 논문에서 기존 변동의 lower bound의 reparameterization가 어떻게 간단하고 다른 비편향적인 estimator의 lower bound를 만드는지 알려준다. Stochastic Gradient Variational Bayes(SGVB) estimator가 posterior inference(후방 추론)을 잘 하도록 한다. 이는 확률적 경사 하강법을 사용하여 곧바로 최적화도 된다. 독립적이고 동일한 분포를 띄는 이 latent variable에서 본 논문은 Auto-Encoding VB 알고리즘을 제안한다. SGVB estimator를 사용하여 추론과 learning을 neural network인 recognition model에 효율적으로 적용한다. 비싼 추론 없이 모델 param을 효과적으로 배우는 방법을 사용한다. 해당 estimator를 사용하면 효과적인 후방 추론을 수행하게 하여 최적화가 된다. 위처럼 neural network에서 recognition으로 사용하게 되면 variational auto-encoder(VAE)가 된다. Method 어떠한 dataset이 있을 때 실제 파라미터 $\theta$와 latent variable $z^\text{(i)}$ 는 우리가 알 수 없다. 따라서 본 논문에선 Intractability하고 large dataset에도 잘 최적화 할 수 있는 알고리즘을 개발을 한다. 그렇게 하기 위하여 세가지 문제를 설명한다. 파라미터 $\theta$ 에 대한 효율적인 근사를 하는 문제 관찰된 값 $x$와 $\theta$를 기반으로 latent variable $z$를 효율적인 사후 추론 하는 문제 $x$의 효율적인 근사 추론하는 문제 이미지 노이즈 제거(denoising), 이미지 복원, 초해상도 등 가능 이런 문제를 해결하기 위하여 recognition model ($q_{\phi}(z \mid x)$)을 도입하였다. 이는 $p_{\theta}(x \mid z)$를 가장 근사화 하는 네트워크 이다. 이 네트워크의 목표는 decoder에서 training data(x)의 likelihood를 최대화 하고 싶은 것이다. 따라서 해당 목표를 수학 식으로 표현하자면 아래와 같다. 이는 x가 나올 수 있는 확률 ($p_{\theta}(x)$)이 가장 커지는 distribution을 찾는 것으로 생각하면 된다. $$p_{\theta}(x) = \int p_{\theta}(z) , p_{\theta}(x \mid z) \ dz $$
+이때 위 식은 아래의 식에서 나왔다. $$\frac{P(x, z)}{P_{\theta}(z)} = p(x \mid z)$$
+따라서 식을 정리하면 아래와 같다. $$p_{\theta}(x) = \int P(x, z) \ dz $$
+위 식을 해석하면 x와 z가 동시에 일어날 확률을 모든 z에 대해서 적분하면 그것이 x의 확률이 되는 것이다. 하지만 문제는 모든 z에 대해서 적분을 하기가 intractability하는 것이다. 이 문제를 해결하기 위하여 확률적 인코더인 $q_{\phi}(z \mid x)$ (encoder)가 나오게 되었다. Evidence LowerBOund (ELBO) 다음은 data likelihood를 어떻게 최적화 하는지에 대해서 설명을 할 것이다. 먼저 우리의 목적인 $p_{\theta}(x^i)$의 식을 풀어보자면 아래와 같다. $$\log p_{\theta}(x^{(i)}) = E_{z \sim q_{\phi}(z \mid x^{(i)})} \left[ \log p_{\theta}(x^{(i)}) \right]$$
+적분에서 기대값으로 변경하기 위하여 log를 씌우고 Decoder에서 $z$가 $q_{\phi}(z \mid x^{(i)})$ (encoder)의 분포를 따를 때를 의미한다. 위 식을 조금 더 분해하면 아래와 같다. 베이즈 정리를 사용하여 식을 변형하고 상수를 곱하였다. $$= E_{z} \left[ \log \frac{p_{\theta}(x^{(i)} \mid z) p_{\theta}(z)}{p_{\theta}(z \mid x^{(i)})} \right] (\therefore p(z \mid x^{(i)}) = \frac{p(x^{(i)} \mid z) p(z)}{p(x^{(i)})})$$ $$= E_{z} \left[ \log \frac{p_{\theta}(x^{(i)} \mid z) p_{\theta}(z)}{p_{\theta}(z \mid x^{(i)})} \frac{q_{\phi}(z \mid x^{(i)})}{q_{\phi}(z \mid x^{(i)})} \right] $$
+위 식에서 log 변환을 하여 아래와 같은 식을 만들게 된다. $$ = E_{z} \left[ \log p_{\theta}(x^{(i)} \mid z) \right] - E_{z} \left[ \log \frac{q_{\phi}(z \mid x^{(i)})}{p_{\theta}(z)} \right] &#43; E_{z} \left[ \log \frac{q_{\phi}(z \mid x^{(i)})}{p_{\theta}(z \mid x^{(i)})} \right] $$
+다음의 형태를 KL-divergence의 형태로 변경을 하게 되면 최종적인 아래의 식이 나오게 된다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/vae/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs231n/lecture10/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[Paper Review]Auto-Encoding Variational Bayes(VAE)",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/vae\/"
+        },"genre": "posts","keywords": "Self-Attention, 논문 리뷰, computer vision, Transformer, VAE","wordcount":  1115 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/vae\/","datePublished": "2024-08-26T18:21:20+09:00","dateModified": "2024-08-26T18:21:20+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Auto-Encoding Variational Bayes(VAE)</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-08-26">2024-08-26</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1115 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;6 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#method">Method</a>
+      <ul>
+        <li><a href="#evidence-lowerbound-elbo">Evidence LowerBOund (ELBO)</a></li>
+      </ul>
+    </li>
+    <li><a href="#optimization-regularization-error">Optimization: Regularization Error</a></li>
+    <li><a href="#optimization-reconstruction-error">Optimization: Reconstruction Error</a></li>
+    <li><a href="#reparameterization-trick">Reparameterization Trick</a></li>
+    <li><a href="#overall-arcitecture">Overall Arcitecture</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>Generative</code>분야에서 기초가 되는 논문인 <code>VAE</code>에 관한 리뷰를 할 것이다.</li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<ol>
+<li>연속적인 <code>latent variable(잠재변수)</code>나 <code>파라미터</code>가 계산이 힘든 <code>후방 확률 분포</code>를 가지는 <code>확률 모델</code>을 어떻게 효과적으로 추론하고 <strong>훈련을 시키는 방법</strong>에 대해 설명이 나온다.</li>
+</ol>
+<ul>
+<li>디코더만으로 학습 및 훈련을 진행할 수 없어서 인코더를 가져온 것이다.</li>
+<li>해당 내용은 <code>Method</code> 부분에서 자세하게 다룰 것이다.</li>
+</ul>
+<br>
+<ol start="2">
+<li>기존의 방법인 <code>Variational Bayesian(VB)</code> 방법은 계산하기 힘든 사후 확률을 적절하게 최적화 한다.</li>
+</ol>
+<br>
+<ol start="3">
+<li>하지만 이 방법은 <code>후방 확률</code>에 대한 기대값의 분석적 해결책을 요구하며, <strong>일반적인 경우에도 계산이 어렵다.</strong></li>
+</ol>
+<br>
+<ol start="4">
+<li>그래서 본 논문에서 기존 <code>변동의 lower bound</code>의 <code>reparameterization</code>가 어떻게 간단하고 <code>다른 비편향적인 estimator</code>의 <strong>lower bound를 만드는지 알려준다.</strong></li>
+</ol>
+<br>
+<ol start="5">
+<li><code>Stochastic Gradient Variational Bayes(SGVB) estimator</code>가 <code>posterior inference(후방 추론)</code>을 잘 하도록 한다.</li>
+</ol>
+<ul>
+<li>이는 <code>확률적 경사 하강법</code>을 사용하여 곧바로 <strong>최적화도 된다.</strong></li>
+</ul>
+<br>
+<ol start="6">
+<li>독립적이고 동일한 분포를 띄는 이 latent variable에서 본 논문은 <code>Auto-Encoding VB 알고리즘</code>을 제안한다.</li>
+</ol>
+<br>
+<ol start="7">
+<li><code>SGVB estimator</code>를 사용하여 추론과 learning을 neural network인 <code>recognition model</code>에 효율적으로 적용한다.</li>
+</ol>
+<ul>
+<li>비싼 추론 없이 모델 param을 효과적으로 배우는 방법을 사용한다.</li>
+<li>해당 <code>estimator</code>를 사용하면 효과적인 후방 추론을 수행하게 하여 최적화가 된다.</li>
+</ul>
+<br>
+<ol start="8">
+<li>위처럼 <code>neural network</code>에서 <code>recognition</code>으로 사용하게 되면 <code>variational auto-encoder(VAE)</code>가 된다.</li>
+</ol>
+<hr>
+<h2 id="method">Method</h2>
+<ol start="9">
+<li>어떠한 <code>dataset</code>이 있을 때 실제 파라미터 $\theta$와 latent variable $z^\text{(i)}$ 는 우리가 알 수 없다.</li>
+</ol>
+<br>
+<ol start="10">
+<li>따라서 본 논문에선 <code>Intractability</code>하고 <code>large dataset</code>에도 잘 최적화 할 수 있는 알고리즘을 개발을 한다.</li>
+</ol>
+<br>
+<ol start="11">
+<li>그렇게 하기 위하여 세가지 문제를 설명한다.</li>
+</ol>
+<ul>
+<li>파라미터 $\theta$ 에 대한 효율적인 근사를 하는 문제</li>
+<li>관찰된 값 $x$와 $\theta$를 기반으로 <code>latent variable</code> $z$를 효율적인 사후 추론 하는 문제</li>
+<li>$x$의 효율적인 근사 추론하는 문제
+<ul>
+<li>이미지 노이즈 제거(denoising), 이미지 복원, 초해상도 등 가능</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="12">
+<li>이런 문제를 해결하기 위하여 <code>recognition model</code> ($q_{\phi}(z \mid x)$)을 도입하였다.</li>
+</ol>
+<ul>
+<li>이는 $p_{\theta}(x \mid z)$를 가장 근사화 하는 네트워크 이다.</li>
+</ul>
+<div style="text-align:center;">
+<img src="/images/paper/vae/decoder.png" height="100%" width="50%"> </div>
+<ol start="13">
+<li>이 네트워크의 목표는 <code>decoder</code>에서 <code>training data(x)</code>의 <code>likelihood</code>를 최대화 하고 싶은 것이다.</li>
+</ol>
+<br>
+<ol start="14">
+<li>따라서 해당 목표를 수학 식으로 표현하자면 <code>아래</code>와 같다. 이는 x가 나올 수 있는 확률 ($p_{\theta}(x)$)이 가장 커지는 <code>distribution</code>을 찾는 것으로 생각하면 된다.</li>
+</ol>
+<br>
+<p>$$p_{\theta}(x) = \int p_{\theta}(z) , p_{\theta}(x \mid z) \ dz $$</p>
+<br>
+<ol start="15">
+<li>이때 <code>위 식</code>은 <code>아래의 식</code>에서 나왔다.</li>
+</ol>
+<p>$$\frac{P(x, z)}{P_{\theta}(z)} = p(x \mid z)$$</p>
+<br>
+<ol start="16">
+<li>따라서 식을 정리하면 <code>아래</code>와 같다.</li>
+</ol>
+<p>$$p_{\theta}(x) = \int P(x, z) \ dz $$</p>
+<br>
+<ol start="17">
+<li><code>위 식</code>을 해석하면 x와 z가 동시에 일어날 확률을 모든 z에 대해서 적분하면 그것이 x의 확률이 되는 것이다.</li>
+</ol>
+<br>
+<ol start="18">
+<li>하지만 문제는 <strong>모든 z에 대해서 적분을 하기</strong>가 <code>intractability</code>하는 것이다.</li>
+</ol>
+<br>
+<ol start="19">
+<li>이 문제를 해결하기 위하여 확률적 인코더인 $q_{\phi}(z \mid x)$ (encoder)가 나오게 되었다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/vae/model.png" height="100%" width="35%"> </div>
+<h3 id="evidence-lowerbound-elbo">Evidence LowerBOund (ELBO)</h3>
+<ol start="20">
+<li>다음은 <code>data likelihood</code>를 어떻게 최적화 하는지에 대해서 설명을 할 것이다. 먼저 우리의 목적인 $p_{\theta}(x^i)$의 식을 풀어보자면 <code>아래</code>와 같다.</li>
+</ol>
+<p>$$\log p_{\theta}(x^{(i)}) = E_{z \sim q_{\phi}(z \mid x^{(i)})} \left[ \log p_{\theta}(x^{(i)}) \right]$$</p>
+<br>
+<ol start="21">
+<li>적분에서 기대값으로 변경하기 위하여 <code>log</code>를 씌우고 <code>Decoder</code>에서 $z$가 $q_{\phi}(z \mid x^{(i)})$ (<code>encoder</code>)의 분포를 따를 때를 의미한다.</li>
+</ol>
+<br>
+<ol start="22">
+<li><code>위 식</code>을 조금 더 분해하면 아래와 같다. <code>베이즈 정리</code>를 사용하여 식을 변형하고 <code>상수</code>를 곱하였다.
+$$= E_{z} \left[ \log \frac{p_{\theta}(x^{(i)} \mid z) p_{\theta}(z)}{p_{\theta}(z \mid x^{(i)})} \right] (\therefore p(z \mid x^{(i)}) = \frac{p(x^{(i)} \mid z) p(z)}{p(x^{(i)})})$$</li>
+</ol>
+<p>$$= E_{z} \left[ \log \frac{p_{\theta}(x^{(i)} \mid z) p_{\theta}(z)}{p_{\theta}(z \mid x^{(i)})} \frac{q_{\phi}(z \mid x^{(i)})}{q_{\phi}(z \mid x^{(i)})} \right]
+$$</p>
+<br>
+<ol start="23">
+<li><code>위 식</code>에서 log 변환을 하여 <code>아래와 같은 식</code>을 만들게 된다.</li>
+</ol>
+<p>$$ = E_{z} \left[ \log p_{\theta}(x^{(i)} \mid z) \right] - E_{z} \left[ \log \frac{q_{\phi}(z \mid x^{(i)})}{p_{\theta}(z)} \right] + E_{z} \left[ \log \frac{q_{\phi}(z \mid x^{(i)})}{p_{\theta}(z \mid x^{(i)})} \right] $$</p>
+<br>
+<ol start="24">
+<li>다음의 형태를 <code>KL-divergence</code>의 형태로 변경을 하게 되면 최종적인 아래의 식이 나오게 된다.
+$$= E_{z} \left[ \log p_{\theta}(x^{(i)} \mid z) \right] - D_{KL} \left( q_{\phi}(z \mid x^{(i)}) \parallel p_{\theta}(z) \right) + D_{KL} \left( q_{\phi}(z \mid x^{(i)}) \parallel p_{\theta}(z \mid x^{(i)}) \right)
+$$</li>
+</ol>
+<br>
+<ol start="25">
+<li>위 식에서 가장 오른쪽 부분을 보면 $p_{\theta}(z \mid x^{(i)})$ 이 부분을 계산을 할 수 없다는 것을 알게 된다. 따라서 저 항은 <code>KL-divergence</code>식이므로 <strong>항상 0보다 크다라는 사실로 남겨두게 된다.</strong></li>
+</ol>
+<ul>
+<li><strong>계산을 할 수 없는 이유는 decoder에서 $x$를 통해 $z$의 확률 분포를 직접적으로 구할 수 없기 때문이다.</strong></li>
+<li><code>KL-divergence</code>란 두 확률분포가 얼마나 차이가 나는지를 나타내는 지표로 활용이 된다.</li>
+</ul>
+<br>
+<ol start="26">
+<li>따라서 <code>Likelihood를</code> 최대화 하는 것이 목표이므로 맨 오른쪽 식을 제외한 아래의 식을 최대화 하면 된다.</li>
+</ol>
+<ul>
+<li>Evidence에 해당되는 <strong>x에 대한 확률(marginal likelihood)</strong> 을 구하는 것이기 때문에 <code>ELBO</code>라고 불리운다.</li>
+<li>또한 최소한 <code>아래의 식 부분</code>을 maximize를 하면 되므로 <code>lowerbound(최저값)</code>라고 불리운다
+$$E_{z} \left[ \log p_{\theta}(x^{(i)} \mid z) \right] - D_{KL} \left( q_{\phi}(z \mid x^{(i)}) \parallel p_{\theta}(z) \right)$$</li>
+</ul>
+<br>
+<ol start="27">
+<li>따라서 최적화 단계에서 우린 <code>minimize</code>를 하므로 <code>아래의 식</code>처럼 -를 붙인다.
+$$\arg \min_{\theta, \phi} \sum_{i} \left( -E_{q_{\phi}(z \mid x_{i})} \left[ \log(p(x_{i} \mid g_{\theta}(z))) \right] + KL(q_{\phi}(z \mid x_{i}) \parallel p(z)) \right)$$</li>
+</ol>
+<br>
+<ol start="28">
+<li>여기서 $E$ 부분을 <code>reconstruction error</code>, $KL$ 부분을 <code>regularization error</code>라고 칭한다.</li>
+</ol>
+<br>
+<ol start="29">
+<li>각 부분을 설명을 하자면 <code>Reconstruction Error</code>는 <code>sampling</code>된 $z$일 때 $x$가 나올 확률을 극대화 해주어 likelihood를 최대화 해주는 loss라고 생각하면 된다.</li>
+</ol>
+<br>
+<ol start="30">
+<li>또한 <code>Regularization Error</code>는 <code>Encoder</code>를 지난 z의 <code>distribution</code>이 $p(z)$를 알 때 (혹은 가정할 때)랑 일치하게 만든다.</li>
+</ol>
+<hr>
+<h2 id="optimization-regularization-error">Optimization: Regularization Error</h2>
+<div style="text-align:center;">
+<img src="/images/paper/vae/encoder.png" height="100%" width="40%"> </div>
+<ol start="31">
+<li>해당 식을 계산을 하려면 <code>assumption</code>이 필요하게 된다. <code>Encoder</code>를 통과해서 나오는 $z$의 분포는 convariance가 diagonal한 multivariate 정규분포를 따른다.</li>
+</ol>
+<ul>
+<li>이는 다변량 정규 분포 중에서도 공분산 행렬이 대각선 형태인 분포를 의미하게 된다.
+<ul>
+<li>주대각선 요소만을 가진다.</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="32">
+<li>따라서 이를 단순화 하게 하면 해당 분포를 따르면서 <strong>평균이 0이고 표준편차가 1인 단위 행렬</strong>로 표현이 되는 $P$로 <strong>가정을 하게 된다.</strong></li>
+</ol>
+<br>
+<ol start="33">
+<li>결론적으로 <code>위 가정</code>을 토대로 <code>regularization</code> 식을 계산하게 되면 아래와 같다. 계산하기 먼저 다변량 <code>KL-divergence</code>의 식이 아래에 나와 있다.</li>
+</ol>
+<p>$$D_{KL}(\mathcal{N}_0 \parallel \mathcal{N}_1) = \frac{1}{2} \left( \text{tr}(\Sigma_1^{-1} \Sigma_0) + (\mu_1 - \mu_0)^{\top} \Sigma_1^{-1} (\mu_1 - \mu_0) - k + \ln \left( \frac{\det \Sigma_1}{\det \Sigma_0} \right) \right)$$</p>
+<br>
+<ol start="34">
+<li><code>위 식</code>에서 $N1$을 평균이 0, 표준편차가 1인 정규분포 식으로 계산을 하게 되면 최종적인 결과가 나오게 된다.
+$$KL(q_{\phi}(z \mid x_i) \parallel p(z)) = \frac{1}{2} \sum_{j=1}^{J} \left( \mu_{i,j}^2 + \sigma_{i,j}^2 - \ln(\sigma_{i,j}^2) - 1 \right)$$</li>
+</ol>
+<br>
+<ol start="35">
+<li>따라서 <code>Encoder</code>에서 나온 평균과 분산을 가지고 계산을 할 수 있게 되었다.</li>
+</ol>
+<hr>
+<h2 id="optimization-reconstruction-error">Optimization: Reconstruction Error</h2>
+<p>$$E_{q_{\phi}(z \mid x_i)} \left[ \log(p_{\theta}(x_i \mid z)) \right] = \int \log(p_{\theta}(x_i \mid z)) q_{\phi}(z \mid x_i) , dz$$</p>
+<ul>
+<li><code>Expectation</code>의 계산은 위와 같이 적분 식으로 변형할 수 있게 된다.</li>
+</ul>
+<ol start="32">
+<li>이번엔 <code>Reconstruction Error</code>를 계산하는 방법에 대해서 소개를 한다. 네트워크에서 모든 $z$에 대해서 적분하기엔 무리가 있어서 <code>monte-carlo</code>의 방법을 가져오게 된다.</li>
+</ol>
+<ul>
+<li><code>Monte carlo</code>: 무한개의 샘플링을 통한 평균</li>
+</ul>
+<br>
+<ol start="33">
+<li>하지만 이 방법도 <strong>시간이 너무 오래걸리는 문제</strong>로 무한개가 아닌 $L=1$로 설정하여 이를 <code>대표값</code>으로 쓰게 된다.</li>
+</ol>
+<ul>
+<li><strong>랜덤하게 하나만 샘플링하여 그 값을 사용하는 방법으로 생각하면 된다.</strong></li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/vae/term.png" height="100%" width="80%"> </div>
+<div style="text-align:center;">
+<img src="/images/paper/vae/term-2.png" height="100%" width="80%"> </div>
+<br>
+<ol start="34">
+<li>이 역시 확률 분포이므로 확률 분포를 계산하기 위하여 가정을 해야했다. 본 논문에서는 <code>베르누이 분포</code>로 가정을 하였다.</li>
+</ol>
+<ul>
+<li><code>베르누이</code> 이므로 독립 시행이라서 각 차원별로 계산을 해야 한다.</li>
+<li>또한 <code>위 그림(식 2번째 줄)</code>에 나온 식을 보면 <code>독립 시행</code>이라 <strong>모든 차원을 곱하고 log가 있어서 곱셈이 합으로 표현</strong>이 되는 것을 확인할 수 있다.</li>
+</ul>
+<br>
+<ol start="35">
+<li>그렇게 식을 정리하게 되면 <code>cross-entropy 식</code>이 나오게 된다.</li>
+</ol>
+<br>
+<ol start="36">
+<li>참고로 베르누이 분포가 아닌 가우시안 분포를 따른다고 가정을 하면 <code>Mean Squared error 식</code>이 나오게 된다.</li>
+</ol>
+<hr>
+<h2 id="reparameterization-trick">Reparameterization Trick</h2>
+<div style="text-align:center;">
+<img src="/images/paper/vae/reparam.png" height="100%" width="80%"> </div>
+<ol start="37">
+<li>이 trick은 <code>위 그림의 왼쪽</code> 처럼 기존의 <code>encoder model</code>로 평균과 분산을 계산하여 그것을 <code>sampling</code>을 하여 그 분포가 decoder로 간다면 <code>neural network</code>에서 <code>backpropagation</code>이 안된다.</li>
+</ol>
+<br>
+<ol start="38">
+<li>따라서 <code>미분 가능한 식</code>으로 표현이 가능하게 $N(0,1)$인 <code>표준 정규 분포</code>에서 샘플링을 한 $\epsilon$을 표준편차에 곱하여 <strong>새로운 샘플링 값</strong>을 얻으면 <code>z</code>에 대한 식이 나오게 되어 <code>미분이 가능한 식</code>이 되고 따라서 <strong>역전파가 가능해진다.</strong></li>
+</ol>
+<hr>
+<h2 id="overall-arcitecture">Overall Arcitecture</h2>
+<div style="text-align:center;">
+<img src="/images/paper/vae/overall.png" height="100%" width="80%"> </div>
+<ol start="39">
+<li>따라서 위의 내용들을 종합적으로 나타내면 <code>VAE</code>의 전체적인 구조를 볼 수 있게 된다.</li>
+</ol>
+<br>
+<ol start="40">
+<li>이 구조에서 <code>encoder</code>, <code>decoder</code>를 어떤 분포를 띄게 할 건지에 따라서 구조가 살짝씩 변형이 될 수 있다.</li>
+</ol>
+<ul>
+<li><code>Decoder</code>에서 <code>가우시안 분포</code>를 따른다고 하면 <code>reconstruction error</code>를 <code>MSE</code>로 계산을 하면 된다.</li>
+</ul>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=GbCAwVVKaHY" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=GbCAwVVKaHY</a></li>
+<li><a href="https://woongchan789.tistory.com/11" target="_blank" rel="noopener noreffer ">https://woongchan789.tistory.com/11</a></li>
+<li><a href="https://velog.io/@lee9843/VAE-Auto-Encoding-Variational-Bayes-%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0#regularization%EC%A0%9C%EC%95%BD-%EC%A1%B0%EA%B1%B4-%EA%B3%84%EC%82%B0--encoder%EA%B0%80-%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98-%ED%95%99%EC%8A%B5-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%8A%94-%EC%9E%98-latent-vector%EB%A1%9C-%ED%91%9C%ED%98%84%ED%95%A0-%EC%88%98-%EC%9E%88%EA%B2%8C" target="_blank" rel="noopener noreffer ">https://velog.io/@lee9843/VAE-Auto-Encoding-Variational-Bayes-%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0#regularization%EC%A0%9C%EC%95%BD-%EC%A1%B0%EA%B1%B4-%EA%B3%84%EC%82%B0--encoder%EA%B0%80-%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98-%ED%95%99%EC%8A%B5-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%8A%94-%EC%9E%98-latent-vector%EB%A1%9C-%ED%91%9C%ED%98%84%ED%95%A0-%EC%88%98-%EC%9E%88%EA%B2%8C</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-08-26</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/vae/" data-title="[Paper Review]Auto-Encoding Variational Bayes(VAE)" data-hashtags="Self-Attention,논문 리뷰,computer vision,Transformer,VAE"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/vae/" data-hashtag="Self-Attention"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/vae/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/vae/" data-title="[Paper Review]Auto-Encoding Variational Bayes(VAE)"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/vae/" data-title="[Paper Review]Auto-Encoding Variational Bayes(VAE)"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/vae/" data-title="[Paper Review]Auto-Encoding Variational Bayes(VAE)"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/vae/" data-title="[Paper Review]Auto-Encoding Variational Bayes(VAE)" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/self-attention/">Self-Attention</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/transformer/">Transformer</a>,&nbsp;<a href="/tags/vae/">VAE</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/cs231n/lecture10/" class="prev" rel="prev" title="[CS231n] 10. Recurrent Neural Networks"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS231n] 10. Recurrent Neural Networks</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
