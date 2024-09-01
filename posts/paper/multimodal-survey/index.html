@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy" />
+<meta property="og:description" content="개요 Multi-Modal Learning에 관련한 서베이 논문을 리뷰해보려고 한다. Introduction 세상을 둘러싼 환경은 여러 modality를 포함하고 있다. 사람들은 이러한 modality를 sensory modality(vision or touch)와 연결을 짓는다.
+본 논문은 natural language, visual, vocal signal에 관해서 중점을 두어 설명을 한다.
+Multi modal을 AI에 사용하기 위해서는 multimodal message에 대해 여러 정보(multiple modalities)를 연결시킬줄 알아야 한다.
+또한 여러 데이터 간 데이터의 이질성으로 인하여 Multimodal machine learning에서는 여러 해결해야할 문제가 있는데 본 논문에서는 5개를 제시한다.
+첫 번째는 Representation이다. 이는 multimodal data를 어떻게 잘 요약하고 표현을 할 지에 대한 문제이다.
+두 번째는 Translation이다. 이는 하나의 modality에서 다른 하나의 modality로 어떻게 mapping(translate)을 할 지에 대한 문제이다.
+이미지에 대한 올바른 방식의 해석이 있어도 단 하나의 완벽한 해석은 존재하지 않는다. 세 번째는 Alignment이다. 이는 여러개의 modality로부터 요소 사이의 관계들을 정렬하여 식별하는 것이다. 서로 다른 modality 간의 유사성을 측정하고, 가능한 장거리 의존성 및 모호성을 처리해야 한다. 네 번째는 Fusion이다. 여러 modality의 추론 결과를 합치는 것이다. 다른 modality로부터 오는 정보들은 다양한 예측 결과를 가져올 수 있다. 다섯 번째는 Co-learning이다. Modality간에 knowledge를 전달하는 것이다. 이것은 한 modality의 data가 부족할 때 유용하다. 위 표는 multi-modal을 적용하는 application에서 위에 설명한 5가지의 challenge의 포함 여부를 나타낸 것이다.
+위 표를 확인하며 multi-modal로 활용할 수 있는 task가 무엇인지도 함께 확인하면 될 것 같다.
+Representation 이젠 5가지의 challenge에 대해서 설명할 것이다. 먼저 첫 번째로 설명하는 Multimodal Representation에 대한 설명이다.
+여러 modality를 representing하는 것은 다양한 어려움이 존재한다.
+이질성인 데이터에서 어떻게 섞을 것인지 다른 종류의 noise를 어떻게 처리할 것인지 missing data를 어떻게 처리할 것인지 좋은 representation하는 방법은 model의 성능을 중요하다. (최근 speech recognition, visual object detection 등의 성능 향상 사례가 있다.)
+또한 좋은 representation을 위한 몇 가지 속성으로 부드러움(smoothness), 시간적 및 공간적 일관성(temporal and spatial coherence), 희소성(sparsity), 자연스러운 클러스터링(natural clustering) 등이 있다.
+Multi modal representation을 위한 여러 속성들이 있다. 그것은 표현 공간에서의 유사성이다. 이는 해당 개념들의 유사성을 반영해야 하며, 일부 modality가 없어도 쉽게 표현을 얻을 수 있어야 하고, 관찰된 modality를 바탕으로 누락된 모달리티를 채울 수 있어야 합니다.
+이전까지 단일 modality에 대한 연구는 광범위 하게 연구되어 왔다. 이미지에 관련한 data는 SIFT기법 에서 CNN기법으로 연구되어 왔고 audio domain은 음향적 특징들이 deep neural network에서 rnn으로 연구되어 왔다.
+이런 와중 multi-modal에선 단일 modality에 대한 연구들을 단순히 concat하는 방법만 사용하고 있다. 이런 방법론들이 변화되고 있다.
+따라서, 본 논문에선 joint와 coordinated라는 두 가지의 representation 방법을 소개한다.
+joint는 각각의 modality를 같은 representation space에 결합하는 방식이다. 이는 아래와 같은 수식으로 표현할 수 있다. ($x_1, x_n$등은 각각 modality이다.)
+$$ x_m = f(x_1,&hellip;,x_n)$$
+coordinated는 각각의 modality를 각각 분리해서 처리하지만 similarity 규정을 사용해 coordinated space에 가져온다. 이는 아래와 같은 수식으로 표현할 수 있다. $$f(x_1) ~ g(x_2)$$
+Joint Representation Joint Representation은 독립적인 modality 특징들을 concatenation을 한다고 생각하면 된다.
+앞으로는 data의 representation 방법 중 가장 유명한 방법인 Neural network에서 Joint Representation을 하는 방법에 대해서 설명할 것이다.
+Neuraul network을 사용해 multi modal representation을 구축하기 위해 각 modality는 여러 개의 개별 신경 계층으로 시작하고, 이후 이 modality들을 joint space에 투영하는 hidden layer가 따른다.
+이렇게 joint된 representation 들은 hidden layer를 거치거나 예측에 직접적으로 사용을 한다.
+이런 neural network에서 훈련을 할 때, 많은 label data가 필요하게 된다. 따라서 unsupervised data에서 autoencoder를 사용해 이러한 표현을 pre-training하는 것이 일반적이다.
+하나의 예시로 denoising하는 여러개 autoencoder를 stack한 후 다른 autoencoder layer를 사용하여 fuse하게 된다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/paper/multimodal-survey/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-08-29T18:37:03+09:00" />
+<meta property="article:modified_time" content="2024-08-29T18:37:03+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy"/>
+<meta name="twitter:description" content="개요 Multi-Modal Learning에 관련한 서베이 논문을 리뷰해보려고 한다. Introduction 세상을 둘러싼 환경은 여러 modality를 포함하고 있다. 사람들은 이러한 modality를 sensory modality(vision or touch)와 연결을 짓는다.
+본 논문은 natural language, visual, vocal signal에 관해서 중점을 두어 설명을 한다.
+Multi modal을 AI에 사용하기 위해서는 multimodal message에 대해 여러 정보(multiple modalities)를 연결시킬줄 알아야 한다.
+또한 여러 데이터 간 데이터의 이질성으로 인하여 Multimodal machine learning에서는 여러 해결해야할 문제가 있는데 본 논문에서는 5개를 제시한다.
+첫 번째는 Representation이다. 이는 multimodal data를 어떻게 잘 요약하고 표현을 할 지에 대한 문제이다.
+두 번째는 Translation이다. 이는 하나의 modality에서 다른 하나의 modality로 어떻게 mapping(translate)을 할 지에 대한 문제이다.
+이미지에 대한 올바른 방식의 해석이 있어도 단 하나의 완벽한 해석은 존재하지 않는다. 세 번째는 Alignment이다. 이는 여러개의 modality로부터 요소 사이의 관계들을 정렬하여 식별하는 것이다. 서로 다른 modality 간의 유사성을 측정하고, 가능한 장거리 의존성 및 모호성을 처리해야 한다. 네 번째는 Fusion이다. 여러 modality의 추론 결과를 합치는 것이다. 다른 modality로부터 오는 정보들은 다양한 예측 결과를 가져올 수 있다. 다섯 번째는 Co-learning이다. Modality간에 knowledge를 전달하는 것이다. 이것은 한 modality의 data가 부족할 때 유용하다. 위 표는 multi-modal을 적용하는 application에서 위에 설명한 5가지의 challenge의 포함 여부를 나타낸 것이다.
+위 표를 확인하며 multi-modal로 활용할 수 있는 task가 무엇인지도 함께 확인하면 될 것 같다.
+Representation 이젠 5가지의 challenge에 대해서 설명할 것이다. 먼저 첫 번째로 설명하는 Multimodal Representation에 대한 설명이다.
+여러 modality를 representing하는 것은 다양한 어려움이 존재한다.
+이질성인 데이터에서 어떻게 섞을 것인지 다른 종류의 noise를 어떻게 처리할 것인지 missing data를 어떻게 처리할 것인지 좋은 representation하는 방법은 model의 성능을 중요하다. (최근 speech recognition, visual object detection 등의 성능 향상 사례가 있다.)
+또한 좋은 representation을 위한 몇 가지 속성으로 부드러움(smoothness), 시간적 및 공간적 일관성(temporal and spatial coherence), 희소성(sparsity), 자연스러운 클러스터링(natural clustering) 등이 있다.
+Multi modal representation을 위한 여러 속성들이 있다. 그것은 표현 공간에서의 유사성이다. 이는 해당 개념들의 유사성을 반영해야 하며, 일부 modality가 없어도 쉽게 표현을 얻을 수 있어야 하고, 관찰된 modality를 바탕으로 누락된 모달리티를 채울 수 있어야 합니다.
+이전까지 단일 modality에 대한 연구는 광범위 하게 연구되어 왔다. 이미지에 관련한 data는 SIFT기법 에서 CNN기법으로 연구되어 왔고 audio domain은 음향적 특징들이 deep neural network에서 rnn으로 연구되어 왔다.
+이런 와중 multi-modal에선 단일 modality에 대한 연구들을 단순히 concat하는 방법만 사용하고 있다. 이런 방법론들이 변화되고 있다.
+따라서, 본 논문에선 joint와 coordinated라는 두 가지의 representation 방법을 소개한다.
+joint는 각각의 modality를 같은 representation space에 결합하는 방식이다. 이는 아래와 같은 수식으로 표현할 수 있다. ($x_1, x_n$등은 각각 modality이다.)
+$$ x_m = f(x_1,&hellip;,x_n)$$
+coordinated는 각각의 modality를 각각 분리해서 처리하지만 similarity 규정을 사용해 coordinated space에 가져온다. 이는 아래와 같은 수식으로 표현할 수 있다. $$f(x_1) ~ g(x_2)$$
+Joint Representation Joint Representation은 독립적인 modality 특징들을 concatenation을 한다고 생각하면 된다.
+앞으로는 data의 representation 방법 중 가장 유명한 방법인 Neural network에서 Joint Representation을 하는 방법에 대해서 설명할 것이다.
+Neuraul network을 사용해 multi modal representation을 구축하기 위해 각 modality는 여러 개의 개별 신경 계층으로 시작하고, 이후 이 modality들을 joint space에 투영하는 hidden layer가 따른다.
+이렇게 joint된 representation 들은 hidden layer를 거치거나 예측에 직접적으로 사용을 한다.
+이런 neural network에서 훈련을 할 때, 많은 label data가 필요하게 된다. 따라서 unsupervised data에서 autoencoder를 사용해 이러한 표현을 pre-training하는 것이 일반적이다.
+하나의 예시로 denoising하는 여러개 autoencoder를 stack한 후 다른 autoencoder layer를 사용하여 fuse하게 된다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/multimodal-survey/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/vae/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/multimodal-survey\/"
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, multi-modal learning","wordcount":  925 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/multimodal-survey\/","datePublished": "2024-08-29T18:37:03+09:00","dateModified": "2024-08-29T18:37:03+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/survey/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Survey</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-08-29">2024-08-29</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;925 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#representation">Representation</a>
+      <ul>
+        <li><a href="#joint-representation">Joint Representation</a></li>
+        <li><a href="#coordinated-representation">Coordinated Representation</a></li>
+      </ul>
+    </li>
+    <li><a href="#translation">Translation</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>Multi-Modal Learning</code>에 관련한 서베이 논문을 리뷰해보려고 한다.</li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<ol>
+<li>
+<p>세상을 둘러싼 환경은 여러 <code>modality</code>를 포함하고 있다. 사람들은 이러한 <code>modality</code>를 <code>sensory modality(vision or touch)</code>와 연결을 짓는다.</p>
+</li>
+<li>
+<p>본 논문은 <code>natural language</code>, <code>visual</code>, <code>vocal signal</code>에 관해서 중점을 두어 설명을 한다.</p>
+</li>
+<li>
+<p><code>Multi modal</code>을 <code>AI</code>에 사용하기 위해서는 <code>multimodal message</code>에 대해 <code>여러 정보(multiple modalities)</code>를 연결시킬줄 알아야 한다.</p>
+</li>
+<li>
+<p>또한 여러 데이터 간 <code>데이터의 이질성</code>으로 인하여 <code>Multimodal machine learning</code>에서는 여러 해결해야할 문제가 있는데 본 논문에서는 <strong>5개를</strong> 제시한다.</p>
+</li>
+<li>
+<p>첫 번째는 <code>Representation</code>이다. 이는 multimodal data를 어떻게 잘 요약하고 표현을 할 지에 대한 문제이다.</p>
+</li>
+<li>
+<p>두 번째는 <code>Translation</code>이다. 이는 하나의 <code>modality</code>에서 다른 하나의 <code>modality</code>로 어떻게 mapping(translate)을 할 지에 대한 문제이다.</p>
+</li>
+</ol>
+<ul>
+<li>이미지에 대한 올바른 방식의 해석이 있어도 <strong>단 하나의 완벽한 해석은 존재하지 않는다.</strong></li>
+</ul>
+<ol start="7">
+<li>세 번째는 <code>Alignment</code>이다. 이는 여러개의 <code>modality</code>로부터 요소 사이의 관계들을 <strong>정렬하여 식별하는 것이다.</strong></li>
+</ol>
+<ul>
+<li>서로 다른 <code>modality</code> 간의 유사성을 측정하고, 가능한 장거리 의존성 및 모호성을 처리해야 한다.</li>
+</ul>
+<ol start="8">
+<li>네 번째는 <code>Fusion</code>이다. 여러 <code>modality</code>의 <strong>추론 결과를 합치는 것이다.</strong></li>
+</ol>
+<ul>
+<li>다른 <code>modality</code>로부터 오는 정보들은 <strong>다양한 예측 결과를 가져올 수 있다.</strong></li>
+</ul>
+<ol start="9">
+<li>다섯 번째는 <code>Co-learning</code>이다. <code>Modality</code>간에 <code>knowledge</code>를 전달하는 것이다.</li>
+</ol>
+<ul>
+<li>이것은 한 <code>modality</code>의 data가 부족할 때 유용하다.</li>
+</ul>
+<div style="text-align:center;">
+<img src="/images/paper/multi-modal/table.png" height="100%" width="80%"> </div>
+<ol start="10">
+<li>
+<p><code>위 표</code>는 <code>multi-modal</code>을 적용하는 <code>application</code>에서 위에 설명한 <code>5가지</code>의 challenge의 포함 여부를 나타낸 것이다.</p>
+</li>
+<li>
+<p><code>위 표</code>를 확인하며 <code>multi-modal</code>로 활용할 수 있는 <code>task가</code> 무엇인지도 함께 확인하면 될 것 같다.</p>
+</li>
+</ol>
+<hr>
+<h2 id="representation">Representation</h2>
+<ol start="12">
+<li>
+<p>이젠 5가지의 <code>challenge</code>에 대해서 설명할 것이다. 먼저 첫 번째로 설명하는 <code>Multimodal Representation</code>에 대한 설명이다.</p>
+</li>
+<li>
+<p>여러 <code>modality</code>를 <code>representing</code>하는 것은 다양한 어려움이 존재한다.</p>
+</li>
+</ol>
+<ul>
+<li>이질성인 데이터에서 어떻게 섞을 것인지</li>
+<li>다른 종류의 noise를 어떻게 처리할 것인지</li>
+<li>missing data를 어떻게 처리할 것인지</li>
+</ul>
+<ol start="14">
+<li>
+<p>좋은 <code>representation</code>하는 방법은 <code>model</code>의 성능을 중요하다. (최근 <code>speech recognition</code>, <code>visual object detection</code> 등의 성능 향상 사례가 있다.)</p>
+</li>
+<li>
+<p>또한 좋은 <code>representation</code>을 위한 몇 가지 속성으로 <code>부드러움(smoothness)</code>, <code>시간적 및 공간적 일관성(temporal and spatial coherence)</code>, <code>희소성(sparsity)</code>, <code>자연스러운 클러스터링(natural clustering)</code> 등이 있다.</p>
+</li>
+<li>
+<p><code>Multi modal representation</code>을 위한 여러 속성들이 있다. 그것은 <code>표현 공간에서의 유사성</code>이다. 이는 해당 개념들의 유사성을 반영해야 하며, <strong>일부 modality가 없어도 쉽게 표현을 얻을 수 있어야 하고</strong>, <strong>관찰된 modality를 바탕으로 누락된 모달리티를 채울 수 있어야 합니다.</strong></p>
+</li>
+<li>
+<p>이전까지 단일 <code>modality</code>에 대한 연구는 광범위 하게 연구되어 왔다. 이미지에 관련한 <code>data</code>는 <code>SIFT기법</code> 에서 <code>CNN기법</code>으로 연구되어 왔고 <code>audio domain</code>은 음향적 특징들이 <code>deep neural network</code>에서 <code>rnn</code>으로 연구되어 왔다.</p>
+</li>
+<li>
+<p>이런 와중 <code>multi-modal</code>에선 단일 modality에 대한 연구들을 단순히 concat하는 방법만 사용하고 있다. 이런 방법론들이 변화되고 있다.</p>
+</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/paper/multi-modal/representation.png" height="100%" width="80%"> </div>
+<ol start="19">
+<li>
+<p>따라서, 본 논문에선 <code>joint</code>와 <code>coordinated</code>라는 <code>두 가지의 representation 방법</code>을 소개한다.</p>
+</li>
+<li>
+<p><code>joint</code>는 각각의 <code>modality</code>를 같은 <code>representation space</code>에 결합하는 방식이다. 이는 아래와 같은 수식으로 표현할 수 있다. ($x_1, x_n$등은 각각 modality이다.)</p>
+</li>
+</ol>
+<p>$$ x_m = f(x_1,&hellip;,x_n)$$</p>
+<ol start="21">
+<li><code>coordinated</code>는 각각의 <code>modality</code>를 <strong>각각 분리해서 처리</strong>하지만 <code>similarity 규정</code>을 사용해 <code>coordinated space</code>에 가져온다. 이는 아래와 같은 수식으로 표현할 수 있다.</li>
+</ol>
+<p>$$f(x_1) ~ g(x_2)$$</p>
+<hr>
+<h3 id="joint-representation">Joint Representation</h3>
+<ol start="22">
+<li>
+<p><code>Joint Representation</code>은 <code>독립적인 modality 특징</code>들을 <code>concatenation</code>을 한다고 생각하면 된다.</p>
+</li>
+<li>
+<p>앞으로는 <code>data의 representation 방법</code> 중 <strong>가장 유명한 방법</strong>인 <code>Neural network</code>에서 <code>Joint Representation</code>을 하는 방법에 대해서 설명할 것이다.</p>
+</li>
+<li>
+<p><code>Neuraul network</code>을 사용해 <code>multi modal representation</code>을 구축하기 위해 각 <code>modality</code>는 여러 개의 <strong>개별 신경 계층</strong>으로 시작하고, 이후 이 <code>modality</code>들을 <code>joint space</code>에 투영하는 <code>hidden layer</code>가 따른다.</p>
+</li>
+<li>
+<p>이렇게 <code>joint</code>된 <code>representation</code> 들은 hidden layer를 거치거나 예측에 직접적으로 사용을 한다.</p>
+</li>
+<li>
+<p>이런 <code>neural network</code>에서 훈련을 할 때, 많은 label data가 필요하게 된다. 따라서 <code>unsupervised data</code>에서 <code>autoencoder</code>를 사용해 이러한 표현을 <code>pre-training</code>하는 것이 일반적이다.</p>
+</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/paper/multi-modal/auto.png" height="100%" width="40%"> </div>
+<ol start="27">
+<li>하나의 예시로 <code>denoising하는 여러개 autoencoder</code>를 <strong>stack한 후</strong> <code>다른 autoencoder layer</code>를 사용하여 <strong>fuse하게 된다.</strong></li>
+</ol>
+<ul>
+<li>이런 <code>autoencoder</code>를 <code>multi-modal</code>에서 representation을 잘 학습하기 위하여 <code>reconstruction loss</code>를 사용하고 그 <code>representation</code>을 사용하여 <code>object label</code>을 예측할 수도 있게 한다.</li>
+</ul>
+<ol start="28">
+<li>
+<p><code>또 다른 방법</code>으로는 <code>Probabilistic graphical model</code>이 있다. 이는 <code>latent random variable</code>에서 <code>representation</code>을 재구성하는 방법이다.</p>
+</li>
+<li>
+<p><code>Graphical model</code>에서 가장 유명한 방법은 restricted Boltzmann machine(RBM)을 쌓아 올린 deep Boltzmann machine(DBM)이다. 이는 앞서 설명한 <code>autoencoder</code>와 같이 <code>unsupervised learning</code>이 가능하다.</p>
+</li>
+<li>
+<p>이 방법은 <code>neural network</code>로도 변환이 가능하다. 이 방법의 장점은 <strong>생성적 특성이다.</strong> 따라서 missing data가 있어도 하나의 modality가 있어서 다른 modality의 특성을 생성해낼 수 있다.</p>
+</li>
+<li>
+<p>하지만 <strong>높은 computational cost</strong> 때문에 훈련이 어렵고 적절한 <code>variational training method</code>를 사용해야한다는 <strong>문제점이 있다.</strong></p>
+</li>
+<li>
+<p>다음으론 고정된 길이가 아닌 <strong>연속적인 성격을 지닌 data</strong>(audio, video, sentence 등)을 model이 <code>represent</code>하는 방법에 대해서 설명할 것이다.</p>
+</li>
+<li>
+<p><code>RNN</code>과 <code>LSTM</code>은 <code>sequence model</code>에서 훌륭한 성과를 내고있다. <code>RNN</code>의 <code>hiddein state</code>는 data의 <code>representation</code>이라고 볼 수 있다. 왜냐하면 <code>RNN</code>의 encoder에서 나온 <code>hidden state</code>의 조합으로 decoder가 재조합 하는 것 이기 때문이다.</p>
+</li>
+</ol>
+<h3 id="coordinated-representation">Coordinated Representation</h3>
+<ol start="34">
+<li>
+<p>각각의 <code>modality</code>에서 <code>representation</code>을 얻은 다음에 <code>constraint</code>를 통하여 <strong>조정을 하게 하는</strong> 것이 <code>coordinated representation</code> 방법이다.</p>
+</li>
+<li>
+<p>비슷한 모델은 <code>coordinated space</code>에서 가까운 거리를 가지는 경향이 있다. 예를 들어 <em>dog</em>라는 단어와 dog를 나타내는 이미지 간에 distance가 <em>dog</em>와 car를 나타내는 이미지의 <strong>distance보다 짧은 것을 확인했다.</strong></p>
+</li>
+<li>
+<p>따라서 이와 비슷한 모델로 <code>WSABIE(web scale annotation by image embedding)</code>의 설명이 나온다. 이 모델은 이미지와 그 주석들을 위한 <code>coordinated</code> 공간을 구축했다.</p>
+</li>
+</ol>
+<ul>
+<li>이미지와 텍스트 특징 간에 <strong>간단한 선형 맵을 구성하여</strong> 해당하는 주석과 이미지 표현 사이의 내적(inner product)이 더 크고</li>
+<li>일치하지 않는 주석과 이미지 표현 사이의 내적은 상대적으로 작게 하였다.</li>
+</ul>
+<ol start="37">
+<li>최근에는 <code>WSABIE</code>와 유사하지만 <strong>더 복잡한 이미지와 embedding</strong>을 사용할 수 있는 <code>neural network</code> <code>DeViSE(A deep visual-semantic embedding)</code>을 소개한다. 이 모델에서 내적 연산, ranking loss를 사용하였다.</li>
+</ol>
+<ul>
+<li>이러한 모델은 <code>end-to-end</code> 방식으로 학습을 할 수 있는 <strong>장점이 있다.</strong></li>
+</ul>
+<ol start="38">
+<li><code>Structured coordinated space</code>는 <code>representation</code>의 <strong>유사성을 강제하는 것</strong> 뿐 아니라 <code>modality</code>의 추가적인 <code>constraint</code>를 더한다.</li>
+</ol>
+<ul>
+<li>적용 분야에 따라 <strong>constraint가 달라진다.</strong></li>
+</ul>
+<ol start="39">
+<li>
+<p><code>Cross-modal hashing</code>에서 자주 쓰인다. <code>Cross modal hasing</code>은 높은 차원의 data를 압축하여 비슷한 객체에 대해 유사한 이진 코드를 갖는 <strong>소형 이진 코드로 변환하는 것이다</strong>.</p>
+</li>
+<li>
+<p>이는 <code>Cross-modal 검색</code>을 위해 이런 해시 코드들이 만들어 진다.</p>
+</li>
+<li>
+<p>이때 hashing은 결과로 얻어진 <code>multi modal 공간</code>에 대해 다음과 같은 특정 제약을 강제한다. 또한 이런 제약은 <code>hash function</code>으로 <code>data representation</code>을 <strong>표현하는 방법을 훈련하면서</strong> 세 가지를 충족하려고 한다.</p>
+</li>
+</ol>
+<ul>
+<li>N차원 해밍 공간이어여 하며, 제어 가능한 이진 표현이어야 한다.</li>
+<li>다른 <code>modality</code>로부터 <code>같은 object</code>를 가지면 <code>유사한 hash code</code>를 가져야한다.</li>
+<li>Space는 <code>similarity-preserving</code>이어야 한다.</li>
+</ul>
+<ol start="42">
+<li>
+<p>앞선 방법으로 <strong>문장 description과 해당 이미지 간의 공통 binary space을 학습</strong>하는 방법을 딥러닝에 적용하는 예시가 있다.</p>
+</li>
+<li>
+<p>또한 <code>Structured coordinated space</code>의 다른 예로 <code>이미지</code>와 <code>언어</code>의 <code>순서 임베딩</code>에서 찾을 수 있다. 언어와 이미지 표현의 <strong>부분 순서를 캡처하여 공간에 계층 구조를 강제하는 것이다.</strong></p>
+</li>
+</ol>
+<ul>
+<li>예를 들어, &ldquo;여자가 개를 산책시키고 있는 이미지&rdquo; → &ldquo;여자가 개를 산책시키고 있다&quot;라는 텍스트 → &ldquo;여자가 산책 중이다&quot;라는 텍스트로 <strong>이어지는 순서를 강제하게 된다.</strong></li>
+</ul>
+<hr>
+<h2 id="translation">Translation</h2>
+<ol start="44">
+<li>continue</li>
+</ol>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-08-29</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/multimodal-survey/" data-title="[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy" data-hashtags="논문 리뷰,computer vision,multi-modal learning"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/multimodal-survey/" data-hashtag="논문 리뷰"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/multimodal-survey/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/multimodal-survey/" data-title="[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/multimodal-survey/" data-title="[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/multimodal-survey/" data-title="[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/multimodal-survey/" data-title="[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/multi-modal-learning/">multi-modal learning</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/paper/vae/" class="prev" rel="prev" title="[Paper Review]Auto-Encoding Variational Bayes(VAE)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Auto-Encoding Variational Bayes(VAE)</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
