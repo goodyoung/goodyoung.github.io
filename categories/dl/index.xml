@@ -3,7 +3,36 @@
         <title>DL - Category - Good Young</title>
         <link>https://goodyoung.github.io/categories/dl/</link>
         <description>DL - Category - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 29 Aug 2024 18:37:03 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/dl/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 02 Sep 2024 14:52:43 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/dl/" rel="self" type="application/rss+xml" /><item>
+    <title>[Paper Review]Generative Adversarial Nets(GAN)</title>
+    <link>https://goodyoung.github.io/posts/paper/gan/</link>
+    <pubDate>Mon, 02 Sep 2024 14:52:43 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/paper/gan/</guid>
+    <description><![CDATA[개요 VAE논문 다음으로 Generative분야에서 기초가 되는 논문인 GAN에 관한 리뷰를 할 것이다. Introduction 다양한 data환경에서 확률 분포를 잘 표현할 수 있는 풍부하고 계층적인 모델을 발견하는 것이 딥러닝의 잠재력이다.
+딥러닝의 두드러진 성공 사례는 풍부한 감각 input을 class label로 매핑하는 판별 모델이다.
+이런 성공은 backpropagation과 dropout의 algorithm, gradient를 가진 조각별 선형적 유닛들(ReLU)에 기반을 두고 있다. 그동안 Deep generative model은 큰 영향을 끼치진 못했다. Likelihood에 대한 추정과 관련된 전략에서 발생하는 계산을 근사화하는 것이 어렵고, 조각별 선형적 유닛들을 활용하여 generative에서 활용하는 것도 어렵기 때문이다.
+따라서 본 논문은 이런 어려움들을 피할 수 있는 추정 절차를 제안한다.
+제안된 adversarial nets은 generative model은 discriminative model과 맞서게 된다.
+Discriminative model은 model 분포에서 나온 것인지 data 분포에서 나온 것인지 구분하는 방법을 학습한다.
+Generative model은 위조자와 비슷하게 생각할 수 있다. 이는 fake 지폐를 만들어 경찰의 탐지 없이 사용하려고 한다. 반면 discriminative model은 경찰에 비유할 수 있다. 이런 fake 지폐를 탐지하려고 한다.
+이런 상황 속에서 두개의 model이 자신들의 방법을 개선하려고 한다. 결국 위조지폐가 진짜 지폐와 구별되지 않게 되게 된다.
+이 framework는 다양한 모델과 최적화 방법에 대해서 특정한 training algorithm을 도출할 수 있다.
+Generative 모델이 MLP을 통해 random noise를 통과시켜 sample을 생성하는 특수한 경우를 탐구합니다. 이런 특수한 경우를 적대적 신경망(Adversarial Nets)이라고 부른다.
+Generative, discriminative model 둘 다 backpropagation을 통하여 업데이트를 하며 generative model을 통하여 sampling을 할 땐 forward만 수행한다.
+Adversarial nets 이젠 Adversarial nets에 대한 설명을 할 것 이다. Adversarial modeling framework는 both multilayer perceptron 일 때 곧바로 적용할 수 있다.
+Data x에 $p_g$ 분포를 배우기 위하여 사전에 noise 변수 $p_z(z)$를 선언한다. 그 후 $G(z;\theta_g)$의 data space에 매핑을 하게 된다.
+이 때 $G$는 파라미터 $\theta_g$를 지닌 미분 가능한 함수이다. 또한 두번째 multilayer perceptron이고 output이 하나의 scalar가 나오는 $D(x;\theta_d)$가 있게 된다. 이때 $D(x)$는 $p_g$분포와는 다른 $x$로부터 나왔을 확률을 representation한다. 이때 나온 output(single scalar)이 1: real ~ 0: fake일 확률을 나타낸다. 본 논문에서 나오는 훈련은 $D$는 훈련 샘플과 $G$에서 나온 샘플 (fake image) 모두에 대해 올바른 label(real or fake)을 할당하는 확률을 최대화하도록 훈련이 된다.
+또 동시에 $G$를 $log(1-D(G(z))$ 를 사용하여 최소화 하는 방식으로 훈련을 하게 된다.
+위의 내용을 총 정리한 $V(G,D)$ 의 목적 함수(Object Function)를 나타내면 아래의 식이다.
+$$\min_G \max_D V(D, G) = E_{x \sim p_{\text{data}}(x)} [\log D(x)] + E_{z \sim p_z(z)} [\log(1 - D(G(z)))]$$
+위의 Adversarial net을 나타내는 목적 함수를 좀 더 살펴 보도록 할 것 이다.
+$\min_G \max_D V(D, G)$ 의 부분을 먼저 살펴보자면 $V(D, G)$ 식에서 $G$ 는 낮추고자 하고 $D$ 는 높이고자 하는 것을 알 수 있다.
+$D$의 목표는 진짜 데이터에 대해 높은 확률을 부여하고 가짜 데이터에 대해 낮은 값을 부여하도록 하는 역할이기 때문에 최대화를 목표로 한다. $G$의 목표는 생성된 데이터가 $D$에게 진짜 데이터 처럼 보이게 하는 역할이기 때문에 최소화를 목표로 한다. $E_{x \sim p_{\text{data}}(x)} [\log D(x)]$ 은 원본 데이터 $p_\text{data}(x)$에서 한개의 데이터인 $x$를 sampling을 하여 그 $x$를 $D$에 넣은 값에 $log$를 취한 값의 기대값을 나타낸다. 따라서 앞서 13번을 보면 사전에 noise 변수인 $p_z(z)$ 를 선언한다고 나와 있다.
+따라서 $E_{z \sim p_z(z)} [\log(1 - D(G(z)))]$ 의 식은 하나의 noise 분포 $p_z(z)$ 에서 한 값을 sampling하여 그 $x$ 를 생성자 $G$ 에 넣고 가짜 이미지를 만든 다음에 $D$에 넣고 $1-D$의 형태로 만든 값에 $log$를 취한 값의 기대값을 나타낸다.
+그래서 이런 두 항을 $D$의 관점에서 봤을 때 maximize하기 때문에 원본 데이터(x)에 대해서는 real(1)을 찾을 수 있도록 하고 반면에 가짜 이미지(z)가 들어왔을 때는 그 이미지가 fake(0)인지 분류할 수 있게 가능하게 한다.]]></description>
+</item>
+<item>
     <title>[Paper Review]Multimodal Machine Learning: A Survey and Taxonomy</title>
     <link>https://goodyoung.github.io/posts/paper/multimodal-survey/</link>
     <pubDate>Thu, 29 Aug 2024 18:37:03 &#43;0900</pubDate>
@@ -149,17 +178,6 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
 다음은 ReLU함수 이다. 이는 위 두 함수과 다르게 양수에서 경사도를 죽일 수 있는 문제를 해결 하였다. 또한 이 함수는 최대값만 계산하기 때문에 연산이 효율적이고 실제로 앞선 함수들과 비교하여 6배가 빠르다고 한다. 하지만 ReLU함수도 몇가지 문제점이 있다. Non-zero-center문제를 가지고 있고 또한 음수일 경우에는 경사도를 죽일 수 있는 문제가 발생할 수 있다. 따라서 W를 initialization하는 과정에서 잘못되었을 때 dead ReLU가 발생할 수 있다. 따라서 이런 dead ReLU를 피하기 위하여 초기화를 할 때 positive한 bias를 얻게 초기화를 하는 방법도 있지만 효과가 경미하다. 또한 learning rate를 크게 설정하는 대규모 훈련 시 W가 너무 크게 비약해서 학습이 안되는 상황이 발생할 수도 있다. 실제로 ReLU를 사용한 Network에서 10~20% 정도가 dead ReLU에 빠진다고 한다. 문제이긴 하지만 그럼에도 불구하고, train은 잘 된다고 한다. Leaky ReLU $$f(x) = max(0.01x,x)$$
 ReLU와 다르게 음수에도 음수 기울기를 주어 경사도를 죽일 수 있는 문제를 해결하고자 한다. ReLU와 같게 연산이 빠르다는 장점도 있다. PReLU $$f(x) = max(ax,x)$$
 PReLU는 음수 영역에 backpropagation에서의 파라미터로 기울기 값으로 유연성을 더해주어 조금 더 융통성을 가해 주었고 ELU 다음의 ELU는 평균 출력이 더욱 0에 가까워지게 만든 함수이다.]]></description>
-</item>
-<item>
-    <title>[Paper Review]Fast R-CNN</title>
-    <link>https://goodyoung.github.io/posts/paper/fast-rcnn/</link>
-    <pubDate>Wed, 17 Jul 2024 18:19:31 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/posts/paper/fast-rcnn/</guid>
-    <description><![CDATA[개요 Object Detection분야에서 널리 사용되는 딥러닝 모델인 Fast R-CNN에 대한 논문 리뷰를 해보려고 한다. 이번 Fast R-CNN은 R-CNN의 단점을 고안하고자 나온 모델이다. Introduction 본 논문이 나온 시기의 detection은 classification보다 더 복잡한 모델로 해결을 했는데 multi stage pipeline을 가진 모델들은 slow하고 inelegant하다. 이런 complexity는 object의 localization 때문에 일어난다. 이는 두가지 문제점을 지니고 있는데 수많은 후보 object들이 제안된다 이 후보들이 정확한 localization을 하기 위해 다시 refine해야 된다. 따라서 본 논문에서는 이전 R-CNN과는 달리 single-stage(분류하고 공간 정보를 강화하는) 훈련 기법을 제안한다 VGG16을 사용했으며 R-CNN보다 9배 빠르고, SppNet보다 3배 빠르다. 그리고 논문에서는 이전 모델인 R-CNN의 몇가지 단점을 설명한다. 훈련 시 multi-stage pipeline이다.
-object proposals을 cnn을 통하여 특징 추출을 하고 그것들의 feature를 svm이 분류를 해주고 마지막으로 bounding box regressor를 통해 3단계를 거친다. 훈련 시 공간과 시간적으로 낭비가 된다.
-svm, bounding-box regressor를 할 때, 오버헤드가 심하다 마지막으로 이미지를 test를 할 때 이미지당 47초가 걸린다.
-R-CNN은 계산량 공유 없이 각각의 object마다 계산을 해서 오래걸린다. SppNet은 이러한 점을 극복했다. SppNet은 전체 이미지의 feature map을 계산 한 후 거기서 각각의 object proposal을 분류 한다. proposal을 위해 feature에서 고정된 크기로 추출한다. 그리고 다중 출력 크기로 추출한 다음 그것을 spatial pytamid pooling에서 합친다. 이를 통해 테스트 시간(10~100배)과 훈련 시간(3배)을 크게 줄일 수 있습니다. 근데 이러한 SppNet도 단점이 있다. 여러 단계를 거친 pipeline이라는 것이다. 하지만 R-CNN과 달리, SppNet에서 제안된 미세 조정 알고리즘은 공간 피라미드 풀링 이전의 합성곱 층들을 업데이트할 수 없다. 이러한 제한 사항(고정된 합성곱 층들)은 매우 깊은 네트워크의 정확도를 제한한다. 따라서 이런 단점들을 보안하고자 Fast R-CNN을 고안했다. Fast R-CNN은 몇가지 장점이 있다. 다른 것들 보다 높은 mAP(점수) multi task loss를 사용한 single-stage 훈련 기법 모든 network layer가 update된다. 특징 추출에 disk storage가 필요하지 않다. 사진은 Fast R-CNN의 architecture의 overview이다. Fast R-CNN은 input으로 전체 이미지를 넣고 그와 함께 object proposal (selective search로 구해둠)의 set을 같이 넣는다. 그럼 network는 여러 conv를 거쳐 conv feature map을 생성한다. 그럼 각각의 RoI pooling layer은 추출한다. 고정된 크기의 feature vector가 생성이 된다. (ROI들은 각각 다른 크기를 지녔기 때문) 그 후 Fully Connected (FC)층으로 가며 이것은 또 2가지 분기로 나뉜다. 하나는 (K +1 class의)softmax 확률 추정치를 구한다 다른 하나는 각 K 개의 객체 클래스에 대해 4개의 실수 값을 출력합니다. 4개의 값 집합 각각은 K 개 클래스 중 하나에 대한 세밀한 바운딩 박스 위치를 인코딩합니다. RoI pooling layer RoI pooling layer는 max pooling을 사용하여 region of interest(RoI)를 고정된 크기의 spatial small feature map으로 변환한다. Selective search를 통해 resion proposal을 얻게 된다. 이때 spatial small feature map의 $H, W$의 값은 특정 RoI와는 독립적인 하이퍼 파라미터이다. RoI는 합성곱 특징 맵(conv feature map) 내의 사각형 창을 의미합니다. 각각의 RoI는 **(r,c,h,w)**의 특징을 지니고 있는데 **(r,c)**는 top-left를 의미하고 height와 width는 (h,w)를 의미한다. RoI max pooling은 $h × w$ 크기의 RoI 창을 $h/H × w/W$ 크기의 grid를 만든다. 그 후 grid에 max pooling하여 해당 $H × W$ 크기의 출력 grid 셀에 넣는 방식으로 동작합니다. Pooling은 표준 max pooling에서처럼 각 feature map channel에 독립적으로 적용됩니다. 이는 Sppnet에서 하나의 pyramid level만 사용한 것과 동일하다. 결론적으로 원래 이미지를 CNN에 통과시킨 후 나온 feature map에 이전에 생성한 RoI를 projection시키고, 이 RoI를 FC layer input 크기에 맞게 고정된 크기로 변형할 수가 있다. 이를 통해 RCNN 처럼 2000번의 CNN연산 필요 없이, 단 한번의 연산으로 속도를 대폭 높일 수 있게 된다.]]></description>
 </item>
 </channel>
 </rss>
