@@ -3,7 +3,15 @@
         <title>DL - Category - Good Young</title>
         <link>https://goodyoung.github.io/categories/dl/</link>
         <description>DL - Category - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 02 Sep 2024 14:52:43 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/dl/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 13 Sep 2024 18:49:11 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/dl/" rel="self" type="application/rss+xml" /><item>
+    <title>[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)</title>
+    <link>https://goodyoung.github.io/posts/paper/dcgan/</link>
+    <pubDate>Fri, 13 Sep 2024 18:49:11 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/paper/dcgan/</guid>
+    <description><![CDATA[개요 GAN논문 다음으로 Generative분야에서 기초가 되는 논문인 DCGAN에 관한 리뷰를 할 것이다. Introduction Unlabeled data를 통한 재사용 가능한 feature representation을 학습하는 것은 활발한 연구이다. Computer vision에서는 무제한의 양의 image와 video를 활용하여 좋은 intermediate representation을 배울 수 있게 된다. 본 논문은 좋은 image representation을 얻기 위한 방법으로 GAN을 훈련시키고 지도학습에 generator와 discriminator를 다시 사용하는 방법을 제안을 한다. 이런 GAN은 likelihood를 최대화 하는데 매력적인 대안을 제공한다. 그들의 학습 과정에서 heuristic한 cost function이 없어지는 장점을 얻게 된다. GAN은 unstable한 훈련 방법으로 알려져 있는데 종종 output으로 무의미한 것 또한 나오게 된다. GAN이 무엇을 학습하는지, 그리고 multi-layer GAN의 중간 표현을 이해하고 시각화하려는 연구는 매우 제한적이다. 따라서 본 논문은 위의 몇가지 제약사항을 해결하는 몇가지 contribution을 제안한다. 제약을 두어 GAN을 훈련 시 더욱 안정적이게 하였다. Discriminative를 image classification task로 훈련시켰는데, 이는 unsupervised algorithm보다 더 좋은 성능을 보여준다. GAN이 학습한 필터를 시각화 하고, 특정 필터가 특정 객체를 그리는 방법을 학습했다는 것을 실험적으로 보여준다. Generator들이 생성된 sample의 의미론적을 쉽게 조작할 수 있는 흥미로운 vector 속성을 가지고 있음을 보여준다. Approach and Model Architecture 이미지를 생성하기 위해 CNN을 사용한 GAN을 확장하는 것은 성공하지 못하였다. LAPGAN의 저자들이 저해상도의 생성 image를 반복적으로 upscale하는 것을 통하여 신뢰할 수 있는 방법을 고안하였다. 본 논문에서 또한 CNN을 사용한 GAN을 확장하는 것에 어려움을 느꼈지만 계속된 탐색 끝에 GAN을 확장하는데 적합한 구조를 찾았다. 우리의 주요 방법은 CNN 구조를 적용하고 수정하는 세가지 주된 변화가 있다. 첫 번째 방법으로 spatial pooling(such as maxpooling)을 all convolutional net으로 변경하는 것이다. 이를 통하여 Discriminative의 spatial downsampling을 배우게 한다. 이 방법은 generator 또한 적용을 하여, 그것의 고유 spatial upsampling을 배우게 한다. 두 번째 방법으로는 fully connected층을 삭제하는 것이다. 삭제하고 Global average pooling을 사용한다. Global average pooling을 사용하는 것은 모델의 안정성을 높이지만 수렴 속도가 느리다. Generator과 Discriminator의 입력과 출력에 각각 highest convolutional feature가 직접 연결을 하는 것이 잘 작동을 했다. 위 그림과 같이 GAN의 첫 번째 layer는 uniform noise 분포 $z$를 받게 되는데 이는 4차원 텐서로 변환되고 convolutional의 시작으로 사용된다. Discriminative의 마지막 convolutional layer은 flatten된 후, single sigmoid 출력으로 전달된다. 세 번째 방법으로는 Batch normalization으로 input으로 들어오는 값을 평균 0, 분산 1로 정규화를 하여 learning을 안정하게 하는 것이다. 이것은 poor initialization때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다. 이는 generator가 GAN에서 흔하게 나올 수 있는 문제인 모든 샘플을 한 지점으로 붕괴시키는 것을 방지하게 된다. 그러나 모든 layer에 batch normalization을 적용시키는 것은 모델의 불안정성을 보여주었다. 따라서 generator의 output과 discriminator의 input에 적용하지 않는 방법을 선택하여 해당 문제를 해결하였다. 마지막으로 ReLU함수는 generator에서 사용이 되지만 output layer에서는 Tanh가 사용이 된다. 본 논문에서는 유한한 범위를 갖는 활성화 함수를 사용하면 빨리 학습이되고, 훈련 분포의 color 공간을 cover할 수 있음을 관찰하였다고 한다. 그래서 본 논문은 discriminative에서 Leaky ReLU를 사용했다. 이는 고해상도 작업에 더욱 수월하다고 알려져있다. GAN 논문에서는 Maxout을 사용하였다. 해당 챕터의 마지막에서 DCGAN에서 사용된 구조를 정리를 해주고 있다. Discriminator는 pooling layer를 strided convolutional로 교체를 하고 generator는 pooling layer를 fractional-strided convolutional로 교체를 한다. 용어는 어렵지만 쉽게 생각하여 down sampling과 upsampling을 하는 것이다. Generator와 Discriminator 둘 다 batchnorm을 사용한다. FC hiiden layer을 제거한다. Generator에 ReLU를 사용하고 output에는 Tanh를 사용한다. Discriminative의 모든 층에는 LeakyReLU를 사용한다. continue]]></description>
+</item>
+<item>
     <title>[Paper Review]Generative Adversarial Nets(GAN)</title>
     <link>https://goodyoung.github.io/posts/paper/gan/</link>
     <pubDate>Mon, 02 Sep 2024 14:52:43 &#43;0900</pubDate>
@@ -145,19 +153,6 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
 (Nesterov momentum 식 사진 )
 우리는 항상 동일한 지점에서 loss를 평가하고 싶다. 하지만 Nesterov momentum은 그것이 아니기 때문에 따라서 이 식을 조금 더 변형하면 아래의 식과 같이 항상 동일한 지점에서 손실과 기울기를 평가할 수 있게 된다.
 하단의 박스를 보면 현재 시점에서 $v_{t+1}$를 더하고 현재의 $v_{t+1}$와 이전 속도 $v_{t}$의 차이를 더해주면 항상 동일한 지점 $\tilde{x_t}$ 에서 평가하게 된다.]]></description>
-</item>
-<item>
-    <title>[CS231n] 06.Training Neural Networks I</title>
-    <link>https://goodyoung.github.io/posts/cs231n/lecture6/</link>
-    <pubDate>Thu, 18 Jul 2024 15:36:30 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/posts/cs231n/lecture6/</guid>
-    <description><![CDATA[개요 CS231n의 6강에 대한 내용을 정리 할 것이다. 저번 강에서는 Convolutional Neural Networks에 대해 배웠고 이번 강에서는 이 Neural Networks를 어떻게 하면 잘 학습시킬 수 있을지에 대해서 배울 것이다. Activation Function Deep Network에 비선형성을 부여하는 Activation Function의 종류들에 대해서 알아볼 것이다. Sigmoid $$\sigma(x) = \frac{1}{1 + e^{-x}}$$
-먼저 첫 번째로 Sigmoid이다. 함수의 모양은 위 그림과 같고 (0,1) 사이의 값을 가지게 된다.Sigmoid가 가지게 되는 몇가지 문제들이 있다. 첫 번째 문제는 경사도를 죽일 수 있는 문제이다.
-이는 입력으로 들어오는 x가 -10, 10이라면 global gradient(이전 노드의 기울기)는 0이 되고 이것이 역전파를 통해 다운스트림($global grdient * local gradient$) 되면 global gradient가 0이므로 아래 노드들은 0으로 수렴하게 되어 기울기가 소실이 된다. 이러한 기울기 소실로 인하여 W의 값을 더이상 update 하지 못하는 문제를 vanishing gradient라고 한다. 두 번째 문제는 output이 zero-center가 아닌 문제이다. 즉, Signmoid의 output이 항상 양수이기 때문에 0을 중심으로 있지 않는 문제가 발생하게 된다. ouput이 항상 양수 이라면 입력값 또한 양수인 것인데, 그렇게 된다면 back propagation에서 $\frac{dl}{df} * \frac{df}{wi}$ 로 W의 기울기를 chain-rule로 구하게 된다. 근데 우리가 이전 4강에서 배운 chain-rule의 pattern 중 mul gate(곱)일 때 grdient가 서로 전환이 된다고 배웠다. 따라서 $\frac{df}{wi}$ 이것이 바로 $x_i$인 것을 알 수 있게 된다. 이때 $x_i$가 이전 layer의 sigmoid 연산을 거친 output이기 때문에 무조건 양수이다. 입력값은 항상 양수라면 back propagation을 할 때 $\frac{dl}{df}$(global gradient이다.)의 부호를 따라가게 되어서 gradient의 부호는 항상 양수이거나 음수가 된다. 부가적으로 gradient의 부호는 다운 스트림으로 내려온 gradient의 부호와 같아진다고 생각하면 쉽다. 이렇게 부호가 모두 양수 또는 음수가 되어버리면 발생하는 문제는 gradient update를 할 때 나타난다. w1,w2가 있다면 gradient update시 항상 (+)(+) 이거나 (-)(-)가 된다. 따라서 위 그림과 같이 파란색 방향(최적의 gradient update)과는 다르게 비효율적으로 지그재그 방향으로 내려가게 되는 상황이 벌어지게 된다. 이를 해결할 수 있는 방법은 input값에 mean을 모두 빼버리면 zero-mean data가 된다. 그렇게 되면 X가 양수/음수를 모두 가지고 있는 상황을 만들 수 있게 된다. 마지막 세 번째 문제는 Sigmoid에서의 exp의 연산의 계산 비용이 많이 들어간다는 것이다. 따라서 위 세 가지의 문제로 잘 사용하지 않게 된다. tanh 다음은 tanh함수이다. 이는 범위를 (-1,1)까지 하여 Sigmoid의 단점인 non-zero-center문제를 해결하게 되었다. 하지만 여전히 그래프를 봐도 확인 할 수 있지만 경사도를 죽일 수 있는 문제는 해결되지 못하였다. 따라서 Network가 깊어지는 모델이 많아진 요즘 활성화 함수로 잘 사용하지 않게 된다. ReLU $$f(x) = max(0,x)$$
-다음은 ReLU함수 이다. 이는 위 두 함수과 다르게 양수에서 경사도를 죽일 수 있는 문제를 해결 하였다. 또한 이 함수는 최대값만 계산하기 때문에 연산이 효율적이고 실제로 앞선 함수들과 비교하여 6배가 빠르다고 한다. 하지만 ReLU함수도 몇가지 문제점이 있다. Non-zero-center문제를 가지고 있고 또한 음수일 경우에는 경사도를 죽일 수 있는 문제가 발생할 수 있다. 따라서 W를 initialization하는 과정에서 잘못되었을 때 dead ReLU가 발생할 수 있다. 따라서 이런 dead ReLU를 피하기 위하여 초기화를 할 때 positive한 bias를 얻게 초기화를 하는 방법도 있지만 효과가 경미하다. 또한 learning rate를 크게 설정하는 대규모 훈련 시 W가 너무 크게 비약해서 학습이 안되는 상황이 발생할 수도 있다. 실제로 ReLU를 사용한 Network에서 10~20% 정도가 dead ReLU에 빠진다고 한다. 문제이긴 하지만 그럼에도 불구하고, train은 잘 된다고 한다. Leaky ReLU $$f(x) = max(0.01x,x)$$
-ReLU와 다르게 음수에도 음수 기울기를 주어 경사도를 죽일 수 있는 문제를 해결하고자 한다. ReLU와 같게 연산이 빠르다는 장점도 있다. PReLU $$f(x) = max(ax,x)$$
-PReLU는 음수 영역에 backpropagation에서의 파라미터로 기울기 값으로 유연성을 더해주어 조금 더 융통성을 가해 주었고 ELU 다음의 ELU는 평균 출력이 더욱 0에 가까워지게 만든 함수이다.]]></description>
 </item>
 </channel>
 </rss>

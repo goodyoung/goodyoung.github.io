@@ -3,18 +3,18 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 02 Sep 2024 14:52:43 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
-    <title>GAN</title>
-    <link>https://goodyoung.github.io/tags/gan/</link>
-    <pubDate>Mon, 02 Sep 2024 14:52:43 &#43;0900</pubDate>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 13 Sep 2024 18:49:11 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>DCGAN</title>
+    <link>https://goodyoung.github.io/tags/dcgan/</link>
+    <pubDate>Fri, 13 Sep 2024 18:49:11 &#43;0900</pubDate>
     <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/gan/</guid>
+    <guid>https://goodyoung.github.io/tags/dcgan/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
     <title>Generative</title>
     <link>https://goodyoung.github.io/tags/generative/</link>
-    <pubDate>Mon, 02 Sep 2024 14:52:43 &#43;0900</pubDate>
+    <pubDate>Fri, 13 Sep 2024 18:49:11 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/generative/</guid>
     <description><![CDATA[]]></description>
@@ -22,9 +22,17 @@
 <item>
     <title>논문 리뷰</title>
     <link>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</link>
-    <pubDate>Mon, 02 Sep 2024 14:52:43 &#43;0900</pubDate>
+    <pubDate>Fri, 13 Sep 2024 18:49:11 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>GAN</title>
+    <link>https://goodyoung.github.io/tags/gan/</link>
+    <pubDate>Mon, 02 Sep 2024 14:52:43 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/gan/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
@@ -73,14 +81,6 @@
     <pubDate>Wed, 21 Aug 2024 16:55:43 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/lstm/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Neural Networks</title>
-    <link>https://goodyoung.github.io/tags/neural-networks/</link>
-    <pubDate>Wed, 21 Aug 2024 16:55:43 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/neural-networks/</guid>
     <description><![CDATA[]]></description>
 </item>
 </channel>

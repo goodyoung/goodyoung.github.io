@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)" />
+<meta property="og:description" content="개요 GAN논문 다음으로 Generative분야에서 기초가 되는 논문인 DCGAN에 관한 리뷰를 할 것이다. Introduction Unlabeled data를 통한 재사용 가능한 feature representation을 학습하는 것은 활발한 연구이다. Computer vision에서는 무제한의 양의 image와 video를 활용하여 좋은 intermediate representation을 배울 수 있게 된다. 본 논문은 좋은 image representation을 얻기 위한 방법으로 GAN을 훈련시키고 지도학습에 generator와 discriminator를 다시 사용하는 방법을 제안을 한다. 이런 GAN은 likelihood를 최대화 하는데 매력적인 대안을 제공한다. 그들의 학습 과정에서 heuristic한 cost function이 없어지는 장점을 얻게 된다. GAN은 unstable한 훈련 방법으로 알려져 있는데 종종 output으로 무의미한 것 또한 나오게 된다. GAN이 무엇을 학습하는지, 그리고 multi-layer GAN의 중간 표현을 이해하고 시각화하려는 연구는 매우 제한적이다. 따라서 본 논문은 위의 몇가지 제약사항을 해결하는 몇가지 contribution을 제안한다. 제약을 두어 GAN을 훈련 시 더욱 안정적이게 하였다. Discriminative를 image classification task로 훈련시켰는데, 이는 unsupervised algorithm보다 더 좋은 성능을 보여준다. GAN이 학습한 필터를 시각화 하고, 특정 필터가 특정 객체를 그리는 방법을 학습했다는 것을 실험적으로 보여준다. Generator들이 생성된 sample의 의미론적을 쉽게 조작할 수 있는 흥미로운 vector 속성을 가지고 있음을 보여준다. Approach and Model Architecture 이미지를 생성하기 위해 CNN을 사용한 GAN을 확장하는 것은 성공하지 못하였다. LAPGAN의 저자들이 저해상도의 생성 image를 반복적으로 upscale하는 것을 통하여 신뢰할 수 있는 방법을 고안하였다. 본 논문에서 또한 CNN을 사용한 GAN을 확장하는 것에 어려움을 느꼈지만 계속된 탐색 끝에 GAN을 확장하는데 적합한 구조를 찾았다. 우리의 주요 방법은 CNN 구조를 적용하고 수정하는 세가지 주된 변화가 있다. 첫 번째 방법으로 spatial pooling(such as maxpooling)을 all convolutional net으로 변경하는 것이다. 이를 통하여 Discriminative의 spatial downsampling을 배우게 한다. 이 방법은 generator 또한 적용을 하여, 그것의 고유 spatial upsampling을 배우게 한다. 두 번째 방법으로는 fully connected층을 삭제하는 것이다. 삭제하고 Global average pooling을 사용한다. Global average pooling을 사용하는 것은 모델의 안정성을 높이지만 수렴 속도가 느리다. Generator과 Discriminator의 입력과 출력에 각각 highest convolutional feature가 직접 연결을 하는 것이 잘 작동을 했다. 위 그림과 같이 GAN의 첫 번째 layer는 uniform noise 분포 $z$를 받게 되는데 이는 4차원 텐서로 변환되고 convolutional의 시작으로 사용된다. Discriminative의 마지막 convolutional layer은 flatten된 후, single sigmoid 출력으로 전달된다. 세 번째 방법으로는 Batch normalization으로 input으로 들어오는 값을 평균 0, 분산 1로 정규화를 하여 learning을 안정하게 하는 것이다. 이것은 poor initialization때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다. 이는 generator가 GAN에서 흔하게 나올 수 있는 문제인 모든 샘플을 한 지점으로 붕괴시키는 것을 방지하게 된다. 그러나 모든 layer에 batch normalization을 적용시키는 것은 모델의 불안정성을 보여주었다. 따라서 generator의 output과 discriminator의 input에 적용하지 않는 방법을 선택하여 해당 문제를 해결하였다. 마지막으로 ReLU함수는 generator에서 사용이 되지만 output layer에서는 Tanh가 사용이 된다. 본 논문에서는 유한한 범위를 갖는 활성화 함수를 사용하면 빨리 학습이되고, 훈련 분포의 color 공간을 cover할 수 있음을 관찰하였다고 한다. 그래서 본 논문은 discriminative에서 Leaky ReLU를 사용했다. 이는 고해상도 작업에 더욱 수월하다고 알려져있다. GAN 논문에서는 Maxout을 사용하였다. 해당 챕터의 마지막에서 DCGAN에서 사용된 구조를 정리를 해주고 있다. Discriminator는 pooling layer를 strided convolutional로 교체를 하고 generator는 pooling layer를 fractional-strided convolutional로 교체를 한다. 용어는 어렵지만 쉽게 생각하여 down sampling과 upsampling을 하는 것이다. Generator와 Discriminator 둘 다 batchnorm을 사용한다. FC hiiden layer을 제거한다. Generator에 ReLU를 사용하고 output에는 Tanh를 사용한다. Discriminative의 모든 층에는 LeakyReLU를 사용한다. continue" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/paper/dcgan/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-09-13T18:49:11+09:00" />
+<meta property="article:modified_time" content="2024-09-13T18:49:11+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)"/>
+<meta name="twitter:description" content="개요 GAN논문 다음으로 Generative분야에서 기초가 되는 논문인 DCGAN에 관한 리뷰를 할 것이다. Introduction Unlabeled data를 통한 재사용 가능한 feature representation을 학습하는 것은 활발한 연구이다. Computer vision에서는 무제한의 양의 image와 video를 활용하여 좋은 intermediate representation을 배울 수 있게 된다. 본 논문은 좋은 image representation을 얻기 위한 방법으로 GAN을 훈련시키고 지도학습에 generator와 discriminator를 다시 사용하는 방법을 제안을 한다. 이런 GAN은 likelihood를 최대화 하는데 매력적인 대안을 제공한다. 그들의 학습 과정에서 heuristic한 cost function이 없어지는 장점을 얻게 된다. GAN은 unstable한 훈련 방법으로 알려져 있는데 종종 output으로 무의미한 것 또한 나오게 된다. GAN이 무엇을 학습하는지, 그리고 multi-layer GAN의 중간 표현을 이해하고 시각화하려는 연구는 매우 제한적이다. 따라서 본 논문은 위의 몇가지 제약사항을 해결하는 몇가지 contribution을 제안한다. 제약을 두어 GAN을 훈련 시 더욱 안정적이게 하였다. Discriminative를 image classification task로 훈련시켰는데, 이는 unsupervised algorithm보다 더 좋은 성능을 보여준다. GAN이 학습한 필터를 시각화 하고, 특정 필터가 특정 객체를 그리는 방법을 학습했다는 것을 실험적으로 보여준다. Generator들이 생성된 sample의 의미론적을 쉽게 조작할 수 있는 흥미로운 vector 속성을 가지고 있음을 보여준다. Approach and Model Architecture 이미지를 생성하기 위해 CNN을 사용한 GAN을 확장하는 것은 성공하지 못하였다. LAPGAN의 저자들이 저해상도의 생성 image를 반복적으로 upscale하는 것을 통하여 신뢰할 수 있는 방법을 고안하였다. 본 논문에서 또한 CNN을 사용한 GAN을 확장하는 것에 어려움을 느꼈지만 계속된 탐색 끝에 GAN을 확장하는데 적합한 구조를 찾았다. 우리의 주요 방법은 CNN 구조를 적용하고 수정하는 세가지 주된 변화가 있다. 첫 번째 방법으로 spatial pooling(such as maxpooling)을 all convolutional net으로 변경하는 것이다. 이를 통하여 Discriminative의 spatial downsampling을 배우게 한다. 이 방법은 generator 또한 적용을 하여, 그것의 고유 spatial upsampling을 배우게 한다. 두 번째 방법으로는 fully connected층을 삭제하는 것이다. 삭제하고 Global average pooling을 사용한다. Global average pooling을 사용하는 것은 모델의 안정성을 높이지만 수렴 속도가 느리다. Generator과 Discriminator의 입력과 출력에 각각 highest convolutional feature가 직접 연결을 하는 것이 잘 작동을 했다. 위 그림과 같이 GAN의 첫 번째 layer는 uniform noise 분포 $z$를 받게 되는데 이는 4차원 텐서로 변환되고 convolutional의 시작으로 사용된다. Discriminative의 마지막 convolutional layer은 flatten된 후, single sigmoid 출력으로 전달된다. 세 번째 방법으로는 Batch normalization으로 input으로 들어오는 값을 평균 0, 분산 1로 정규화를 하여 learning을 안정하게 하는 것이다. 이것은 poor initialization때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다. 이는 generator가 GAN에서 흔하게 나올 수 있는 문제인 모든 샘플을 한 지점으로 붕괴시키는 것을 방지하게 된다. 그러나 모든 layer에 batch normalization을 적용시키는 것은 모델의 불안정성을 보여주었다. 따라서 generator의 output과 discriminator의 input에 적용하지 않는 방법을 선택하여 해당 문제를 해결하였다. 마지막으로 ReLU함수는 generator에서 사용이 되지만 output layer에서는 Tanh가 사용이 된다. 본 논문에서는 유한한 범위를 갖는 활성화 함수를 사용하면 빨리 학습이되고, 훈련 분포의 color 공간을 cover할 수 있음을 관찰하였다고 한다. 그래서 본 논문은 discriminative에서 Leaky ReLU를 사용했다. 이는 고해상도 작업에 더욱 수월하다고 알려져있다. GAN 논문에서는 Maxout을 사용하였다. 해당 챕터의 마지막에서 DCGAN에서 사용된 구조를 정리를 해주고 있다. Discriminator는 pooling layer를 strided convolutional로 교체를 하고 generator는 pooling layer를 fractional-strided convolutional로 교체를 한다. 용어는 어렵지만 쉽게 생각하여 down sampling과 upsampling을 하는 것이다. Generator와 Discriminator 둘 다 batchnorm을 사용한다. FC hiiden layer을 제거한다. Generator에 ReLU를 사용하고 output에는 Tanh를 사용한다. Discriminative의 모든 층에는 LeakyReLU를 사용한다. continue"/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/dcgan/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/gan/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/dcgan\/"
+        },"genre": "posts","keywords": "DCGAN, 논문 리뷰, Generative","wordcount":  486 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/dcgan\/","datePublished": "2024-09-13T18:49:11+09:00","dateModified": "2024-09-13T18:49:11+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-09-13">2024-09-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;486 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#approach-and-model-architecture">Approach and Model Architecture</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>GAN</code>논문 다음으로 <code>Generative</code>분야에서 기초가 되는 논문인 <code>DCGAN</code>에 관한 리뷰를 할 것이다.</li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<ol>
+<li><code>Unlabeled data</code>를 통한 재사용 가능한 <code>feature representation</code>을 학습하는 것은 활발한 연구이다.</li>
+</ol>
+<br>
+<ol start="2">
+<li><code>Computer vision</code>에서는 무제한의 양의 <code>image</code>와 <code>video</code>를 활용하여 좋은 <code>intermediate representation</code>을 배울 수 있게 된다.</li>
+</ol>
+<br>
+<ol start="3">
+<li>본 논문은 좋은 <code>image representation</code>을 얻기 위한 방법으로 <code>GAN</code>을 훈련시키고 지도학습에 <code>generator</code>와 <code>discriminator</code>를 다시 사용하는 방법을 제안을 한다.</li>
+</ol>
+<br>
+<ol start="4">
+<li>이런 <code>GAN</code>은 <code>likelihood</code>를 <strong>최대화</strong> 하는데 매력적인 대안을 제공한다.</li>
+</ol>
+<ul>
+<li>그들의 학습 과정에서 <code>heuristic</code>한 <code>cost function</code>이 <strong>없어지는 장점</strong>을 얻게 된다.</li>
+</ul>
+<br>
+<ol start="5">
+<li><code>GAN</code>은 <code>unstable</code>한 훈련 방법으로 알려져 있는데 종종 output으로 무의미한 것 또한 나오게 된다.</li>
+</ol>
+<br>
+<ol start="6">
+<li><code>GAN</code>이 무엇을 학습하는지, 그리고 <code>multi-layer GAN</code>의 중간 표현을 이해하고 시각화하려는 <strong>연구는 매우 제한적이다</strong>.</li>
+</ol>
+<br>
+<ol start="7">
+<li>따라서 본 논문은 위의 몇가지 제약사항을 해결하는 몇가지 <code>contribution</code>을 제안한다.</li>
+</ol>
+<ul>
+<li>제약을 두어 <code>GAN</code>을 훈련 시 <strong>더욱 안정적이게 하였다</strong>.</li>
+<li><code>Discriminative</code>를 <code>image classification task</code>로 훈련시켰는데, 이는 <code>unsupervised algorithm</code>보다 더 좋은 성능을 보여준다.</li>
+<li><code>GAN</code>이 학습한 필터를 시각화 하고, 특정 필터가 특정 객체를 그리는 방법을 학습했다는 것을 실험적으로 보여준다.</li>
+<li><code>Generator</code>들이 생성된 sample의 의미론적을 <strong>쉽게 조작할 수 있는</strong> 흥미로운 <code>vector 속성</code>을 가지고 있음을 보여준다.</li>
+</ul>
+<hr>
+<h2 id="approach-and-model-architecture">Approach and Model Architecture</h2>
+<ol start="8">
+<li>이미지를 생성하기 위해 <code>CNN</code>을 사용한 <code>GAN</code>을 확장하는 것은 <strong>성공하지 못하였다</strong>.</li>
+</ol>
+<br>
+<ol start="9">
+<li><code>LAPGAN의 저자</code>들이 저해상도의 생성 <code>image</code>를 <strong>반복적으로 upscale하는 것을 통하여</strong> 신뢰할 수 있는 방법을 고안하였다.</li>
+</ol>
+<br>
+<ol start="10">
+<li><code>본 논문</code>에서 또한 <code>CNN</code>을 사용한 <code>GAN</code>을 확장하는 것에 <code>어려움을 느꼈지만</code> 계속된 탐색 끝에 <strong>GAN을 확장하는데 적합한 구조를 찾았다.</strong></li>
+</ol>
+<br>
+<ol start="11">
+<li>우리의 주요 방법은 CNN 구조를 적용하고 수정하는 <code>세가지</code> <strong>주된 변화가 있다.</strong></li>
+</ol>
+<br>
+<ol start="12">
+<li><code>첫 번째 방법</code>으로 <code>spatial pooling(such as maxpooling)</code>을 <code>all convolutional net</code>으로 변경하는 것이다. 이를 통하여 <code>Discriminative</code>의 <code>spatial downsampling</code>을 배우게 한다.</li>
+</ol>
+<ul>
+<li>이 방법은 <code>generator</code> 또한 적용을 하여, 그것의 고유 <code>spatial upsampling</code>을 배우게 한다.</li>
+</ul>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/overall.png" height="100%" width="80%"> </div>
+<ol start="13">
+<li><code>두 번째 방법</code>으로는 <code>fully connected층</code>을 <strong>삭제하는 것이다.</strong> 삭제하고 <code>Global average pooling</code>을 사용한다. <code>Global average pooling</code>을 사용하는 것은 모델의 안정성을 높이지만 수렴 속도가 느리다.</li>
+</ol>
+<br>
+<ol start="14">
+<li><code>Generator</code>과 <code>Discriminator</code>의 입력과 출력에 각각 <code>highest convolutional feature</code>가 직접 연결을 하는 것이 잘 작동을 했다.</li>
+</ol>
+<br>
+<ol start="15">
+<li><code>위 그림</code>과 같이 <code>GAN</code>의 <code>첫 번째 layer</code>는 <code>uniform noise</code> 분포 $z$를 받게 되는데 이는 <code>4차원 텐서로 변환</code>되고 <code>convolutional의 시작</code>으로 사용된다.</li>
+</ol>
+<br>
+<ol start="16">
+<li><code>Discriminative</code>의 마지막 <code>convolutional layer</code>은 flatten된 후, <code>single sigmoid 출력</code>으로 전달된다.</li>
+</ol>
+<br>
+<ol start="17">
+<li><code>세 번째 방법</code>으로는 <code>Batch normalization</code>으로 input으로 들어오는 값을 평균 0, 분산 1로 정규화를 하여 <code>learning을 안정</code>하게 하는 것이다.</li>
+</ol>
+<br>
+<ol start="18">
+<li>이것은 poor initialization때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다.</li>
+</ol>
+<br>
+<ol start="19">
+<li>이는 <code>generator</code>가 <code>GAN</code>에서 흔하게 나올 수 있는 문제인 <strong>모든 샘플을 한 지점으로 붕괴</strong>시키는 것을 <strong>방지하게 된다</strong>.</li>
+</ol>
+<br>
+<ol start="20">
+<li>그러나 <code>모든 layer</code>에 <code>batch normalization</code>을 적용시키는 것은 <code>모델의 불안정성</code>을 보여주었다. 따라서 <code>generator의 output</code>과 <code>discriminator의 input</code>에 적용하지 않는 방법을 선택하여 <strong>해당 문제를 해결하였다.</strong></li>
+</ol>
+<br>
+<ol start="21">
+<li>마지막으로 <code>ReLU</code>함수는 <code>generator</code>에서 사용이 되지만 <code>output layer</code>에서는 <code>Tanh</code>가 사용이 된다. 본 논문에서는 유한한 범위를 갖는 활성화 함수를 사용하면 빨리 학습이되고, 훈련 분포의 color 공간을 cover할 수 있음을 관찰하였다고 한다.</li>
+</ol>
+<br>
+<ol start="22">
+<li>그래서 본 논문은 <code>discriminative</code>에서 <code>Leaky ReLU</code>를 사용했다. 이는 <strong>고해상도 작업에 더욱 수월</strong>하다고 알려져있다.</li>
+</ol>
+<ul>
+<li><code>GAN</code> 논문에서는 <code>Maxout</code>을 사용하였다.</li>
+</ul>
+<br>
+<ol start="23">
+<li>해당 챕터의 마지막에서 <code>DCGAN</code>에서 <code>사용된 구조</code>를 정리를 해주고 있다.</li>
+</ol>
+<ul>
+<li><code>Discriminator</code>는 <code>pooling layer</code>를 <code>strided convolutional</code>로 교체를 하고 <code>generator</code>는 <code>pooling layer</code>를 <code>fractional-strided convolutional</code>로 교체를 한다.
+<ul>
+<li>용어는 어렵지만 쉽게 생각하여 <code>down sampling</code>과 <code>upsampling</code>을 하는 것이다.</li>
+</ul>
+</li>
+<li><code>Generator</code>와 <code>Discriminator</code> 둘 다 <code>batchnorm</code>을 사용한다.</li>
+<li><code>FC hiiden layer</code>을 제거한다.</li>
+<li><code>Generator</code>에 <code>ReLU</code>를 사용하고 output에는 <code>Tanh</code>를 사용한다.</li>
+<li><code>Discriminative</code>의 모든 층에는 <code>LeakyReLU</code>를 사용한다.</li>
+</ul>
+<p>continue</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2024-09-13</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/dcgan/" data-title="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)" data-hashtags="DCGAN,논문 리뷰,Generative"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/dcgan/" data-hashtag="DCGAN"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/dcgan/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/dcgan/" data-title="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/dcgan/" data-title="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/dcgan/" data-title="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/dcgan/" data-title="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/dcgan/">DCGAN</a>,&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/generative/">Generative</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/paper/gan/" class="prev" rel="prev" title="[Paper Review]Generative Adversarial Nets(GAN)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Generative Adversarial Nets(GAN)</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
