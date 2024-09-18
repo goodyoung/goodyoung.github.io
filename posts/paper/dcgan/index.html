@@ -5,14 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)" />
-<meta property="og:description" content="개요 GAN논문 다음으로 Generative분야에서 기초가 되는 논문인 DCGAN에 관한 리뷰를 할 것이다. Introduction Unlabeled data를 통한 재사용 가능한 feature representation을 학습하는 것은 활발한 연구이다. Computer vision에서는 무제한의 양의 image와 video를 활용하여 좋은 intermediate representation을 배울 수 있게 된다. 본 논문은 좋은 image representation을 얻기 위한 방법으로 GAN을 훈련시키고 지도학습에 generator와 discriminator를 다시 사용하는 방법을 제안을 한다. 이런 GAN은 likelihood를 최대화 하는데 매력적인 대안을 제공한다. 그들의 학습 과정에서 heuristic한 cost function이 없어지는 장점을 얻게 된다. GAN은 unstable한 훈련 방법으로 알려져 있는데 종종 output으로 무의미한 것 또한 나오게 된다. GAN이 무엇을 학습하는지, 그리고 multi-layer GAN의 중간 표현을 이해하고 시각화하려는 연구는 매우 제한적이다. 따라서 본 논문은 위의 몇가지 제약사항을 해결하는 몇가지 contribution을 제안한다. 제약을 두어 GAN을 훈련 시 더욱 안정적이게 하였다. Discriminative를 image classification task로 훈련시켰는데, 이는 unsupervised algorithm보다 더 좋은 성능을 보여준다. GAN이 학습한 필터를 시각화 하고, 특정 필터가 특정 객체를 그리는 방법을 학습했다는 것을 실험적으로 보여준다. Generator들이 생성된 sample의 의미론적을 쉽게 조작할 수 있는 흥미로운 vector 속성을 가지고 있음을 보여준다. Approach and Model Architecture 이미지를 생성하기 위해 CNN을 사용한 GAN을 확장하는 것은 성공하지 못하였다. LAPGAN의 저자들이 저해상도의 생성 image를 반복적으로 upscale하는 것을 통하여 신뢰할 수 있는 방법을 고안하였다. 본 논문에서 또한 CNN을 사용한 GAN을 확장하는 것에 어려움을 느꼈지만 계속된 탐색 끝에 GAN을 확장하는데 적합한 구조를 찾았다. 우리의 주요 방법은 CNN 구조를 적용하고 수정하는 세가지 주된 변화가 있다. 첫 번째 방법으로 spatial pooling(such as maxpooling)을 all convolutional net으로 변경하는 것이다. 이를 통하여 Discriminative의 spatial downsampling을 배우게 한다. 이 방법은 generator 또한 적용을 하여, 그것의 고유 spatial upsampling을 배우게 한다. 두 번째 방법으로는 fully connected층을 삭제하는 것이다. 삭제하고 Global average pooling을 사용한다. Global average pooling을 사용하는 것은 모델의 안정성을 높이지만 수렴 속도가 느리다. Generator과 Discriminator의 입력과 출력에 각각 highest convolutional feature가 직접 연결을 하는 것이 잘 작동을 했다. 위 그림과 같이 GAN의 첫 번째 layer는 uniform noise 분포 $z$를 받게 되는데 이는 4차원 텐서로 변환되고 convolutional의 시작으로 사용된다. Discriminative의 마지막 convolutional layer은 flatten된 후, single sigmoid 출력으로 전달된다. 세 번째 방법으로는 Batch normalization으로 input으로 들어오는 값을 평균 0, 분산 1로 정규화를 하여 learning을 안정하게 하는 것이다. 이것은 poor initialization때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다. 이는 generator가 GAN에서 흔하게 나올 수 있는 문제인 모든 샘플을 한 지점으로 붕괴시키는 것을 방지하게 된다. 그러나 모든 layer에 batch normalization을 적용시키는 것은 모델의 불안정성을 보여주었다. 따라서 generator의 output과 discriminator의 input에 적용하지 않는 방법을 선택하여 해당 문제를 해결하였다. 마지막으로 ReLU함수는 generator에서 사용이 되지만 output layer에서는 Tanh가 사용이 된다. 본 논문에서는 유한한 범위를 갖는 활성화 함수를 사용하면 빨리 학습이되고, 훈련 분포의 color 공간을 cover할 수 있음을 관찰하였다고 한다. 그래서 본 논문은 discriminative에서 Leaky ReLU를 사용했다. 이는 고해상도 작업에 더욱 수월하다고 알려져있다. GAN 논문에서는 Maxout을 사용하였다. 해당 챕터의 마지막에서 DCGAN에서 사용된 구조를 정리를 해주고 있다. Discriminator는 pooling layer를 strided convolutional로 교체를 하고 generator는 pooling layer를 fractional-strided convolutional로 교체를 한다. 용어는 어렵지만 쉽게 생각하여 down sampling과 upsampling을 하는 것이다. Generator와 Discriminator 둘 다 batchnorm을 사용한다. FC hiiden layer을 제거한다. Generator에 ReLU를 사용하고 output에는 Tanh를 사용한다. Discriminative의 모든 층에는 LeakyReLU를 사용한다. continue" />
+<meta property="og:description" content="개요 GAN논문 다음으로 Generative분야에서 기초가 되는 논문인 DCGAN에 관한 리뷰를 할 것이다. Introduction Unlabeled data를 통한 재사용 가능한 feature representation을 학습하는 것은 활발한 연구이다. Computer vision에서는 무제한의 양의 image와 video를 활용하여 좋은 intermediate representation을 배울 수 있게 된다. 본 논문은 좋은 image representation을 얻기 위한 방법으로 GAN을 훈련시키고 지도학습에 generator와 discriminator를 다시 사용하는 방법을 제안을 한다. 이런 GAN은 likelihood를 최대화 하는데 매력적인 대안을 제공한다. 그들의 학습 과정에서 heuristic한 cost function이 없어지는 장점을 얻게 된다. GAN은 unstable한 훈련 방법으로 알려져 있는데 종종 output으로 무의미한 것 또한 나오게 된다. GAN에서 Discriminative와 Generator에서 각각 objective function를 통하여 gradient를 업데이트 시켜주는 방향이 상이하기 때문에 간혹 오류가 난다. GAN이 무엇을 학습하는지, 그리고 multi-layer GAN의 중간 표현을 이해하고 시각화하려는 연구는 매우 제한적이다. 따라서 본 논문은 위의 몇가지 제약사항을 해결하는 몇가지 contribution을 제안한다. 제약을 두어 GAN을 훈련 시 더욱 안정적이게 하였다. Discriminative를 image classification task로 훈련시켰는데, 이는 unsupervised algorithm보다 더 좋은 성능을 보여준다. GAN이 학습한 필터를 시각화 하고, 특정 필터가 특정 객체를 그리는 방법을 학습했다는 것을 실험적으로 보여준다. Generator들이 생성된 sample의 의미론적을 쉽게 조작할 수 있는 흥미로운 vector 속성을 가지고 있음을 보여준다. Approach and Model Architecture 이미지를 생성하기 위해 CNN을 사용한 GAN을 확장하는 것은 성공하지 못하였다. 이전에도 GAN에 CNN을 적용하려는 시도는 LAPGAN이 있었다. LAPGAN의 저자들이 저해상도의 생성 image를 반복적으로 upscale하는 것을 통하여 신뢰할 수 있는 방법을 고안하였다. 본 논문에서 또한 CNN을 사용한 GAN을 확장하는 것에 어려움을 느꼈지만 계속된 탐색 끝에 GAN을 확장하는데 적합한 구조를 찾았다. 우리의 주요 방법은 CNN구조를 적용하고 수정하는 세가지 주된 변화가 있다. 첫 번째 방법으로 spatial pooling(such as maxpooling)을 all convolutional net으로 변경하는 것이다. 이를 통하여 Discriminative의 spatial downsampling을 배우게 한다. 이 방법은 generator 또한 적용을 하여, 그것의 고유 spatial upsampling을 배우게 한다. 두 번째 방법으로는 fully connected층을 삭제하는 것이다. 삭제하고 Global average pooling을 사용한다. Global average pooling을 사용하는 것은 모델의 안정성을 높이지만 수렴 속도가 느리다. 기존 GAN은 모든 층이 fully connected layer로 구성되어 있다. Generator과 Discriminator의 입력과 출력에 각각 highest convolutional feature가 직접 연결을 하는 것이 잘 작동을 했다. 위 그림과 같이 GAN의 첫 번째 layer는 uniform noise 분포 $z$를 받게 되는데 이는 4차원 텐서로 변환되고 convolutional의 시작으로 사용된다. Discriminative의 마지막 convolutional layer은 flatten된 후, single sigmoid 출력으로 전달된다. 세 번째 방법으로는 Batch normalization으로 input으로 들어오는 값을 평균 0, 분산 1로 정규화를 하여 learning을 안정하게 하는 것이다. 이것은 poor initialization때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다. 이는 generator가 GAN에서 흔하게 나올 수 있는 문제인 모든 샘플을 한 지점으로 붕괴시키는 것을 방지하게 된다. 그러나 모든 layer에 batch normalization을 적용시키는 것은 모델의 불안정성을 보여주었다. 따라서 generator의 output과 discriminator의 input에 적용하지 않는 방법을 선택하여 해당 문제를 해결하였다. 마지막으로 ReLU함수는 generator에서 사용이 되지만 output layer에서는 Tanh가 사용이 된다. 본 논문에서는 유한한 범위를 갖는 활성화 함수를 사용하면 빨리 학습이되고, 훈련 분포의 color 공간을 cover할 수 있음을 관찰하였다고 한다. 그래서 본 논문은 discriminative에서 Leaky ReLU를 사용했다. 이는 고해상도 작업에 더욱 수월하다고 알려져있다. GAN 논문에서는 Maxout을 사용하였다. 해당 챕터의 마지막에서 DCGAN에서 사용된 구조를 정리를 해주고 있다. Discriminator는 pooling layer를 strided convolutional로 교체를 하고 generator는 pooling layer를 fractional-strided convolutional로 교체를 한다. 용어는 어렵지만 쉽게 생각하여 down sampling과 upsampling을 하는 것이다. Generator와 Discriminator 둘 다 batchnorm을 사용한다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/paper/dcgan/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2024-09-13T18:49:11+09:00" />
 <meta property="article:modified_time" content="2024-09-13T18:49:11+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)"/>
-<meta name="twitter:description" content="개요 GAN논문 다음으로 Generative분야에서 기초가 되는 논문인 DCGAN에 관한 리뷰를 할 것이다. Introduction Unlabeled data를 통한 재사용 가능한 feature representation을 학습하는 것은 활발한 연구이다. Computer vision에서는 무제한의 양의 image와 video를 활용하여 좋은 intermediate representation을 배울 수 있게 된다. 본 논문은 좋은 image representation을 얻기 위한 방법으로 GAN을 훈련시키고 지도학습에 generator와 discriminator를 다시 사용하는 방법을 제안을 한다. 이런 GAN은 likelihood를 최대화 하는데 매력적인 대안을 제공한다. 그들의 학습 과정에서 heuristic한 cost function이 없어지는 장점을 얻게 된다. GAN은 unstable한 훈련 방법으로 알려져 있는데 종종 output으로 무의미한 것 또한 나오게 된다. GAN이 무엇을 학습하는지, 그리고 multi-layer GAN의 중간 표현을 이해하고 시각화하려는 연구는 매우 제한적이다. 따라서 본 논문은 위의 몇가지 제약사항을 해결하는 몇가지 contribution을 제안한다. 제약을 두어 GAN을 훈련 시 더욱 안정적이게 하였다. Discriminative를 image classification task로 훈련시켰는데, 이는 unsupervised algorithm보다 더 좋은 성능을 보여준다. GAN이 학습한 필터를 시각화 하고, 특정 필터가 특정 객체를 그리는 방법을 학습했다는 것을 실험적으로 보여준다. Generator들이 생성된 sample의 의미론적을 쉽게 조작할 수 있는 흥미로운 vector 속성을 가지고 있음을 보여준다. Approach and Model Architecture 이미지를 생성하기 위해 CNN을 사용한 GAN을 확장하는 것은 성공하지 못하였다. LAPGAN의 저자들이 저해상도의 생성 image를 반복적으로 upscale하는 것을 통하여 신뢰할 수 있는 방법을 고안하였다. 본 논문에서 또한 CNN을 사용한 GAN을 확장하는 것에 어려움을 느꼈지만 계속된 탐색 끝에 GAN을 확장하는데 적합한 구조를 찾았다. 우리의 주요 방법은 CNN 구조를 적용하고 수정하는 세가지 주된 변화가 있다. 첫 번째 방법으로 spatial pooling(such as maxpooling)을 all convolutional net으로 변경하는 것이다. 이를 통하여 Discriminative의 spatial downsampling을 배우게 한다. 이 방법은 generator 또한 적용을 하여, 그것의 고유 spatial upsampling을 배우게 한다. 두 번째 방법으로는 fully connected층을 삭제하는 것이다. 삭제하고 Global average pooling을 사용한다. Global average pooling을 사용하는 것은 모델의 안정성을 높이지만 수렴 속도가 느리다. Generator과 Discriminator의 입력과 출력에 각각 highest convolutional feature가 직접 연결을 하는 것이 잘 작동을 했다. 위 그림과 같이 GAN의 첫 번째 layer는 uniform noise 분포 $z$를 받게 되는데 이는 4차원 텐서로 변환되고 convolutional의 시작으로 사용된다. Discriminative의 마지막 convolutional layer은 flatten된 후, single sigmoid 출력으로 전달된다. 세 번째 방법으로는 Batch normalization으로 input으로 들어오는 값을 평균 0, 분산 1로 정규화를 하여 learning을 안정하게 하는 것이다. 이것은 poor initialization때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다. 이는 generator가 GAN에서 흔하게 나올 수 있는 문제인 모든 샘플을 한 지점으로 붕괴시키는 것을 방지하게 된다. 그러나 모든 layer에 batch normalization을 적용시키는 것은 모델의 불안정성을 보여주었다. 따라서 generator의 output과 discriminator의 input에 적용하지 않는 방법을 선택하여 해당 문제를 해결하였다. 마지막으로 ReLU함수는 generator에서 사용이 되지만 output layer에서는 Tanh가 사용이 된다. 본 논문에서는 유한한 범위를 갖는 활성화 함수를 사용하면 빨리 학습이되고, 훈련 분포의 color 공간을 cover할 수 있음을 관찰하였다고 한다. 그래서 본 논문은 discriminative에서 Leaky ReLU를 사용했다. 이는 고해상도 작업에 더욱 수월하다고 알려져있다. GAN 논문에서는 Maxout을 사용하였다. 해당 챕터의 마지막에서 DCGAN에서 사용된 구조를 정리를 해주고 있다. Discriminator는 pooling layer를 strided convolutional로 교체를 하고 generator는 pooling layer를 fractional-strided convolutional로 교체를 한다. 용어는 어렵지만 쉽게 생각하여 down sampling과 upsampling을 하는 것이다. Generator와 Discriminator 둘 다 batchnorm을 사용한다. FC hiiden layer을 제거한다. Generator에 ReLU를 사용하고 output에는 Tanh를 사용한다. Discriminative의 모든 층에는 LeakyReLU를 사용한다. continue"/>
+<meta name="twitter:description" content="개요 GAN논문 다음으로 Generative분야에서 기초가 되는 논문인 DCGAN에 관한 리뷰를 할 것이다. Introduction Unlabeled data를 통한 재사용 가능한 feature representation을 학습하는 것은 활발한 연구이다. Computer vision에서는 무제한의 양의 image와 video를 활용하여 좋은 intermediate representation을 배울 수 있게 된다. 본 논문은 좋은 image representation을 얻기 위한 방법으로 GAN을 훈련시키고 지도학습에 generator와 discriminator를 다시 사용하는 방법을 제안을 한다. 이런 GAN은 likelihood를 최대화 하는데 매력적인 대안을 제공한다. 그들의 학습 과정에서 heuristic한 cost function이 없어지는 장점을 얻게 된다. GAN은 unstable한 훈련 방법으로 알려져 있는데 종종 output으로 무의미한 것 또한 나오게 된다. GAN에서 Discriminative와 Generator에서 각각 objective function를 통하여 gradient를 업데이트 시켜주는 방향이 상이하기 때문에 간혹 오류가 난다. GAN이 무엇을 학습하는지, 그리고 multi-layer GAN의 중간 표현을 이해하고 시각화하려는 연구는 매우 제한적이다. 따라서 본 논문은 위의 몇가지 제약사항을 해결하는 몇가지 contribution을 제안한다. 제약을 두어 GAN을 훈련 시 더욱 안정적이게 하였다. Discriminative를 image classification task로 훈련시켰는데, 이는 unsupervised algorithm보다 더 좋은 성능을 보여준다. GAN이 학습한 필터를 시각화 하고, 특정 필터가 특정 객체를 그리는 방법을 학습했다는 것을 실험적으로 보여준다. Generator들이 생성된 sample의 의미론적을 쉽게 조작할 수 있는 흥미로운 vector 속성을 가지고 있음을 보여준다. Approach and Model Architecture 이미지를 생성하기 위해 CNN을 사용한 GAN을 확장하는 것은 성공하지 못하였다. 이전에도 GAN에 CNN을 적용하려는 시도는 LAPGAN이 있었다. LAPGAN의 저자들이 저해상도의 생성 image를 반복적으로 upscale하는 것을 통하여 신뢰할 수 있는 방법을 고안하였다. 본 논문에서 또한 CNN을 사용한 GAN을 확장하는 것에 어려움을 느꼈지만 계속된 탐색 끝에 GAN을 확장하는데 적합한 구조를 찾았다. 우리의 주요 방법은 CNN구조를 적용하고 수정하는 세가지 주된 변화가 있다. 첫 번째 방법으로 spatial pooling(such as maxpooling)을 all convolutional net으로 변경하는 것이다. 이를 통하여 Discriminative의 spatial downsampling을 배우게 한다. 이 방법은 generator 또한 적용을 하여, 그것의 고유 spatial upsampling을 배우게 한다. 두 번째 방법으로는 fully connected층을 삭제하는 것이다. 삭제하고 Global average pooling을 사용한다. Global average pooling을 사용하는 것은 모델의 안정성을 높이지만 수렴 속도가 느리다. 기존 GAN은 모든 층이 fully connected layer로 구성되어 있다. Generator과 Discriminator의 입력과 출력에 각각 highest convolutional feature가 직접 연결을 하는 것이 잘 작동을 했다. 위 그림과 같이 GAN의 첫 번째 layer는 uniform noise 분포 $z$를 받게 되는데 이는 4차원 텐서로 변환되고 convolutional의 시작으로 사용된다. Discriminative의 마지막 convolutional layer은 flatten된 후, single sigmoid 출력으로 전달된다. 세 번째 방법으로는 Batch normalization으로 input으로 들어오는 값을 평균 0, 분산 1로 정규화를 하여 learning을 안정하게 하는 것이다. 이것은 poor initialization때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다. 이는 generator가 GAN에서 흔하게 나올 수 있는 문제인 모든 샘플을 한 지점으로 붕괴시키는 것을 방지하게 된다. 그러나 모든 layer에 batch normalization을 적용시키는 것은 모델의 불안정성을 보여주었다. 따라서 generator의 output과 discriminator의 input에 적용하지 않는 방법을 선택하여 해당 문제를 해결하였다. 마지막으로 ReLU함수는 generator에서 사용이 되지만 output layer에서는 Tanh가 사용이 된다. 본 논문에서는 유한한 범위를 갖는 활성화 함수를 사용하면 빨리 학습이되고, 훈련 분포의 color 공간을 cover할 수 있음을 관찰하였다고 한다. 그래서 본 논문은 discriminative에서 Leaky ReLU를 사용했다. 이는 고해상도 작업에 더욱 수월하다고 알려져있다. GAN 논문에서는 Maxout을 사용하였다. 해당 챕터의 마지막에서 DCGAN에서 사용된 구조를 정리를 해주고 있다. Discriminator는 pooling layer를 strided convolutional로 교체를 하고 generator는 pooling layer를 fractional-strided convolutional로 교체를 한다. 용어는 어렵지만 쉽게 생각하여 down sampling과 upsampling을 하는 것이다. Generator와 Discriminator 둘 다 batchnorm을 사용한다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -27,7 +27,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/dcgan\/"
-        },"genre": "posts","keywords": "DCGAN, 논문 리뷰, Generative","wordcount":  486 ,
+        },"genre": "posts","keywords": "DCGAN, 논문 리뷰, Generative","wordcount":  1352 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/dcgan\/","datePublished": "2024-09-13T18:49:11+09:00","dateModified": "2024-09-13T18:49:11+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -69,8 +69,8 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-09-13">2024-09-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;486 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-09-13">2024-09-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1352 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;7 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -81,6 +81,13 @@
     <li><a href="#개요">개요</a></li>
     <li><a href="#introduction">Introduction</a></li>
     <li><a href="#approach-and-model-architecture">Approach and Model Architecture</a></li>
+    <li><a href="#details-of-adversarial-training">Details of Adversarial Training</a></li>
+    <li><a href="#empirical-valication-of-dcgans-capabilities">Empirical Valication of DCGANs Capabilities</a></li>
+    <li><a href="#walking-in-the-latent-space">WALKING IN THE LATENT SPACE</a></li>
+    <li><a href="#visualizing-the-discriminator-features">VISUALIZING THE DISCRIMINATOR FEATURES</a></li>
+    <li><a href="#forgetting-to-draw-certain-objects">FORGETTING TO DRAW CERTAIN OBJECTS</a></li>
+    <li><a href="#vector-arithmetic-on-face-samples">VECTOR ARITHMETIC ON FACE SAMPLES</a></li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><!-- image format
@@ -113,8 +120,11 @@
 </ul>
 <br>
 <ol start="5">
-<li><code>GAN</code>은 <code>unstable</code>한 훈련 방법으로 알려져 있는데 종종 output으로 무의미한 것 또한 나오게 된다.</li>
+<li><code>GAN</code>은 <code>unstable</code>한 훈련 방법으로 알려져 있는데 종종 <code>output</code>으로 무의미한 것 또한 나오게 된다.</li>
 </ol>
+<ul>
+<li><code>GAN</code>에서 <code>Discriminative</code>와 <code>Generator</code>에서 각각 <code>objective function</code>를 통하여 <code>gradient</code>를 업데이트 시켜주는 방향이 <strong>상이</strong>하기 때문에 <strong>간혹 오류가 난다.</strong></li>
+</ul>
 <br>
 <ol start="6">
 <li><code>GAN</code>이 무엇을 학습하는지, 그리고 <code>multi-layer GAN</code>의 중간 표현을 이해하고 시각화하려는 <strong>연구는 매우 제한적이다</strong>.</li>
@@ -134,6 +144,9 @@
 <ol start="8">
 <li>이미지를 생성하기 위해 <code>CNN</code>을 사용한 <code>GAN</code>을 확장하는 것은 <strong>성공하지 못하였다</strong>.</li>
 </ol>
+<ul>
+<li>이전에도 <code>GAN</code>에 <code>CNN</code>을 적용하려는 시도는 <code>LAPGAN</code>이 있었다.</li>
+</ul>
 <br>
 <ol start="9">
 <li><code>LAPGAN의 저자</code>들이 저해상도의 생성 <code>image</code>를 <strong>반복적으로 upscale하는 것을 통하여</strong> 신뢰할 수 있는 방법을 고안하였다.</li>
@@ -144,7 +157,7 @@
 </ol>
 <br>
 <ol start="11">
-<li>우리의 주요 방법은 CNN 구조를 적용하고 수정하는 <code>세가지</code> <strong>주된 변화가 있다.</strong></li>
+<li>우리의 주요 방법은 <code>CNN</code>구조를 적용하고 수정하는 <code>세가지</code> <strong>주된 변화가 있다.</strong></li>
 </ol>
 <br>
 <ol start="12">
@@ -158,6 +171,9 @@
 <ol start="13">
 <li><code>두 번째 방법</code>으로는 <code>fully connected층</code>을 <strong>삭제하는 것이다.</strong> 삭제하고 <code>Global average pooling</code>을 사용한다. <code>Global average pooling</code>을 사용하는 것은 모델의 안정성을 높이지만 수렴 속도가 느리다.</li>
 </ol>
+<ul>
+<li>기존 <code>GAN</code>은 모든 층이 <code>fully connected layer</code>로 구성되어 있다.</li>
+</ul>
 <br>
 <ol start="14">
 <li><code>Generator</code>과 <code>Discriminator</code>의 입력과 출력에 각각 <code>highest convolutional feature</code>가 직접 연결을 하는 것이 잘 작동을 했다.</li>
@@ -176,7 +192,7 @@
 </ol>
 <br>
 <ol start="18">
-<li>이것은 poor initialization때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다.</li>
+<li>이것은 <code>poor initialization</code>때문에 훈련 문제를 해결해주고 깊은 모델에서 gradient flow를 잘 해결할 수 있게 도와준다.</li>
 </ol>
 <br>
 <ol start="19">
@@ -208,11 +224,208 @@
 </ul>
 </li>
 <li><code>Generator</code>와 <code>Discriminator</code> 둘 다 <code>batchnorm</code>을 사용한다.</li>
-<li><code>FC hiiden layer</code>을 제거한다.</li>
+<li><code>Fully Connected hiiden layer</code>을 제거한다.
+<ul>
+<li><code>FC 층</code>을 제거하여 <code>Convolution layer</code>로 대체하기 때문에 이미지의 <code>위치 정보</code>를 더욱 잘 <code>represent</code> 할 수 있게 된다.</li>
+</ul>
+</li>
 <li><code>Generator</code>에 <code>ReLU</code>를 사용하고 output에는 <code>Tanh</code>를 사용한다.</li>
 <li><code>Discriminative</code>의 모든 층에는 <code>LeakyReLU</code>를 사용한다.</li>
 </ul>
-<p>continue</p>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/conv-1.png" height="100%" width="80%"> </div>
+<ol start="24">
+<li>이때 나오는 <code>Strided Convolutional</code>이란 <code>kernel</code>을 사용하여 연산을 수행하면서 <code>보폭</code>도 같이 설정을 해주는 것이다. 따라서 위와 같은 <code>행렬 연산</code>을 수행하여 <code>down-sampling</code>을 할 수 있게 된다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/conv-2.png" height="100%" width="80%"> </div>
+<ol start="25">
+<li><code>Fractional-Strided Convolutional</code>은 input을 <code>transpose</code>를 하여 계산하고 다시 <code>transpose</code>를 하여 복원해주는 방식으로 동작하여 <code>up-sampling</code>을 수행하게 된다.</li>
+</ol>
+<ul>
+<li><code>Transpose convolution</code>이라고도 불리운다.</li>
+</ul>
+<hr>
+<h2 id="details-of-adversarial-training">Details of Adversarial Training</h2>
+<ol start="26">
+<li><code>DCGAN</code>을 학습하기 위하여 <code>본 논문</code>에서 <code>설정한 기준</code>들에 대해서 설명이 나온다.</li>
+</ol>
+<br>
+<ol start="27">
+<li>이미지를 학습할 때 어떤 <code>pre-processing</code>을 하지 않았다고 한다.</li>
+</ol>
+<ul>
+<li><strong>모델이 데이터를 <code>기억</code>할 수 있기 때문이다.</strong></li>
+</ul>
+<br>
+<ol start="28">
+<li><code>Mini-batch stochastic gradient descent</code>(SGD)(Mini-batch: 128)를 사용하여 학습을 하였다.</li>
+</ol>
+<br>
+<ol start="29">
+<li>또한 기울기 0.2인 <code>LeakyReLU</code>를 사용했고 <code>Adam optimizer</code>를 사용한다.</li>
+</ol>
+<br>
+<ol start="30">
+<li>또 <code>generator</code>가 <code>input example</code>을 <code>memorizing</code>하는 것을 방지하기 위해 <code>Deduplication</code>이라는 방법을 사용한다.</li>
+</ol>
+<br>
+<ol start="31">
+<li><code>Deduplication</code>은 <code>Autoencoder</code>를 이용하여 학습에 사용할 이미지들을 이진화된 <code>code로 변환한 후</code> 해시 충돌이 일어나는 <code>sample</code>들을 제거하여 275,000개의 샘플들을 제거 했다고 한다.</li>
+</ol>
+<hr>
+<h2 id="empirical-valication-of-dcgans-capabilities">Empirical Valication of DCGANs Capabilities</h2>
+<ol start="32">
+<li><code>Unsupervised learning</code>의 평가하는 방법은 그것을 <code>supervised data</code>에 <code>feature extractor</code>로 추출하여 평가하는 방법이 있다.</li>
+</ol>
+<br>
+<ol start="33">
+<li>따라서 <code>DCGAN</code>또한 <strong>represent를 잘 학습했는지 평가하기 위하여</strong> <code>CIFAR-10</code> 데이터를 이용하여 실험을 수행하였고, <code>discriminator</code>로부터 <code>4x4 grid feature</code>를 뽑아낸 다음, <code>28,672</code> 크기의 벡터로 전환하여 <code>L2-SVM 모형</code>을 훈련시켰다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/result-1.png" height="100%" width="80%"> </div>
+<ol start="34">
+<li><code>CIFAR-10</code>의 실험 결과는 <code>위 그림</code>과 같고 <code>exemplar CNN</code>다음으로 성능이 제일 좋다.</li>
+</ol>
+<ul>
+<li><code>Discriminator</code>를 미세 조정하여 <strong>성능 향상을 기대할 수 있지만</strong> 그것은 future work로 남겨두었다고 한다.</li>
+<li>또한 <code>CIFAR-10</code>으로 학습되지 않아서 <code>learned feature</code>에 대해 <code>domain robustness</code>하다고도 할 수 있다.</li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/result-2.png" height="100%" width="80%"> </div>
+<ol start="35">
+<li>또한 <code>StreetView House Numbers(SVHN)</code>으로 같은 방법으로 성능을 내었을 때 <code>위 그림</code>처럼 <code>SOTA</code>를 달성하여 <code>Supervised CNN</code> 보다 더 준수한 성능을 보여서 본 논문에서는 <code>DCGAN</code>에서의 <code>main key</code>가 그저 CNN 아키텍처라고만 할 수는 없다고 알려준다.</li>
+</ol>
+<hr>
+<h2 id="walking-in-the-latent-space">WALKING IN THE LATENT SPACE</h2>
+<ol start="36">
+<li>본 논문은 <code>DCGAN</code>을 이용한 여러 실험을 보여준다. <code>첫 번째 실험</code>으로 <code>Walking in the latent space</code>이다. 이 실험은 정말 <code>generator</code>가 학습 데이터를 <code>memorize</code>를 하지 않았다는 것을 보여준 실험이다.</li>
+</ol>
+<br>
+<ol start="37">
+<li><code>Latent Space z</code>를 조금씩 움직여도 <code>memorize</code>된 네트워크라면 <strong>조금의 움직임도 큰 변화를 나타낼 것이다.</strong></li>
+</ol>
+<br>
+<ol start="38">
+<li>왜냐하면 <code>memorize</code> 되었다면 <strong>네트워크가 과적합이 되었을 가능성이 큰데</strong>, 이 경우 <code>latent space</code>에서 <code>특정 data point</code>에만 잘 대응이 되기 때문에 <strong>그것을 움직이면 일반화가 안되는 결과를 도출하게 될 것이다.</strong></li>
+</ol>
+<br>
+<ol start="39">
+<li>따라서 <code>interpolation</code>을 사용하여 <code>z1과 z2 사이의 값</code>을 예측하여 <code>조금의 움직임</code>을 만들고 그것을 <code>generate</code>하여 결과를 확인하는 방법의 실험을 진행하였다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/result-3.png" height="100%" width="80%"> </div>
+<ol start="40">
+<li><code>위 그림</code>은 9개의 <code>random data point</code>들에 대하여 <code>interpolation</code>을 수행한 실험의 결과인데 급격한 변화가 아니라 점차 변화하는 것을 관찰 할 수 있게 되므로, 이는 네트워크가 <code>memorized</code> 된 것이 아니라는 것을 증명하게 된다.</li>
+</ol>
+<hr>
+<h2 id="visualizing-the-discriminator-features">VISUALIZING THE DISCRIMINATOR FEATURES</h2>
+<ol start="41">
+<li><code>두 번째 실험</code>으로는 <code>Discriminator</code>가 이미지의 구체적인 <code>feature</code>를 잘 탐지하는지 확인하기 위하여 수행한 결과이다.</li>
+</ol>
+<ul>
+<li>이미지의 구조 (침대, 거울 등)을 잘 탐지하는지에 대해 관심이 있어서 수행하는 실험이다.</li>
+</ul>
+<br>
+<ol start="42">
+<li>실험을 수행하기 위하여 <code>학습된 filter</code>와 <code>random하게 초기화한 filter</code> 2개를 놓고 비교하는 실험을 진행하였다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/result-4.png" height="100%" width="80%"> </div>
+<ol start="43">
+<li><code>위 그림</code>을 보면 <code>왼쪽(random filter)</code>은 어떤 특징을 추출하기에 애매모호 한 반면, <code>오른쪽(trained filter)</code>은 침대의 특징 등을 잘 추출한 것을 확인할 수 있다.</li>
+</ol>
+<ul>
+<li><code>Feature map</code>이 어떤 특징을 뽑아서 결과가 나오는지 명확하게 알 수 없지만, 시각화 결과 잘 추출 한다는 것을 알 수 있게 된다.</li>
+<li><code>Generator</code>가 아닌 <code>Discriminator</code>인 이유는 <code>discriminator</code>가 <strong>generator가 만든 이미지를 실제와 가짜인지 구별해야 하기 때문에</strong> <code>세밀한 특징</code>을 구분하는 능력이 있어야 한다.</li>
+</ul>
+<hr>
+<h2 id="forgetting-to-draw-certain-objects">FORGETTING TO DRAW CERTAIN OBJECTS</h2>
+<ol start="44">
+<li><code>세 번째 실험</code>으로는 <code>generator</code>가 배우는 <code>representation</code>은 무엇인가?의 실험이다. <code>Generator</code>가 생성한 것을 보면 <code>주요 장면의 구성 요소</code>를 학습했다고 알 수 있는데 이것을 <code>직접 visualization</code>으로 확인하는 실험이다.</li>
+</ol>
+<br>
+<ol start="45">
+<li><code>Generator</code>의 네트워크를 학습시킬 때 <code>특정 객체를 나타내는 filter</code>를 제거하면 결과가 <strong>그 객체가 제거된 상태로 나오는지에</strong> 대한 실험을 하였다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/result-5.png" height="100%" width="80%"> </div>
+<ol start="46">
+<li>실험을 진행하기 위하여 <code>위 왼쪽의 그림</code>처럼 <code>제거할 창문(객체)</code>에 <code>bounding box</code>를 그린다. 그 다음으로 Generator의 두번째 끝단의 네트워크에서 <code>Logistic Regression</code>을 훈련시켜서 bounding box 내부는 양수고 바깥은 음수가 나오는 경우, 즉 다른 말로 해당 부분에 대해서 <code>가중치가 양수 값(bounding box 내부)</code>을 갖는 모든 경우는 <strong>drop을 시킴으로써 제거를 한다.</strong></li>
+</ol>
+<br>
+<ol start="47">
+<li>그렇게 <code>제거된 filter</code>를 사용하여 <code>generate</code>을 수행했을 때 창문이 없는 사진이 나오는지를 확인을 해보았더니 아래와 같은 결과가 나오게 되었다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/result-5.png" height="100%" width="80%"> </div>
+<ol start="48">
+<li><code>위 그림</code>을 보면 <code>맨 위는 filter</code>에 drop하기 전을 나타내고 <code>그 아래는</code> drop한 결과를 나타낸다. 그림 중 빨간색을 보면 기존 창문이나 문이 벽이나 문으로 대체가 된 것을 확인 할 수 있게 된다.</li>
+</ol>
+<ul>
+<li>따라서 <code>위 실험</code>을 통하여 <code>generator</code>가 <code>특정 object</code>를 보고 generate 한다는 것을 알 수 있게 된다.</li>
+</ul>
+<hr>
+<h2 id="vector-arithmetic-on-face-samples">VECTOR ARITHMETIC ON FACE SAMPLES</h2>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/result-6.png" height="100%" width="80%"> </div>
+<ol start="49">
+<li><code>네 번째 실험</code>으로는 <code>vector의 산술 연산</code>을 통하여 의미상으로 유사한 다른 샘플들을 형성할 수 있는 지를 실험해본 것이다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/result-7.png" height="100%" width="80%"> </div>
+<ol start="50">
+<li><code>위 그림</code>은 해당 실험의 결과인데 <code>웃는 여성</code>에서 <code>무표정의 여성</code>을 빼고 <code>무표정 남자</code>를 넣으면 <code>웃는 남자</code>가 <strong>된다는</strong> 것을 확인할 수 있다.</li>
+</ol>
+<br>
+<ol start="51">
+<li>실험을 할 때 <code>하나의 sample</code>가지고는 <code>z vector</code>로 <strong>표현할 수 없어서</strong> 적어도 3개의 <code>sample의 평균</code>으로 일관되고 안정적인 <code>generation</code>을 보여준다고 한다.</li>
+</ol>
+<br>
+<ol start="52">
+<li>이 실험을 통하여 <code>비지도 학습 모델</code>에서 <code>하나의 z space</code>가 <code>객체의 속성</code>들을 학습했다는 것을 알 수 있게 된다.</li>
+</ol>
+<ul>
+<li><code>본 논문</code>에서는 <code>이러한 점</code>으로 아주 많은 것들을 할 수 있을 것이라고 표현한다.</li>
+<li><strong>아래의 실험은 이런 객체의 속성을 학습했다는 것을 보여주는 실험이 나오게 된다.</strong></li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/dcgan/result-7.png" height="100%" width="80%"> </div>
+<ol start="53">
+<li><code>위 그림</code>은 <code>왼쪽을 보고 있는 얼굴</code>을 만들어내는 input $z_\text{left}$들의 평균 vector $\bar{z_\text{left}}$과 <code>오른쪽을 보고 있는 얼굴</code>에 대응하는 $z_\text{right}$들의 평균 vector $\bar{z_\text{right}}$를 계산한다.</li>
+</ol>
+<br>
+<p>$$z_{\text{interp}} = (1 - \alpha) \cdot \bar{z_{\text{left}}}  + \alpha \cdot \bar{z}_{\text{right}}$$</p>
+<ol start="54">
+<li>이 <code>두 벡터</code>의 사이를 잇는 <code>축(axis)</code>을 <code>interpolating</code>하여 <code>Generator</code>에 넣어보았더니 <strong>천천히 &ldquo;회전(turn)&ldquo;하는 얼굴들이 나오는 것을 볼 수 있다.</strong></li>
+</ol>
+<ul>
+<li><code>Generator</code>에 들어가는 것은 $\alpha$값을 조절한 $z_{\text{interp}}$이다.</li>
+</ul>
+<br>
+<ol start="55">
+<li>이를 통해 <code>generator</code>가 <strong>단순히 이미지를 무작위로 생성하는 것이 아니라</strong> <code>latent vector</code>의 변화에 따라 <code>이미지의 특정 속성(얼굴의 방향 등)</code>을 조절할 수 있는 능력을 가지고 있다는 것을 알 수 있게 된다.</li>
+</ol>
+<ul>
+<li><code>Generator</code>는 <code>latent vector</code>의 특성에 따라 <strong>이미지의 방향도 자동으로 점진적으로 조절하여</strong>, 왼쪽에서 오른쪽으로 회전하는 얼굴을 만들게 되는 것이다.</li>
+</ul>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://yscho.tistory.com/103" target="_blank" rel="noopener noreffer ">https://yscho.tistory.com/103</a></li>
+<li><a href="https://memesoo99.tistory.com/33" target="_blank" rel="noopener noreffer ">https://memesoo99.tistory.com/33</a></li>
+<li><a href="https://jaejunyoo.blogspot.com/2017/02/deep-convolutional-gan-dcgan-2.html" target="_blank" rel="noopener noreffer ">https://jaejunyoo.blogspot.com/2017/02/deep-convolutional-gan-dcgan-2.html</a></li>
+</ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
