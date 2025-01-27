@@ -1,0 +1,28 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Diffusion - Tag - Good Young</title>
+        <link>https://goodyoung.github.io/tags/diffusion/</link>
+        <description>Diffusion - Tag - Good Young</description>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 10 Jan 2025 17:24:43 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/diffusion/" rel="self" type="application/rss+xml" /><item>
+    <title>[Paper Review]Denoising Diffusion Probabilistic Models</title>
+    <link>https://goodyoung.github.io/posts/paper/diffusion/</link>
+    <pubDate>Fri, 10 Jan 2025 17:24:43 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/paper/diffusion/</guid>
+    <description><![CDATA[ 개요 Diffusion에 대한 논문을 리뷰할 것이다. Introduction diffusion process는 gaussian noise를 점진적으로 주입하는 과정
+크기는 사전에 정해짐 (\betha_t)
+학습 할 필요 없다. T시점에 가면 gaussian 분포랑 같게 형성이 된다
+reparametrization trick을 사용하여 간단하게 수식을 나타낼 수 있다.
+X_1 ~ X_T 는 latent variables이다. -&gt; Hierarchical VAE와 유사하다
+기존의 latent variable이 하나만 있던 VAE와는 차이다. diffusion process는 X_0을 조건부로 latent variables(X_1:T)를 생성해내는 과정이다
+X_T는 pure isotropic gaussian이다.
+pure isotropic gaussian: 분포가 원점 중심이고, 모든 차원이 동일한 분산(1)을 가지며 독립적입니다. reverse process는 diffusion process의 역과정으로, gaussian noise를 제거해가며 특정한 패턴을 만들어가는 과정
+평균과 분산을 바로 구할 수 없으므로, 이 둘은 학습의 대상이 된다. loss -&gt; negative log likelihood = (regularization + reconstruction + denoising process) -&gt; denoising process term에서 p라는 조건부 gaussian 분포는 q라는 조건부 gaussian분포를 approximation하도록 학습이 된다는 것을 알 수 있다.
+DDPM의 Loss: 각 t 시점의 노이즈인 \epsilon을 모델이 예측하도록 하는 loss이다.
+regularization term을 제외
+굳이 beta_t를 학습하지 않아도, isotropic gaussian 분포를 획득하게 되기 때문에 denoising process 목적식 제구성
+beta_t를 알기 때문에 분산을 상수로 만들 수 있게 된다. b_t*I = t시점까지의 누적된 noise 평균만 추정하는 것으로 줄어듦 mean function간의 차이로 정의가 될 수 있다. denoising matching epsilon하나로 훈련이 진행이 된다! continue
+Reference https://www.youtube.com/watch?v=_JQSMhqXw-4&t=2s https://www.youtube.com/watch?v=LAYDUobuCko https://developers-shack.tistory.com/9 https://www.youtube.com/watch?v=vy8q-WnHa9A (reparametrization trick) ]]></description>
+</item>
+</channel>
+</rss>
