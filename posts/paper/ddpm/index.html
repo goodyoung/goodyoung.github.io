@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[Paper Review]Denoising Diffusion Probabilistic Models - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Denoising Diffusion Probabilistic Models" />
+<meta property="og:description" content=" 개요 Diffusion의 기초인 DDPM에 대한 논문을 리뷰할 것이다. Introduction 최근 몇 년간 다양한 생성 모델(deep generative models) 이 높은 품질의 샘플을 생성하는 성과를 보였다.
+에너지 기반 모델(Energy-Based Models) 및 Score Matching 기법도 GAN과 비슷한 수준의 이미지 품질을 생성하는 연구가 등장했다.
+이 논문은 Diffusion Probabilistic Models의 발전이다.
+Diffusion Probabilistic Models (DPMs, 2015): Markov chain을 기반으로 데이터를 점진적으로 샘플링하는 모델 DPMs는 변분 추론을 활용해 샘플을 생성하기 위해 **확산 과정(diffusion process)을 반전(reverse)**시키는 방법을 학습한다. 변분 추론(variational inference) : 확률 모델에서 복잡한 후행 확률 분포(posterior distribution)를 근사하는 방법 중 하나이다. 정확한 posterior를 계산하는 것은 intractable하여 $p(z|x)$를 계산하는 것 대신 $q_\theta(z|x)$로 근사하는 방법이다. 즉, 변분 추론을 통해 모델의 역방향 과정의 확률 분포( $p(x_\text{t-1} | x_t)$ )를 근사하여, $p_\theta(x_\text{t-1} | x_t)$ 를 통하여 정방향 과정에서 추가된 노이즈를 제거하는 방법을 학습 DPMs은 정의하기 쉽고 학습이 효율적이지만, 지금까지 고품질 샘플을 생성할 수 있다는 실증적인 연구가 부족했다. 하지만 이 논문(DDPM)에서 DPMs이 고품질 샘플을 생성하고, 때때로 다른 모델보다 더 좋은 성능을 보인다. DDPM을 특정 방식으로 파라미터화 하면 다중 노이즈 수준에서 Denoising Score Matching과 동일하며, Annealed Langevin Dynamics와도 유사한 샘플링 방식을 갖는다는 점을 발견 한다. 아직 이해를 못한 부분이다. DDPM도 샘플의 품질은 뛰어나지만, log-likelihood 기반 모델들과 비교했을 때 경쟁력 있는 성능이 존재하진 않는다. Loss 중 많은 부분이 눈에 보이지 않는 미세한 이미지 세부 정보를 설명하는데 사용이 된다. log-likelihood model : VAE, Normalizing Flows, Autoregressive Models log 가능도를 최대화 하는 모델들 Background 4번에서 DPMs는 정방향 과정에서 추가된 노이즈(destroy)를 제거하는 방법을 학습하는 과정을 수행한다고 설명하였다. 물리학적으로 미세한 세계에서는 destroy된 상태를 backward로 복원시키는 것이 가능하다. DDPM에서는 노이즈를 점차 추가하여 destroy하는 정방향 과정을 diffusion Process이라고 한다.
+또한, 노이즈를 제거(denoising)하여 다시 복원하는 확률 분포(노이즈)를 학습하는 과정을 reverse process라고 한다.
+continue diffusion process는 gaussian noise를 점진적으로 주입하는 과정
+크기는 사전에 정해짐 (\betha_t)
+학습 할 필요 없다. T시점에 가면 gaussian 분포랑 같게 형성이 된다
+reparametrization trick을 사용하여 간단하게 수식을 나타낼 수 있다.
+X_1 ~ X_T 는 latent variables이다. -&gt; Hierarchical VAE와 유사하다
+기존의 latent variable이 하나만 있던 VAE와는 차이다. diffusion process는 X_0을 조건부로 latent variables(X_1:T)를 생성해내는 과정이다
+X_T는 pure isotropic gaussian이다.
+pure isotropic gaussian: 분포가 원점 중심이고, 모든 차원이 동일한 분산(1)을 가지며 독립적입니다. reverse process는 diffusion process의 역과정으로, gaussian noise를 제거해가며 특정한 패턴을 만들어가는 과정
+평균과 분산을 바로 구할 수 없으므로, 이 둘은 학습의 대상이 된다. loss -&gt; negative log likelihood = (regularization &#43; reconstruction &#43; denoising process) -&gt; denoising process term에서 p라는 조건부 gaussian 분포는 q라는 조건부 gaussian분포를 approximation하도록 학습이 된다는 것을 알 수 있다.
+DDPM의 Loss: 각 t 시점의 노이즈인 \epsilon을 모델이 예측하도록 하는 loss이다.
+regularization term을 제외
+굳이 beta_t를 학습하지 않아도, isotropic gaussian 분포를 획득하게 되기 때문에 denoising process 목적식 제구성
+beta_t를 알기 때문에 분산을 상수로 만들 수 있게 된다. b_t*I = t시점까지의 누적된 noise 평균만 추정하는 것으로 줄어듦 mean function간의 차이로 정의가 될 수 있다. denoising matching epsilon하나로 훈련이 진행이 된다! continue
+Reference https://www.youtube.com/watch?v=_JQSMhqXw-4&t=2s https://www.youtube.com/watch?v=LAYDUobuCko https://developers-shack.tistory.com/9 https://www.youtube.com/watch?v=vy8q-WnHa9A (reparametrization trick) " />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/paper/ddpm/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-01-10T17:24:43+09:00" />
+<meta property="article:modified_time" content="2025-01-10T17:24:43+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Denoising Diffusion Probabilistic Models"/>
+<meta name="twitter:description" content=" 개요 Diffusion의 기초인 DDPM에 대한 논문을 리뷰할 것이다. Introduction 최근 몇 년간 다양한 생성 모델(deep generative models) 이 높은 품질의 샘플을 생성하는 성과를 보였다.
+에너지 기반 모델(Energy-Based Models) 및 Score Matching 기법도 GAN과 비슷한 수준의 이미지 품질을 생성하는 연구가 등장했다.
+이 논문은 Diffusion Probabilistic Models의 발전이다.
+Diffusion Probabilistic Models (DPMs, 2015): Markov chain을 기반으로 데이터를 점진적으로 샘플링하는 모델 DPMs는 변분 추론을 활용해 샘플을 생성하기 위해 **확산 과정(diffusion process)을 반전(reverse)**시키는 방법을 학습한다. 변분 추론(variational inference) : 확률 모델에서 복잡한 후행 확률 분포(posterior distribution)를 근사하는 방법 중 하나이다. 정확한 posterior를 계산하는 것은 intractable하여 $p(z|x)$를 계산하는 것 대신 $q_\theta(z|x)$로 근사하는 방법이다. 즉, 변분 추론을 통해 모델의 역방향 과정의 확률 분포( $p(x_\text{t-1} | x_t)$ )를 근사하여, $p_\theta(x_\text{t-1} | x_t)$ 를 통하여 정방향 과정에서 추가된 노이즈를 제거하는 방법을 학습 DPMs은 정의하기 쉽고 학습이 효율적이지만, 지금까지 고품질 샘플을 생성할 수 있다는 실증적인 연구가 부족했다. 하지만 이 논문(DDPM)에서 DPMs이 고품질 샘플을 생성하고, 때때로 다른 모델보다 더 좋은 성능을 보인다. DDPM을 특정 방식으로 파라미터화 하면 다중 노이즈 수준에서 Denoising Score Matching과 동일하며, Annealed Langevin Dynamics와도 유사한 샘플링 방식을 갖는다는 점을 발견 한다. 아직 이해를 못한 부분이다. DDPM도 샘플의 품질은 뛰어나지만, log-likelihood 기반 모델들과 비교했을 때 경쟁력 있는 성능이 존재하진 않는다. Loss 중 많은 부분이 눈에 보이지 않는 미세한 이미지 세부 정보를 설명하는데 사용이 된다. log-likelihood model : VAE, Normalizing Flows, Autoregressive Models log 가능도를 최대화 하는 모델들 Background 4번에서 DPMs는 정방향 과정에서 추가된 노이즈(destroy)를 제거하는 방법을 학습하는 과정을 수행한다고 설명하였다. 물리학적으로 미세한 세계에서는 destroy된 상태를 backward로 복원시키는 것이 가능하다. DDPM에서는 노이즈를 점차 추가하여 destroy하는 정방향 과정을 diffusion Process이라고 한다.
+또한, 노이즈를 제거(denoising)하여 다시 복원하는 확률 분포(노이즈)를 학습하는 과정을 reverse process라고 한다.
+continue diffusion process는 gaussian noise를 점진적으로 주입하는 과정
+크기는 사전에 정해짐 (\betha_t)
+학습 할 필요 없다. T시점에 가면 gaussian 분포랑 같게 형성이 된다
+reparametrization trick을 사용하여 간단하게 수식을 나타낼 수 있다.
+X_1 ~ X_T 는 latent variables이다. -&gt; Hierarchical VAE와 유사하다
+기존의 latent variable이 하나만 있던 VAE와는 차이다. diffusion process는 X_0을 조건부로 latent variables(X_1:T)를 생성해내는 과정이다
+X_T는 pure isotropic gaussian이다.
+pure isotropic gaussian: 분포가 원점 중심이고, 모든 차원이 동일한 분산(1)을 가지며 독립적입니다. reverse process는 diffusion process의 역과정으로, gaussian noise를 제거해가며 특정한 패턴을 만들어가는 과정
+평균과 분산을 바로 구할 수 없으므로, 이 둘은 학습의 대상이 된다. loss -&gt; negative log likelihood = (regularization &#43; reconstruction &#43; denoising process) -&gt; denoising process term에서 p라는 조건부 gaussian 분포는 q라는 조건부 gaussian분포를 approximation하도록 학습이 된다는 것을 알 수 있다.
+DDPM의 Loss: 각 t 시점의 노이즈인 \epsilon을 모델이 예측하도록 하는 loss이다.
+regularization term을 제외
+굳이 beta_t를 학습하지 않아도, isotropic gaussian 분포를 획득하게 되기 때문에 denoising process 목적식 제구성
+beta_t를 알기 때문에 분산을 상수로 만들 수 있게 된다. b_t*I = t시점까지의 누적된 noise 평균만 추정하는 것으로 줄어듦 mean function간의 차이로 정의가 될 수 있다. denoising matching epsilon하나로 훈련이 진행이 된다! continue
+Reference https://www.youtube.com/watch?v=_JQSMhqXw-4&t=2s https://www.youtube.com/watch?v=LAYDUobuCko https://developers-shack.tistory.com/9 https://www.youtube.com/watch?v=vy8q-WnHa9A (reparametrization trick) "/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/paper/ddpm/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/dcgan/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[Paper Review]Denoising Diffusion Probabilistic Models",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/ddpm\/"
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDPM","wordcount":  455 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ddpm\/","datePublished": "2025-01-10T17:24:43+09:00","dateModified": "2025-01-10T17:24:43+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Denoising Diffusion Probabilistic Models</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-01-10">2025-01-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;455 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#background">Background</a>
+      <ul>
+        <li><a href="#reference">Reference</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>Diffusion</code>의 기초인 <code>DDPM</code>에 대한 논문을 리뷰할 것이다.</li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<div style="text-align:center;">
+<img src="/images/paper/ddpm/genmodels.png" height="100%" width="80%"> </div>
+<ol>
+<li>
+<p>최근 몇 년간 <strong>다양한 생성 모델(deep generative models)</strong> 이 높은 품질의 샘플을 생성하는 성과를 보였다.</p>
+</li>
+<li>
+<p>에너지 기반 모델(Energy-Based Models) 및 Score Matching 기법도 <code>GAN</code>과 비슷한 수준의 이미지 품질을 생성하는 연구가 등장했다.</p>
+</li>
+<li>
+<p>이 논문은 <code>Diffusion Probabilistic Models</code>의 발전이다.</p>
+</li>
+</ol>
+<ul>
+<li><code>Diffusion Probabilistic Models (DPMs, 2015): </code> Markov chain을 기반으로 데이터를 <strong>점진적으로 샘플링하는 모델</strong></li>
+</ul>
+<ol start="4">
+<li><code>DPMs</code>는 <strong>변분 추론을 활용해</strong> 샘플을 생성하기 위해 **확산 과정(diffusion process)을 반전(reverse)**시키는 방법을 학습한다.</li>
+</ol>
+<ul>
+<li><code>변분 추론(variational inference) :</code> 확률 모델에서 복잡한 <code>후행 확률 분포(posterior distribution)</code>를 근사하는 방법 중 하나이다.
+<ul>
+<li>정확한 <code>posterior</code>를 계산하는 것은 <code>intractable</code>하여 $p(z|x)$를 계산하는 것 대신 $q_\theta(z|x)$로 근사하는 방법이다.</li>
+</ul>
+</li>
+<li>즉, 변분 추론을 통해 <code>모델의 역방향 과정의 확률 분포</code>( $p(x_\text{t-1} | x_t)$ )를 근사하여, $p_\theta(x_\text{t-1} | x_t)$ 를 통하여 정방향 과정에서 <strong>추가된 노이즈를 제거하는 방법을 학습</strong></li>
+</ul>
+<ol start="5">
+<li><code>DPMs</code>은 정의하기 쉽고 학습이 효율적이지만, 지금까지 고품질 샘플을 생성할 수 있다는 실증적인 연구가 부족했다.</li>
+</ol>
+<ul>
+<li>하지만 이 논문(<code>DDPM</code>)에서 <code>DPMs</code>이 고품질 샘플을 생성하고, 때때로 다른 모델보다 더 좋은 성능을 보인다.</li>
+</ul>
+<ol start="6">
+<li><code>DDPM</code>을 특정 방식으로 파라미터화 하면 다중 노이즈 수준에서 <code>Denoising Score Matching</code>과 동일하며, <code>Annealed Langevin Dynamics</code>와도 유사한 샘플링 방식을 갖는다는 점을 발견 한다.</li>
+</ol>
+<ul>
+<li>아직 이해를 못한 부분이다.</li>
+</ul>
+<ol start="7">
+<li><code>DDPM</code>도 샘플의 품질은 뛰어나지만, <code>log-likelihood</code> 기반 모델들과 비교했을 때 경쟁력 있는 성능이 존재하진 않는다.</li>
+</ol>
+<ul>
+<li><code>Loss</code> 중 많은 부분이 <strong>눈에 보이지 않는 미세한 이미지 세부 정보</strong>를 설명하는데 사용이 된다.</li>
+<li><code>log-likelihood model :</code> <code>VAE</code>, <code>Normalizing Flows</code>, <code>Autoregressive Models</code>
+<ul>
+<li>log 가능도를 최대화 하는 모델들</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="background">Background</h2>
+<ol start="8">
+<li><code>4번</code>에서 <code>DPMs</code>는 정방향 과정에서 <strong>추가된 노이즈(destroy)를 제거하는 방법</strong>을 학습하는 과정을 수행한다고 설명하였다.</li>
+</ol>
+<ul>
+<li>물리학적으로 미세한 세계에서는 destroy된 상태를 backward로 복원시키는 것이 가능하다.</li>
+</ul>
+<ol start="9">
+<li>
+<p><code>DDPM</code>에서는 노이즈를 점차 추가하여 destroy하는 정방향 과정을 <code>diffusion Process</code>이라고 한다.</p>
+</li>
+<li>
+<p>또한, <code>노이즈를 제거(denoising)</code>하여 다시 복원하는 확률 분포(노이즈)를 학습하는 과정을 <code>reverse process</code>라고 한다.</p>
+</li>
+<li>
+<p>continue
+diffusion process는 gaussian noise를 점진적으로 주입하는 과정</p>
+</li>
+</ol>
+<ul>
+<li>
+<p>크기는 사전에 정해짐 (\betha_t)</p>
+<ul>
+<li>학습 할 필요 없다.</li>
+</ul>
+</li>
+<li>
+<p>T시점에 가면 gaussian 분포랑 같게 형성이 된다</p>
+</li>
+<li>
+<p>reparametrization trick을 사용하여 간단하게 수식을 나타낼 수 있다.</p>
+</li>
+<li>
+<p>X_1 ~ X_T 는 latent variables이다. -&gt; Hierarchical VAE와 유사하다</p>
+<ul>
+<li>기존의 latent variable이 하나만 있던 VAE와는 차이다.</li>
+</ul>
+</li>
+<li>
+<p>diffusion process는 X_0을 조건부로 latent variables(X_1:T)를 생성해내는 과정이다</p>
+</li>
+<li>
+<p>X_T는 pure isotropic gaussian이다.</p>
+<ul>
+<li>pure isotropic gaussian: 분포가 원점 중심이고, 모든 차원이 동일한 분산(1)을 가지며 독립적입니다.</li>
+</ul>
+</li>
+</ul>
+<p>reverse process는 diffusion process의 역과정으로, gaussian noise를 제거해가며 특정한 패턴을 만들어가는 과정</p>
+<ul>
+<li>평균과 분산을 바로 구할 수 없으므로, 이 둘은 학습의 대상이 된다.</li>
+</ul>
+<p>loss -&gt; negative log likelihood = (regularization + reconstruction + denoising process)
+-&gt; denoising process term에서 p라는 조건부 gaussian 분포는 q라는 조건부 gaussian분포를 approximation하도록 학습이 된다는 것을 알 수 있다.</p>
+<p>DDPM의 Loss: 각 t 시점의 노이즈인 \epsilon을 모델이 예측하도록 하는 loss이다.</p>
+<ul>
+<li>
+<p>regularization term을 제외</p>
+<ul>
+<li>굳이 beta_t를 학습하지 않아도, isotropic gaussian 분포를 획득하게 되기 때문에</li>
+</ul>
+</li>
+<li>
+<p>denoising process 목적식 제구성</p>
+<ul>
+<li>beta_t를 알기 때문에 분산을 상수로 만들 수 있게 된다.</li>
+<li>b_t*I = t시점까지의 누적된 noise</li>
+<li>평균만 추정하는 것으로 줄어듦
+<ul>
+<li>mean function간의 차이로 정의가 될 수 있다.</li>
+</ul>
+</li>
+<li>denoising matching
+<ul>
+<li>epsilon하나로 훈련이 진행이 된다!</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>continue</p>
+</li>
+</ul>
+<h3 id="reference">Reference</h3>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=_JQSMhqXw-4&amp;t=2s" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=_JQSMhqXw-4&t=2s</a></li>
+<li><a href="https://www.youtube.com/watch?v=LAYDUobuCko" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=LAYDUobuCko</a></li>
+<li><a href="https://developers-shack.tistory.com/9" target="_blank" rel="noopener noreffer ">https://developers-shack.tistory.com/9</a></li>
+<li><a href="https://www.youtube.com/watch?v=vy8q-WnHa9A" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=vy8q-WnHa9A</a> (reparametrization trick)</li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2025-01-10</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models" data-hashtags="논문 리뷰,computer vision,Diffusion,DDPM"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-hashtag="논문 리뷰"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/ddpm/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/diffusion/">Diffusion</a>,&nbsp;<a href="/tags/ddpm/">DDPM</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/paper/dcgan/" class="prev" rel="prev" title="[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
