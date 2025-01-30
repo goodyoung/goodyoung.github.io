@@ -4,30 +4,30 @@
         <link>https://goodyoung.github.io/categories/dl/</link>
         <description>DL - Category - Good Young</description>
         <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 10 Jan 2025 17:24:43 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/dl/" rel="self" type="application/rss+xml" /><item>
-    <title>[Paper Review]Denoising Diffusion Probabilistic Models</title>
+    <title>[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)</title>
     <link>https://goodyoung.github.io/posts/paper/ddpm/</link>
     <pubDate>Fri, 10 Jan 2025 17:24:43 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/posts/paper/ddpm/</guid>
-    <description><![CDATA[ 개요 Diffusion의 기초인 DDPM에 대한 논문을 리뷰할 것이다. Introduction 최근 몇 년간 다양한 생성 모델(deep generative models) 이 높은 품질의 샘플을 생성하는 성과를 보였다.
+    <description><![CDATA[개요 Diffusion의 기초인 DDPM에 대한 논문을 리뷰할 것이다. Introduction 최근 몇 년간 다양한 생성 모델(deep generative models) 이 높은 품질의 샘플을 생성하는 성과를 보였다.
 에너지 기반 모델(Energy-Based Models) 및 Score Matching 기법도 GAN과 비슷한 수준의 이미지 품질을 생성하는 연구가 등장했다.
 이 논문은 Diffusion Probabilistic Models의 발전이다.
-Diffusion Probabilistic Models (DPMs, 2015): Markov chain을 기반으로 데이터를 점진적으로 샘플링하는 모델 DPMs는 변분 추론을 활용해 샘플을 생성하기 위해 **확산 과정(diffusion process)을 반전(reverse)**시키는 방법을 학습한다. 변분 추론(variational inference) : 확률 모델에서 복잡한 후행 확률 분포(posterior distribution)를 근사하는 방법 중 하나이다. 정확한 posterior를 계산하는 것은 intractable하여 $p(z|x)$를 계산하는 것 대신 $q_\theta(z|x)$로 근사하는 방법이다. 즉, 변분 추론을 통해 모델의 역방향 과정의 확률 분포( $p(x_\text{t-1} | x_t)$ )를 근사하여, $p_\theta(x_\text{t-1} | x_t)$ 를 통하여 정방향 과정에서 추가된 노이즈를 제거하는 방법을 학습 DPMs은 정의하기 쉽고 학습이 효율적이지만, 지금까지 고품질 샘플을 생성할 수 있다는 실증적인 연구가 부족했다. 하지만 이 논문(DDPM)에서 DPMs이 고품질 샘플을 생성하고, 때때로 다른 모델보다 더 좋은 성능을 보인다. DDPM을 특정 방식으로 파라미터화 하면 다중 노이즈 수준에서 Denoising Score Matching과 동일하며, Annealed Langevin Dynamics와도 유사한 샘플링 방식을 갖는다는 점을 발견 한다. 아직 이해를 못한 부분이다. DDPM도 샘플의 품질은 뛰어나지만, log-likelihood 기반 모델들과 비교했을 때 경쟁력 있는 성능이 존재하진 않는다. Loss 중 많은 부분이 눈에 보이지 않는 미세한 이미지 세부 정보를 설명하는데 사용이 된다. log-likelihood model : VAE, Normalizing Flows, Autoregressive Models log 가능도를 최대화 하는 모델들 Background 4번에서 DPMs는 정방향 과정에서 추가된 노이즈(destroy)를 제거하는 방법을 학습하는 과정을 수행한다고 설명하였다. 물리학적으로 미세한 세계에서는 destroy된 상태를 backward로 복원시키는 것이 가능하다. DDPM에서는 노이즈를 점차 추가하여 destroy하는 정방향 과정을 diffusion Process이라고 한다.
+Diffusion Probabilistic Models (DPMs, 2015): Markov chain을 기반으로 데이터를 점진적으로 샘플링하는 모델 DPMs는 변분 추론을 활용해 샘플을 생성하기 위해 **확산 과정(diffusion process)을 반전(reverse)**시키는 방법을 학습한다. 변분 추론(variational inference) : 확률 모델에서 복잡한 후행 확률 분포(posterior distribution)를 근사하는 방법 중 하나이다. 정확한 posterior를 계산하는 것은 intractable하여 $p(z|x)$를 계산하는 것 대신 $q_\theta(z|x)$로 근사하는 방법이다. 즉, 변분 추론을 통해 모델의 역방향 과정의 확률 분포( $p(x_\text{t-1} | x_t)$ )를 근사하여, $p_\theta(x_\text{t-1} | x_t)$ 를 통하여 정방향 과정에서 추가된 노이즈를 제거하는 방법을 학습 DPMs은 정의하기 쉽고 학습이 효율적이지만, 지금까지 고품질 샘플을 생성할 수 있다는 실증적인 연구가 부족했다. 하지만 이 논문(DDPM)에서 DPMs이 고품질 샘플을 생성하고, 때때로 다른 모델보다 더 좋은 성능을 보인다. DDPM을 특정 방식으로 파라미터화 하면 다중 노이즈 수준에서 Denoising Score Matching과 동일하며, Annealed Langevin Dynamics와도 유사한 샘플링 방식을 갖는다는 점을 발견 한다. 아직 이해를 못한 부분이다. DDPM도 샘플의 품질은 뛰어나지만, log-likelihood 기반 모델들과 비교했을 때 경쟁력 있는 성능이 존재하진 않는다. Loss 중 많은 부분이 눈에 보이지 않는 미세한 이미지 세부 정보를 설명하는데 사용이 된다. log-likelihood model : VAE, Normalizing Flows, Autoregressive Models log 가능도를 최대화 하는 모델들 Background 4번에서 DPMs는 정방향 과정에서 추가된 노이즈(destroy)를 제거하는 방법을 학습하는 과정을 수행한다고 설명하였다. 물리학적으로 미세한 세계에서는 destroy된 상태를 backward로 복원시키는 것이 가능하다. DDPM에서는 노이즈를 점차 추가하여 destroy하는 정방향 과정을 diffusion process이라고 한다.
 또한, 노이즈를 제거(denoising)하여 다시 복원하는 확률 분포(노이즈)를 학습하는 과정을 reverse process라고 한다.
-continue diffusion process는 gaussian noise를 점진적으로 주입하는 과정
-크기는 사전에 정해짐 (\betha_t)
-학습 할 필요 없다. T시점에 가면 gaussian 분포랑 같게 형성이 된다
-reparametrization trick을 사용하여 간단하게 수식을 나타낼 수 있다.
-X_1 ~ X_T 는 latent variables이다. -&gt; Hierarchical VAE와 유사하다
-기존의 latent variable이 하나만 있던 VAE와는 차이다. diffusion process는 X_0을 조건부로 latent variables(X_1:T)를 생성해내는 과정이다
-X_T는 pure isotropic gaussian이다.
-pure isotropic gaussian: 분포가 원점 중심이고, 모든 차원이 동일한 분산(1)을 가지며 독립적입니다. reverse process는 diffusion process의 역과정으로, gaussian noise를 제거해가며 특정한 패턴을 만들어가는 과정
-평균과 분산을 바로 구할 수 없으므로, 이 둘은 학습의 대상이 된다. loss -&gt; negative log likelihood = (regularization + reconstruction + denoising process) -&gt; denoising process term에서 p라는 조건부 gaussian 분포는 q라는 조건부 gaussian분포를 approximation하도록 학습이 된다는 것을 알 수 있다.
-DDPM의 Loss: 각 t 시점의 노이즈인 \epsilon을 모델이 예측하도록 하는 loss이다.
-regularization term을 제외
-굳이 beta_t를 학습하지 않아도, isotropic gaussian 분포를 획득하게 되기 때문에 denoising process 목적식 제구성
-beta_t를 알기 때문에 분산을 상수로 만들 수 있게 된다. b_t*I = t시점까지의 누적된 noise 평균만 추정하는 것으로 줄어듦 mean function간의 차이로 정의가 될 수 있다. denoising matching epsilon하나로 훈련이 진행이 된다! continue
-Reference https://www.youtube.com/watch?v=_JQSMhqXw-4&t=2s https://www.youtube.com/watch?v=LAYDUobuCko https://developers-shack.tistory.com/9 https://www.youtube.com/watch?v=vy8q-WnHa9A (reparametrization trick) ]]></description>
+Diffusion Process에 대해서 먼저 간단한 설명을 해보려고 한다.
+$$ q(x_\text{1:T} | x_0) := \prod_\text{t=1}^T q(x_t | x_\text{t-1}), \quad q(x_t | x_\text{t-1}) := \mathcal{N}(x_t ; \sqrt{1 - \beta_t} x_\text{t-1}, \beta_t I) $$
+해당 과정의 근사 후행 확률은 $q(x_\text{1:T}|x_0)$ 으로 나타낼 수 있으며, 이는 마르코프 연쇄(Markov Chain)로 정의되어 이 과정에서 step마다 가우시안 노이즈를 추가하는 방식으로 작동한다.
+이때 노이즈는 $\beta_1, &hellip; ,\beta_T$ 의 형태인 variance schedule에 따라 조절된다.
+$\beta_t$ 는 reparameterization trick에 의해서 학습이 될 수도 있고, 하이퍼파라미터로 고정될 수 있다.
+다음은 $\beta_t$ 에 대하여 reparameterization trick을 적용한 것을 알아본 것이다.
+$\beta_t$에 대하여 reparameterization trick을 적용 한 경우 $\beta_t$ 를 gaussian 분포에서 샘플링하는 확률적 변수로 설정한다면:
+$\beta_t = \sigma(\tilde{\beta_t}),\qquad \tilde{\beta_t} \sim \mathcal{N}(\mu_\beta, \sigma_\beta^2) $
+$\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ : activation function을 활용하여 $\beta_t$가 양수임을 보장 $\mu_\beta, \sigma_\beta $ : 학습 가능한 파라미터 위 식의 $\tilde{\beta_t}$ 을 gaussian 분포에서 직접 샘플링 하기 때문에 이는 확률적 연산이 포함되므로 미분이 불가능해진다.
+미분이 불가능해지면 손실 함수의 그라디언트를 계산할 수 없게 된다. (학습 불가능) 그렇기 때문에 미분 가능해지기 위하여 $\beta_t$ 에 gaussian 분포에서 직접 샘플링하는 대신, 표준 정규 분포에서 샘플링한 후, 변형하는 방법인 reparametrization trick의 방법을 사용한다.
+해당 방법을 사용하면 다음과 같이 표현 될 수 있다: $\tilde{\beta_t} = \mu_\beta + \sigma_\beta \cdot \epsilon, \quad \epsilon \sim \mathcal{N}(0, 1)$
+이제 확률적 연산을 결정적 연산으로 변경하여 $\tilde{\beta_t}$ 를 샘플링하는 과정이 미분 가능해졌다.
+따라서 경사 하강법(Gradient Descent)을 사용하여 $ \mu_\beta $와 $ \sigma_\beta $ 를 학습할 수 있게 된다.
+$\beta_t$ 가 작을 때 diffusion process 와 reverse process에서 모두 gaussian 분포를 따르게 되어 동일한 수식 형태를 유지 할 수 있다.]]></description>
 </item>
 <item>
     <title>[Paper Review]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks(DCGAN)</title>
