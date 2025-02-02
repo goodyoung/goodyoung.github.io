@@ -41,7 +41,7 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/ddpm\/"
-        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDPM","wordcount":  1427 ,
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDPM","wordcount":  1704 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ddpm\/","datePublished": "2025-01-10T17:24:43+09:00","dateModified": "2025-01-10T17:24:43+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -83,8 +83,8 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-01-10">2025-01-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1427 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;7 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-01-10">2025-01-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1704 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;8 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -99,6 +99,12 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
         <li><a href="#diffusion-process">Diffusion Process</a></li>
         <li><a href="#reverse-process">Reverse Process</a></li>
         <li><a href="#object-function-loss">Object Function (Loss)</a></li>
+      </ul>
+    </li>
+    <li><a href="#diffusion-models-and-denoising-autoencoders">Diffusion models and denoising autoencoders</a>
+      <ul>
+        <li><a href="#forward-process-and-l_t">Forward process and $L_T$</a></li>
+        <li><a href="#reverse-process-and-l_text1t-1">Reverse process and $L_\text{1:T −1}$</a></li>
       </ul>
     </li>
     <li><a href="#reference">Reference</a></li>
@@ -269,7 +275,7 @@ $\tilde{\beta_t} = \mu_\beta + \sigma_\beta \cdot \epsilon, \quad \epsilon \sim 
 </ul>
 <br>
 <ol start="16">
-<li>그리고 $\beta_t$ 를 <code>learnable parameter</code>로 둘 수 있지만, 실험을 해보니 <code>constant</code>로 두어도 <strong>큰 차이가 없어서</strong> <code>constant</code>로 두었다. (<code>4.Experiment</code> 부분)</li>
+<li>그리고 $\beta_t$ 를 <code>learnable parameter</code>로 둘 수 있지만, 실험을 해보니 <code>constant</code>로 두어도 <strong>큰 차이가 없어서</strong> <code>constant</code>로 두었다. (<code>Forward process and L_T ,Experiment</code> 부분)</li>
 </ol>
 <ul>
 <li>
@@ -368,12 +374,14 @@ $
 <ul>
 <li><code>Reverse process</code>는 <code>diffusion process</code>의 역과정으로, <code>gaussian noise</code>를 제거해가며 <strong>특정한 패턴을 만들어가는 과정</strong></li>
 </ul>
+<br>
 <ol start="22">
 <li><code>Reverse Process</code>는 <code>diffusion process</code>에서 만든 $x_T$(noise)를 다시 복원해야 하는데, 이때 $q(x_\text{t-1} \mid x_t)$를 바로 구할 수 없다.</li>
 </ol>
 <ul>
 <li>그래서 <strong>모델 학습</strong>이 필요한 이유이다.</li>
 </ul>
+<br>
 <ol start="23">
 <li>따라서 $q$를 <code>approximation</code>하는 $p_\theta$ 를 $p_\theta(x_\text{t-1} | x_t) \sim q(x_\text{t-1} | x_t) $ 와같이 정의한다. 이를 식으로 표현하면 아래와 같다.</li>
 </ol>
@@ -388,12 +396,11 @@ $$</p>
 <hr>
 <h3 id="object-function-loss">Object Function (Loss)</h3>
 <ol start="25">
-<li>
-<p>이젠 $p_\theta$를 추정하기 위하여 <code>model의 학습 방법</code>을 알아보겠다.</p>
-</li>
-<li>
-<p><code>Model</code>의 목적은 <code>실제 data의 분포</code>인 $p_\theta(x_0)$을 찾아내는 것을 목적으로 하기 때문에 결국 이의 <code>likelihood</code>를 <strong>최대화 하는 것이 목적이다.</strong></p>
-</li>
+<li>이젠 $p_\theta$를 추정하기 위하여 <code>model의 학습 방법</code>을 알아보겠다.</li>
+</ol>
+<br>
+<ol start="26">
+<li><code>Model</code>의 목적은 <code>실제 data의 분포</code>인 $p_\theta(x_0)$을 찾아내는 것을 목적으로 하기 때문에 결국 이의 <code>likelihood</code>를 <strong>최대화 하는 것이 목적이다.</strong></li>
 </ol>
 <ul>
 <li>$p_\theta(x_0)$ 를 직접 계산하기엔 어렵기 때문에, <code>변분 추론(variational inference)</code>을 사용하여 <code>diffusion process</code>를 이용한 <code>ELBO(Evidence Lower Bound)</code>를 유도한다.</li>
@@ -405,7 +412,7 @@ $$</p>
 =: L
 $$</p>
   <details>
-    <summary> 증명 보기 </summary>
+    <summary> 자세한 증명 보기 </summary>
   $$
   \begin{aligned}
   -\log p_\theta(x_0) &\leq -\log p_\theta(x_0) + D_\text{KL} \left( q(x_\text{1:T} | x_0) || p_\theta(x_\text{1:T} | x_0) \right) \\\\
@@ -420,42 +427,112 @@ $$</p>
 <li>따라서, <strong>전체 확률 분포</strong> $p_\theta(x_\text{0:T})$를 기준으로 변분 추론을 전개하고 있다고 생각이 든다.</li>
 </ul>
   </details>
+<br>
 <ol start="27">
 <li>그렇기 때문에 이를 식으로 나타내면 <code>위의 식</code>과 같다.</li>
 </ol>
-<p>$$
-\mathbb{E}<em>q \Bigg[
-\underbrace{D</em>\text{KL} \left( q(x_T | x_0) ,||, p(x_T) \right)}_{L_T}</p>
-<ul>
-<li>\underbrace{\sum_{t &gt; 1} D_\text{KL} \left( q(x_{t-1} | x_t, x_0) ,||, p_\theta(x_{t-1} | x_t) \right)}<em>{L</em>{t-1}}</li>
-</ul>
-<ul>
-<li>\underbrace{\log p_\theta(x_0 | x_1)}_{L_0}
-\Bigg]
-$$</li>
-</ul>
+<br>
 <ol start="28">
+<li><code>위의 식</code>을 좀 더 쉽게 계산하기 위해 아래와 같은 <code>Gaussian</code> 분포 간의 <code>KL divergence</code> 형태로 식을 변형한다.</li>
+</ol>
+<br>
+<p>$$
+\mathbb{E_q} \Bigg[
+D_\text{KL} \left( q(x_T | x_0) || p(x_T) \right) + \sum_{t &gt; 1} D_\text{KL} \left( q(x_\text{t-1} | x_t, x_0) || p_\theta(x_\text{t-1} | x_t) \right)- \log p_\theta(x_0 | x_1)\Bigg]
+$$</p>
+<ul>
+<li>왼쪽 항 부터 $L_T, L_\text{T-1},  L_0$ 이다.</li>
+</ul>
+  <details>
+    <summary> 자세한 증명 보기 </summary>
+  <div style="text-align:center;">
+  <img src="/images/paper/ddpm/proof-1.png" height="100%" width="80%"> </div>
+  </details>
+<br>
+<ol start="29">
+<li>위 식에서 <code>각각의 term</code>이 가지는 의미를 하나씩 살펴보면 다음과 같다.</li>
+</ol>
+<br>
+<ol start="30">
+<li>$L_T$(regularization) : $p$ (diffusion process)가 <code>generate</code>하는 $noise(x_T)$와 $q$가 $x_0$ 라는 데이터가 주어졌을 때 <code>generate</code>하는 $noise(x_T)$ 간의 분포 차이이다.</li>
+</ol>
+<br>
+<ol start="31">
+<li>$L_\text{T-1}$(denoising process) : $p$와 $q$의 <code>reverse</code> / <code>forward process</code>의 분포 차이이다. <strong>이들을 최대한 비슷한 방향으로 학습한다.</strong></li>
+</ol>
+<ul>
+<li>즉, $p$라는 <code>조건부 gaussian 분포</code>는 $q$라는 <code>조건부 gaussian 분포</code>를 <code>approximation</code>하도록 <strong>학습이 된다는 것을 알 수 있다.</strong></li>
+</ul>
+<br>
+<ol start="32">
+<li>$L_0$(reconstruction) : latent $x_1$으로부터 data $x_0$를 추정하는 likelihood. <strong>이를 maximize하는 방향으로 학습한다.</strong></li>
+</ol>
+<ul>
+<li><code>negative log likelihood</code> 이므로 <code>maximize</code>하는 방향으로 학습이 된다.</li>
+</ul>
+<br>
+<ol start="33">
+<li>각 term들의 자세한 내용은 <code>Diffusion models and denoising autoencoders</code>에서 다루겠다.</li>
+</ol>
+<br>
+<ol start="34">
+<li>마지막으로 $q(x_\text{t-1} | x_t)$ 는 계산하기 어렵지만 $q(x_\text{t-1} | x_t,x_0)$는 쉽게 계산을 할 수 있게 된다. 해당 식과 자세한 증명은 아래에 있다.</li>
+</ol>
+<ul>
+<li>$x_t$에서 $x_\text{t-1}$을 바로 구하는 것은 어렵지만 $x_0$을 <strong>조건으로 주면 쉽게 구할 수 있다.</strong></li>
+</ul>
+<br>
+<p>$$
+q(x_{t-1} | x_t, x_0) = \mathcal{N} \left( x_{t-1} ; \tilde{\mu}_t(x_t, x_0), \tilde{\beta}_t I \right),
+$$</p>
+<p>$$\text{where} \quad \tilde{\mu_t} (x_t, x_0) := \frac{\sqrt{\bar{\alpha_\text{t-1}}} \beta_t}{1 - \bar{\alpha_t}}
+x_0 + \frac{\sqrt{\alpha_t} (1 - \bar{\alpha_{t-1}})}{1 - \bar{\alpha_t}} x_t\quad \text{and} \quad\tilde{\beta_t}
+:= \frac{1 - \bar{\alpha_{t-1}}}{1 - \bar{\alpha_t}} \beta_t
+$$</p>
+  <details>
+    <summary> 자세한 증명 보기 </summary>
+  <div style="text-align:center;">
+  <img src="/images/paper/ddpm/proof-2.png" height="100%" width="80%"> </div>
+  </details>
+<hr>
+<h2 id="diffusion-models-and-denoising-autoencoders">Diffusion models and denoising autoencoders</h2>
+<ol start="35">
+<li><code>Diffusion model</code>의 설계 시 foward process, $\beta_t$, model 구조 등의 선택에 따라 달라지는 복잡한 모델이다.</li>
+</ol>
+<br>
+<ol start="36">
+<li>해당 챕터에서는 이를 <strong>단순화 하기 위한 방법</strong>을 설명을 한다.</li>
+</ol>
+<hr>
+<h3 id="forward-process-and-l_t">Forward process and $L_T$</h3>
+<ol start="37">
+<li><code>16번</code>에서 설명했듯이 $\beta_t$를 <code>learnable parameter</code>로 두는 것이 아니라, <code>constant</code>로 고정한다.</li>
+</ol>
+<br>
+<ol start="38">
+<li>따라서, <code>28번</code>에서 설명한 최종 <code>Loss term</code> 중 $L_T$의 식에서 posterior $q$는 <strong>학습이 되는 파라미터가 존재하지 않는다.</strong></li>
+</ol>
+<ul>
+<li>그래서 학습 중에 <strong>무시할 수 있게 된다.</strong></li>
+</ul>
+<hr>
+<h3 id="reverse-process-and-l_text1t-1">Reverse process and $L_\text{1:T −1}$</h3>
+<ol start="39">
 <li>
-<p>위 식을 좀 더 쉽게 계산하기 위해 다음과 같은 <code>Gaussian</code> 분포 간의 <code>KL divergence</code> 형태로 식을 변형한다.</p>
-<details>
-  <summary> 증명 보기 </summary>
-<div style="text-align:center;">
-<img src="/images/paper/ddpm/proof-1.png" height="100%" width="80%"> </div>
-</details>
+<p><code>23번</code>의 <code>reverse process</code>의 식 $p_\theta(x_\text{t-1} \mid x_t) := \mathcal{N}(x_\text{t-1}; \mu_\theta(x_t, t), \Sigma_\theta(x_t, t))$ 에서
+$\mu_\theta(x_t, t)$ 와 $\Sigma_\theta$ 는 학습되어야 할 <code>parameter들</code>이라고 설명한 바가 있다.</p>
+</li>
+<li>
+<p>주입된 <code>noise 크기</code>인 $\beta_t$를 이미 알고있기 때문에 이를 활용하여 분산($\Sigma_\theta$)을 <strong>대신 한다.</strong> <code>학습 대상이었던 분산</code>을 각 시점에서 <strong>누적된 노이즈 크기로 상수화</strong> 하게 된다.</p>
+</li>
+<li>
+<p>따라서 $\Sigma_\theta(x_t, t) = \sigma_t^2 = \bar\beta_t = t$시점까지의 누적된 $noise$ 가 된다.</p>
 </li>
 </ol>
-<p>loss -&gt; negative log likelihood = (regularization + reconstruction + denoising process)
--&gt; denoising process term에서 p라는 조건부 gaussian 분포는 q라는 조건부 gaussian분포를 approximation하도록 학습이 된다는 것을 알 수 있다.</p>
-<p>DDPM의 Loss: 각 t 시점의 노이즈인 \epsilon을 모델이 예측하도록 하는 loss이다.</p>
+<p>DDPM의 Loss: <strong>최종적으로 각 t 시점의 노이즈인 \epsilon을 모델이 예측하도록 하는 loss이다.</strong></p>
 <ul>
 <li>
-<p>regularization term을 제외</p>
-<ul>
-<li>굳이 beta_t를 학습하지 않아도, isotropic gaussian 분포를 획득하게 되기 때문에</li>
-</ul>
-</li>
-<li>
-<p>denoising process 목적식 제구성</p>
+<p>denoising process 목적식 재구성</p>
 <ul>
 <li>beta_t를 알기 때문에 분산을 상수로 만들 수 있게 된다.</li>
 <li>b_t*I = t시점까지의 누적된 noise</li>
@@ -482,6 +559,7 @@ $$</li>
 <li><a href="https://www.youtube.com/watch?v=LAYDUobuCko" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=LAYDUobuCko</a></li>
 <li><a href="https://developers-shack.tistory.com/9" target="_blank" rel="noopener noreffer ">https://developers-shack.tistory.com/9</a></li>
 <li><a href="https://www.youtube.com/watch?v=vy8q-WnHa9A" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=vy8q-WnHa9A</a> (reparametrization trick)</li>
+<li><a href="https://jang-inspiration.com/ddpm-1" target="_blank" rel="noopener noreffer ">https://jang-inspiration.com/ddpm-1</a></li>
 </ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
