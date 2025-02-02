@@ -41,7 +41,7 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/ddpm\/"
-        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDPM","wordcount":  1704 ,
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDPM","wordcount":  1981 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ddpm\/","datePublished": "2025-01-10T17:24:43+09:00","dateModified": "2025-01-10T17:24:43+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -83,8 +83,8 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-01-10">2025-01-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1704 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;8 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-01-10">2025-01-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1981 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;10 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -107,6 +107,7 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
         <li><a href="#reverse-process-and-l_text1t-1">Reverse process and $L_\text{1:T −1}$</a></li>
       </ul>
     </li>
+    <li><a href="#experiment">Experiment</a></li>
     <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
@@ -518,39 +519,87 @@ $$</p>
 <hr>
 <h3 id="reverse-process-and-l_text1t-1">Reverse process and $L_\text{1:T −1}$</h3>
 <ol start="39">
+<li><code>23번</code>의 <code>reverse process</code>의 식 $p_\theta(x_\text{t-1} \mid x_t) := \mathcal{N}(x_\text{t-1}; \mu_\theta(x_t, t), \Sigma_\theta(x_t, t))$ 에서
+$\mu_\theta(x_t, t)$ 와 $\Sigma_\theta$ 는 학습되어야 할 <code>parameter들</code>이라고 설명한 바가 있다.</li>
+</ol>
+<ul>
+<li>$\mu_\theta(x_t, t)$는 평균, 즉 모델이 예측하는 깨끗한 데이터 $x_\text{t-1}$​ 의 값</li>
+<li>$\Sigma_\theta$ 는 분산, 즉 모델이 예측한 값의 불확실성</li>
+</ul>
+<ol start="40">
+<li>주입된 <code>noise 크기</code>인 $\beta_t$를 이미 알고있기 때문에 이를 활용하여 분산($\Sigma_\theta$)을 <strong>대신 한다.</strong> <code>학습 대상이었던 분산</code>을 각 시점에서 <strong>누적된 노이즈 크기로 상수화</strong> 하게 된다.</li>
+</ol>
+<ul>
 <li>
-<p><code>23번</code>의 <code>reverse process</code>의 식 $p_\theta(x_\text{t-1} \mid x_t) := \mathcal{N}(x_\text{t-1}; \mu_\theta(x_t, t), \Sigma_\theta(x_t, t))$ 에서
-$\mu_\theta(x_t, t)$ 와 $\Sigma_\theta$ 는 학습되어야 할 <code>parameter들</code>이라고 설명한 바가 있다.</p>
+<p>논문에서는 $\sigma^2 = \beta_t$ 와 $\sigma^2 = \tilde\beta_t$ 의 실험 결과가 비슷하다고 설명한다.</p>
+<details>
+  <summary> 두개의 차이점 </summary>
+<ul>
+<li>$\sigma^2 = \beta_t$ : 단순히 정방향 과정에서 사용된 $\beta_t$ 값을 그대로 <code>reverse process</code>에서 사용하겠다는 방법이다.</li>
+<li>$\sigma^2 = \tilde\beta_t$ : 정방향 과정에서 <code>누적된 노이즈</code>도 반영하겠다는 방법이다.</li>
+<li><code>Diffusion model</code>은 <code>다중 스텝</code>을 거치므로 <code>개별 스텝</code>의 미세한 차이는 결과에 큰 영향을 미치지 못하기 때문에 결과가 비슷하다.
+<ul>
+<li>즉, 스텝별 미세한 분산 차이가 최종적으로 누적될 때 무시할 수 있을 정도로 작을 수 있다.</li>
+</ul>
+</li>
+</ul>
+</details>
+</li>
+</ul>
+<ol start="41">
+<li>따라서 $\Sigma_\theta(x_t, t) = \sigma_t^2 = \tilde\beta_t = t$시점까지의 누적된 $noise$ 가 된다.</li>
+</ol>
+<ul>
+<li>$\quad\tilde{\beta_t} := \frac{1 - \bar{\alpha_{t-1}}}{1 - \bar{\alpha_t}} \beta_t$</li>
+<li>평균 $\mu_\theta(x_t, t)$ 만이 학습되어야 할 <code>parameter</code>이다.</li>
+</ul>
+<div style="text-align:center;">
+<img src="/images/paper/ddpm/reverse-1.png" height="100%" width="80%"> </div>
+<ol start="42">
+<li>그렇기 때문에 <code>위 그림</code> 처럼 <code>denoising process</code> loss term의 <strong>목적식을 재구성</strong> 할 수 있게 된다.</li>
+</ol>
+<ul>
+<li>평균만이 학습대상이므로, 각각의 <code>mean function</code>간의 차이로 <strong>재정의 할 수 있게 된다.</strong>
+$$
+x_t(x_0, \epsilon) = \sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)
+$$</li>
+</ul>
+<ol start="43">
+<li>19번의 식을 <code>reparametrization trick</code>을 사용하여 표현하면 위 식이 된다. 이 식을 <code>위 그림</code>에 <strong>대입 하면</strong> <code>아래의 수식</code>으로 정리가 된다.</li>
+</ol>
+<p>$$\mathbb{E_{x_0, \epsilon}} \Bigg[ \frac{1}{2 \sigma_t^2} |  \frac{1}{\sqrt{\alpha_t}} ( x_t(x_0, \epsilon) - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t}} \epsilon) - \mu _ {\theta} ( x_t(x_0, \epsilon), t) |^2 \Bigg] $$</p>
+<ol start="44">
+<li>
+<p><code>위 수식</code>을 보면 $\mu _ {\theta} (x_t, t)$ 는 주어진 $t$시점에 $\frac{1}{\sqrt{\alpha_t}} ( x_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t}} \epsilon)$의 <strong>식을 예측을 해야되는 것을 알 수 있다.</strong></p>
 </li>
 <li>
-<p>주입된 <code>noise 크기</code>인 $\beta_t$를 이미 알고있기 때문에 이를 활용하여 분산($\Sigma_\theta$)을 <strong>대신 한다.</strong> <code>학습 대상이었던 분산</code>을 각 시점에서 <strong>누적된 노이즈 크기로 상수화</strong> 하게 된다.</p>
-</li>
-<li>
-<p>따라서 $\Sigma_\theta(x_t, t) = \sigma_t^2 = \bar\beta_t = t$시점까지의 누적된 $noise$ 가 된다.</p>
+<p>$x_t$(input) 와 $t$는 주어진다. 따라서 남은 예측 대상(변수)은 noise($\epsilon$) 뿐이다.</p>
 </li>
 </ol>
-<p>DDPM의 Loss: <strong>최종적으로 각 t 시점의 노이즈인 \epsilon을 모델이 예측하도록 하는 loss이다.</strong></p>
 <ul>
+<li>$\epsilon$을 제외한 나머지 변수는 구할 수 있는 값들이다.</li>
+</ul>
+<ol start="46">
 <li>
-<p>denoising process 목적식 재구성</p>
-<ul>
-<li>beta_t를 알기 때문에 분산을 상수로 만들 수 있게 된다.</li>
-<li>b_t*I = t시점까지의 누적된 noise</li>
-<li>평균만 추정하는 것으로 줄어듦
-<ul>
-<li>mean function간의 차이로 정의가 될 수 있다.</li>
-</ul>
-</li>
-<li>denoising matching
-<ul>
-<li>epsilon하나로 훈련이 진행이 된다!</li>
-</ul>
-</li>
-</ul>
+<p>또한 이는 $p$<code>분포의 평균</code>($\mu _ {\theta}$)이 $q$<code>분포의 평균</code>($\frac{1}{\sqrt{\alpha_t}}$)을 <strong>예측하는 것으로 생각할 수 있다.</strong></p>
 </li>
 <li>
-<p>continue</p>
+<p>다르게 생각한다면, <code>p분포</code>를 <code>q분포</code>를 기반으로 <code>parameterization</code>해서 얻을 수 있다면 더욱 간단할 것이다. 아래는 그렇게 변형한 수식이다.</p>
 </li>
+</ol>
+<p>$$
+\mu_{\theta}(x_t, t) = \tilde{\mu_t} \left( x_t, \frac{1}{\sqrt{\bar{\alpha_t}}} \left( x_t - \sqrt{1 - \bar{\alpha_t}} \epsilon _ {\theta}(x_t) \right) \right) = \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha_t}}} \epsilon_{\theta}(x_t, t) \right)
+$$</p>
+<ul>
+<li>위 식을 이용하면 $x_\text{t-1}$을 바로 계산하는 것이 아니라 noise($\epsilon$)을 예측하여 $x_t$에서 빼는 방식을 취한다.</li>
+</ul>
+<ol start="47">
+<li>최종적으로 <code>44번</code>, <code>위 수식</code>을 조합한다면 <strong>DDPM의 최종 Loss Term이 도출 된다.</strong></li>
+</ol>
+<hr>
+<h2 id="experiment">Experiment</h2>
+<ul>
+<li>continue</li>
 </ul>
 <hr>
 <h2 id="reference">Reference</h2>
