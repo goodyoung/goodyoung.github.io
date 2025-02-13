@@ -1,0 +1,15 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>DDIM - Tag - Good Young</title>
+        <link>https://goodyoung.github.io/tags/ddim/</link>
+        <description>DDIM - Tag - Good Young</description>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://goodyoung.github.io/tags/ddim/" rel="self" type="application/rss+xml" /><item>
+    <title>[Paper Review]Denoising Diffusion Implicit Models(DDIM)</title>
+    <link>https://goodyoung.github.io/posts/paper/ddim/</link>
+    <pubDate>Mon, 01 Jan 0001 00:00:00 &#43;0000</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/paper/ddim/</guid>
+    <description><![CDATA[개요 DDPM 다음으로 기초적인 논문인 DDIM에 대하여 논문 리뷰 할 것이다. Introduction continue]]></description>
+</item>
+</channel>
+</rss>

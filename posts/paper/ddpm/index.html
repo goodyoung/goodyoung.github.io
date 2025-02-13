@@ -15,8 +15,8 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
 이제 확률적 연산을 결정적 연산으로 변경하여 $\tilde{\beta_t}$ 를 샘플링하는 과정이 미분 가능해졌다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/paper/ddpm/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2025-01-10T17:24:43+09:00" />
-<meta property="article:modified_time" content="2025-01-10T17:24:43+09:00" /><meta property="og:site_name" content="My cool site" />
+<meta property="article:published_time" content="2025-01-15T17:24:43+09:00" />
+<meta property="article:modified_time" content="2025-01-15T17:24:43+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)"/>
 <meta name="twitter:description" content="개요 Diffusion의 기초인 DDPM에 대한 논문을 리뷰할 것이다. Introduction 최근 몇 년간 다양한 생성 모델(deep generative models) 이 높은 품질의 샘플을 생성하는 성과를 보였다. 에너지 기반 모델(Energy-Based Models) 및 Score Matching 기법도 GAN과 비슷한 수준의 이미지 품질을 생성하는 연구가 등장했다. 이 논문은 Diffusion Probabilistic Models의 발전이다. Diffusion Probabilistic Models (DPMs, 2015): Markov chain을 기반으로 데이터를 점진적으로 샘플링하는 모델 Markov Chain이란? - 어떤 시간에 특정 state에 도달하든, 그 이전에 어떤 state를 거쳐왔든 다음 state로 갈 확률은 항상 같다는 성질이다. DPMs는 변분 추론을 활용해 샘플을 생성하기 위해 **확산 과정(diffusion process)을 반전(reverse)**시키는 방법을 학습한다. 변분 추론(variational inference) : 확률 모델에서 복잡한 후행 확률 분포(posterior distribution)를 근사하는 방법 중 하나이다. 정확한 posterior를 계산하는 것은 intractable하여 $p(z|x)$를 계산하는 것 대신 $q_\theta(z|x)$로 근사하는 방법이다. 즉, 변분 추론을 통해 모델의 역방향 과정의 확률 분포( $p(x_\text{t-1} | x_t)$ )를 근사하여, $p_\theta(x_\text{t-1} | x_t)$ 를 통하여 정방향 과정에서 추가된 노이즈를 제거하는 방법을 학습 DPMs은 정의하기 쉽고 학습이 효율적이지만, 지금까지 고품질 샘플을 생성할 수 있다는 실증적인 연구가 부족했다. 하지만 이 논문(DDPM)에서 DPMs이 고품질 샘플을 생성하고, 때때로 다른 모델보다 더 좋은 성능을 보인다. DDPM을 특정 방식으로 파라미터화 하면 다중 노이즈 수준에서 Denoising Score Matching과 동일하며, Annealed Langevin Dynamics와도 유사한 샘플링 방식을 갖는다는 점을 발견 한다. 46번에서 자세하게 설명을 한다. DDPM도 샘플의 품질은 뛰어나지만, log-likelihood 기반 모델들과 비교했을 때 경쟁력 있는 성능이 존재하진 않는다. Loss 중 많은 부분이 눈에 보이지 않는 미세한 이미지 세부 정보를 설명하는데 사용이 된다. log-likelihood model : VAE, Normalizing Flows, Autoregressive Models log 가능도를 최대화 하는 모델들 Background 4번에서 DPMs는 정방향 과정에서 추가된 노이즈(destroy)를 제거하는 방법을 학습하는 과정을 수행한다고 설명하였다. 물리학적으로 미세한 세계에서는 destroy된 상태를 backward로 복원시키는 것이 가능하다. DDPM에서는 노이즈를 점차 추가하여 destroy하는 정방향 과정을 diffusion process이라고 한다. 또한, 노이즈를 제거(denoising)하여 다시 복원하는 확률 분포(노이즈)를 학습하는 과정을 reverse process라고 한다. Diffusion Process Diffusion Process에 대해서 먼저 간단한 설명을 해보려고 한다. $$ q(x_\text{1:T} | x_0) := \prod_\text{t=1}^T q(x_t | x_\text{t-1}), \quad q(x_t | x_\text{t-1}) := \mathcal{N}(x_t ; \sqrt{1 - \beta_t} x_\text{t-1}, \beta_t I) $$
@@ -41,8 +41,8 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/ddpm\/"
-        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDPM","wordcount":  2173 ,
-        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ddpm\/","datePublished": "2025-01-10T17:24:43+09:00","dateModified": "2025-01-10T17:24:43+09:00","publisher": {
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDPM, Implement","wordcount":  2183 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ddpm\/","datePublished": "2025-01-15T17:24:43+09:00","dateModified": "2025-01-15T17:24:43+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
                 "@type": "Person",
@@ -83,7 +83,7 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-01-10">2025-01-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;2173 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-01-15">2025-01-15</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;2183 words&nbsp;
                 <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;11 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
@@ -108,6 +108,7 @@ $\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ 
       </ul>
     </li>
     <li><a href="#experiment">Experiment</a></li>
+    <li><a href="#implement">Implement</a></li>
     <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
@@ -655,6 +656,12 @@ $$</p>
 <li>$T$(large t)의 <strong>Loss 비중을 높여</strong>, 모델이 <code>noise가 심한 이미지</code>(large t시점의 상태)의 <code>denoising</code>에 집중하도록 유도가 된다.</li>
 </ul>
 <hr>
+<h2 id="implement">Implement</h2>
+<ol start="53">
+<li>코드에 대한 구현은 <a href="https://github.com/goodyoung/myMLstudy/blob/main/DL%20Implement/Diffusion/DDPM/study_ddpm.ipynb" target="_blank" rel="noopener noreffer ">여기</a>에 해두었다.</li>
+</ol>
+<br>
+<hr>
 <h2 id="reference">Reference</h2>
 <ul>
 <li>
@@ -680,23 +687,30 @@ $$</p>
 <li><a href="https://www.youtube.com/watch?v=vy8q-WnHa9A" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=vy8q-WnHa9A</a> (reparametrization trick)</li>
 </ul>
 </li>
+<li>
+<p>논문 구현</p>
+<ul>
+<li><a href="https://github.com/w86763777/pytorch-ddpm" target="_blank" rel="noopener noreffer ">https://github.com/w86763777/pytorch-ddpm</a></li>
+<li><a href="https://github.com/CodingVillainKor/SimpleDeepLearning/blob/main/DDPM_notebook.ipynb" target="_blank" rel="noopener noreffer ">https://github.com/CodingVillainKor/SimpleDeepLearning/blob/main/DDPM_notebook.ipynb</a></li>
+</ul>
+</li>
 </ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
-                <span>Updated on 2025-01-10</span>
+                <span>Updated on 2025-01-15</span>
             </div></div>
         <div class="post-info-line">
             <div class="post-info-md"></div>
             <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)" data-hashtags="논문 리뷰,computer vision,Diffusion,DDPM"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-hashtag="논문 리뷰"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/ddpm/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)" data-hashtags="논문 리뷰,computer vision,Diffusion,DDPM,Implement"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-hashtag="논문 리뷰"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/paper/ddpm/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/paper/ddpm/" data-title="[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
             </div>
         </div>
     </div>
 
     <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/diffusion/">Diffusion</a>,&nbsp;<a href="/tags/ddpm/">DDPM</a></section>
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/">논문 리뷰</a>,&nbsp;<a href="/tags/computer-vision/">computer vision</a>,&nbsp;<a href="/tags/diffusion/">Diffusion</a>,&nbsp;<a href="/tags/ddpm/">DDPM</a>,&nbsp;<a href="/tags/implement/">Implement</a></section>
         <section>
             <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
         </section>

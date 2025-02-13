@@ -3,10 +3,10 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 10 Jan 2025 17:24:43 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
     <title>computer vision</title>
     <link>https://goodyoung.github.io/tags/computer-vision/</link>
-    <pubDate>Fri, 10 Jan 2025 17:24:43 &#43;0900</pubDate>
+    <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/computer-vision/</guid>
     <description><![CDATA[]]></description>
@@ -14,7 +14,7 @@
 <item>
     <title>DDPM</title>
     <link>https://goodyoung.github.io/tags/ddpm/</link>
-    <pubDate>Fri, 10 Jan 2025 17:24:43 &#43;0900</pubDate>
+    <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/ddpm/</guid>
     <description><![CDATA[]]></description>
@@ -22,15 +22,23 @@
 <item>
     <title>Diffusion</title>
     <link>https://goodyoung.github.io/tags/diffusion/</link>
-    <pubDate>Fri, 10 Jan 2025 17:24:43 &#43;0900</pubDate>
+    <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/diffusion/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
+    <title>Implement</title>
+    <link>https://goodyoung.github.io/tags/implement/</link>
+    <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/implement/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
     <title>논문 리뷰</title>
     <link>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</link>
-    <pubDate>Fri, 10 Jan 2025 17:24:43 &#43;0900</pubDate>
+    <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
     <description><![CDATA[]]></description>
@@ -73,14 +81,6 @@
     <pubDate>Mon, 26 Aug 2024 18:21:20 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/reparametrization-trick/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>VAE</title>
-    <link>https://goodyoung.github.io/tags/vae/</link>
-    <pubDate>Mon, 26 Aug 2024 18:21:20 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/vae/</guid>
     <description><![CDATA[]]></description>
 </item>
 </channel>
