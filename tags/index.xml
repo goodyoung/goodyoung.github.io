@@ -3,12 +3,36 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 13 Feb 2025 15:14:36 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
     <title>computer vision</title>
     <link>https://goodyoung.github.io/tags/computer-vision/</link>
-    <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
+    <pubDate>Thu, 13 Feb 2025 15:14:36 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/computer-vision/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>DDIM</title>
+    <link>https://goodyoung.github.io/tags/ddim/</link>
+    <pubDate>Thu, 13 Feb 2025 15:14:36 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/ddim/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>Diffusion</title>
+    <link>https://goodyoung.github.io/tags/diffusion/</link>
+    <pubDate>Thu, 13 Feb 2025 15:14:36 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/diffusion/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>논문 리뷰</title>
+    <link>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</link>
+    <pubDate>Thu, 13 Feb 2025 15:14:36 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
@@ -20,27 +44,11 @@
     <description><![CDATA[]]></description>
 </item>
 <item>
-    <title>Diffusion</title>
-    <link>https://goodyoung.github.io/tags/diffusion/</link>
-    <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/diffusion/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
     <title>Implement</title>
     <link>https://goodyoung.github.io/tags/implement/</link>
     <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/implement/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>논문 리뷰</title>
-    <link>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</link>
-    <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
@@ -73,14 +81,6 @@
     <pubDate>Thu, 29 Aug 2024 18:37:03 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/multi-modal-learning/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Reparametrization Trick</title>
-    <link>https://goodyoung.github.io/tags/reparametrization-trick/</link>
-    <pubDate>Mon, 26 Aug 2024 18:21:20 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/reparametrization-trick/</guid>
     <description><![CDATA[]]></description>
 </item>
 </channel>
