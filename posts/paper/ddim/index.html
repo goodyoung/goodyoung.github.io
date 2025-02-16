@@ -39,7 +39,7 @@ DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/ddim\/"
-        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDIM","wordcount":  659 ,
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDIM","wordcount":  1074 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ddim\/","datePublished": "2025-02-13T15:14:36+09:00","dateModified": "2025-02-13T15:14:36+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -81,8 +81,8 @@ DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Denoising Diffusion Implicit Models(DDIM)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-13">2025-02-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;659 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;4 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-13">2025-02-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1074 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;6 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -96,6 +96,7 @@ DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 
     <li><a href="#variational-inference-for-non-markovian-forward-processes">Variational Inference For Non-Markovian Forward Processes</a>
       <ul>
         <li><a href="#non-markovian-forward-porcesses">Non-Markovian Forward Porcesses</a></li>
+        <li><a href="#generative-process-and-unified-variational-inference-objective">Generative Process and Unified Variational Inference Objective</a></li>
       </ul>
     </li>
   </ul>
@@ -238,20 +239,25 @@ $$</li>
 </ol>
 <ul>
 <li><code>q</code>의 분포가 $x_t$가 $x_\text{t-1}$와 $x_0$에 의존하기 때문에 <strong>더이상 markovian이 아니게 되는 것이다.</strong></li>
+<li><code>Forward Process</code>를 <code>위 식</code>과 같이 정의하는 것은 <strong>직접적인 성능 향상을 주는 것은 아니다.</strong> <code>Reverse Process</code>에서 결정론적 샘플링과 빠른 샘플링을 가능하게 하려면 <code>Forward Process</code>를 이렇게 <code>Non-Markovian</code>을 사용하여 정의가 되어야 하기 때문이다.</li>
 </ul>
 <ol start="21">
-<li>
-<p><code>DDIM</code>에서 위 식을 만족하면 $q_{\sigma}(x_{t-1} | x_t, x_0) = \mathcal{N} \left( \sqrt{\alpha_{t-1}} x_0 + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \cdot \frac{x_t - \sqrt{\alpha_t} x_0}{\sqrt{1 - \alpha_t}}, \sigma_t^2 I \right)$ 를 만족하게 된다.</p>
-<details>
-  <summary> 증명 확인 </summary>
-<ul>
-<li>continue</li>
-</ul>
-</details>
-</li>
-<li>
-<p><code>DDPM</code>에서 $q$에 대해서 <strong>평균과 분산을 구해서</strong> 정의를 내렸지만, <code>DDIM</code>에서는 바로 위 식처럼 <strong>가우시안 식으로</strong> 정의를 내릴 수 있다.</p>
-</li>
+<li><code>DDIM</code>에서 <code>위 식</code>을 만족하면 <code>mean function</code>은 <code>아래의 식</code>을 만족하게 된다.</li>
+</ol>
+<p>$$q_{\sigma}(x_{t-1} | x_t, x_0) = \mathcal{N} \left( \sqrt{\alpha_{t-1}} x_0 + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \cdot \frac{x_t - \sqrt{\alpha_t} x_0}{\sqrt{1 - \alpha_t}}, \sigma_t^2 I \right)$$</p>
+  <details>
+    <summary> 증명 확인 </summary>
+<p>$$
+\begin{aligned}
+x_{t-1} &amp;= \sqrt{\bar{\alpha_{t-1}}} x_0 + \sqrt{1 - \bar{\alpha_{t-1}}} \mathbf{z_{t-1}} \\
+&amp;= \sqrt{\bar{\alpha_{t-1}}} x_0 + \sqrt{1 - \bar{\alpha_{t-1}} - \sigma_t^2} \mathbf{z_t} + \sigma_t \mathbf{z} \quad (\therefore \text{reparameterization trick})\\
+&amp;= \sqrt{\bar{\alpha_{t-1}}} x_0 + \sqrt{1 - \bar{\alpha_{t-1}} - \sigma_t^2} \frac{x_t - \sqrt{\bar{\alpha_t}} x_0}{\sqrt{1 - \bar{\alpha_t}}} + \sigma_t \mathbf{z} \quad (\therefore x_{t} = \sqrt{\bar{\alpha_{t}}} x_0 + \sqrt{1 - \bar{\alpha_{t}}} \epsilon)\\
+q_{\sigma}(x_{t-1} | x_t, x_0) &amp;= \mathcal{N} \left( x_{t-1}; \sqrt{\bar{\alpha_{t-1}}} x_0 + \sqrt{1 - \bar{\alpha_{t-1}} - \sigma_t^2} \frac{x_t - \sqrt{\bar{\alpha_t}} x_0}{\sqrt{1 - \bar{\alpha_t}}}, \sigma_t^2 I \right)
+\end{aligned}
+$$</p>
+  </details>
+<ol start="22">
+<li><code>DDPM</code>에서 $q$에 대해서 <strong>평균과 분산을 구해서</strong> 정의를 내렸지만, <code>DDIM</code>에서는 <code>바로 위 식</code>처럼 <strong>가우시안 식으로</strong> 정의를 내릴 수 있다.</li>
 </ol>
 <ul>
 <li>$DDPM : q(x_{t-1} | x_t, x_0) = \mathcal{N} \left( x_{t-1} ; \tilde{\mu}_t(x_t, x_0), \tilde{\beta}_t I \right)$</li>
@@ -259,6 +265,63 @@ $$</li>
 <ol start="23">
 <li>$\sigma$의 값은 <code>forward process</code>가 얼마나 <code>stochastic</code>한지 컨트롤 하며, 이 값이 <strong>0에 가까워질수록</strong> $x_\text{t-1}$값이 fix 되며 <code>deterministic</code>해진다.</li>
 </ol>
+<hr>
+<h3 id="generative-process-and-unified-variational-inference-objective">Generative Process and Unified Variational Inference Objective</h3>
+<ol start="24">
+<li>다음으로 학습 가능한 생성 과정인 $p_\theta(x_\text{0:T})$를 정의한다. 이때 $ p_{\theta}^{(t)}(x_{t-1} | x_t)$는 $ q_{\sigma}(x_{t-1} | x_t, x_0)$ (<code>reverse conditional distribution</code>)에 대해 <strong>알고있는 정보를 활용한다</strong>.</li>
+</ol>
+<ul>
+<li><code>reverse conditional distribution</code>: noisy한 $ x_t$ 가 있을 때, $ x_0$를 <strong>이용해</strong> $ x_{t-1}$를 샘플링</li>
+</ul>
+<ol start="25">
+<li>
+<p>따라서 $p_\theta(x_\text{0:T})$ 가 수행되기 위하여 <strong>노이즈 관측 값</strong>인 $ x_t$에 대해 우리는 <strong>가장 먼저 대응하는</strong> $x_0$를 예측하고, $ q_{\sigma}(x_{t-1} | x_t, x_0)$을 통하여 샘플 $ x_{t-1}$을 얻는다.</p>
+</li>
+<li>
+<p>다음은 위 과정을 조금 더 자세하게 설명한 부분이다.</p>
+</li>
+<li>
+<p>$ x_0 \sim q(x_0)$와 $ \epsilon_t \sim \mathcal{N}(0, I)$에 대해 $ x_t = \sqrt{\alpha_t} x_0 + \sqrt{1 - \alpha_t} \epsilon$을 수행하여 $ x_t$를 얻어낼 수 있다.</p>
+</li>
+</ol>
+<ul>
+<li>모델 $ \epsilon_{\theta}^{(t)}(x_t)$는 $ x_0$에 대한 정보 없이 $ x_t$로부터 $ \epsilon_t$를 예측한다.</li>
+</ul>
+<ol start="28">
+<li><code>위 식</code>을 $ x_0$에 대해 <strong>다시 표현하면</strong> 우리는 $x_t$에 대한 $ x_0$의 예측 값인 <strong>denoised observation</strong> 을 알 수 있다.</li>
+</ol>
+<p>$$f_{\theta}^{(t)}(x_t) := \frac{x_t - \sqrt{1 - \alpha_t} \cdot \epsilon_{\theta}^{(t)}(x_t)}{\sqrt{\alpha_t}}$$</p>
+<ol start="29">
+<li>내가 이해한 대로 정리하자면, 기존 <code>DDPM</code>에서 사용되었던 <code>Forward Process</code>$(x_t = \sqrt{\alpha_t} x_0 + \sqrt{1 - \alpha_t} \epsilon )$ 의 식을 $x_0$ 식으로 변경하여 생성 과정$(p_\theta(x_\text{0:T}))$ 시 $f_{\theta}^{(t)}(x_t) := x_0$를 샘플링하여(<code>denoised observation</code> = <strong>노이즈가 제거된 관측값</strong>) 사용(추정)하겠다는 의미이다.</li>
+</ol>
+<ul>
+<li><code>DDIM</code>에서 기존 <code>DDPM</code>에서의 <code>Forward Process</code>에서의 과정은 변함이 없다.</li>
+<li><code>모델</code> $(\epsilon_{\theta}^{(t)}(x_t))$의 역할(노이즈 예측)도 동일히다.</li>
+</ul>
+<ol start="30">
+<li>또한 <code>fixed prior</code>인 $ p_{\theta}(x_T) = \mathcal{N}(0, I)$를 통해 <strong>generative process</strong>를 아래와 같이 정의할 수 있다.
+$$p_{\theta}^{t}(x_{t-1} | x_t) =
+\begin{cases}
+\mathcal{N}(f_\theta^{1}(x_1), \sigma_1^2 I) &amp; \text{if } t = 1 \\
+q_\sigma(x_{t-1} | x_t, f_{\theta}^{t}(x_t)) &amp; \text{otherwise}
+\end{cases}
+$$</li>
+</ol>
+<ul>
+<li>항상 <code>generative process</code>를 보장하기 위해 $t = 1$ 일 때 <code>gaussian noise</code>$( \sigma_1^2 I )$를 추가해준다.</li>
+<li>$f_{\theta}^{t}$가 $x_0$을 대체했다.</li>
+</ul>
+<ol start="31">
+<li>아래는 <code>generative process</code>를 최적화 시키기 위해 이용되는 <code>variational lower bound</code>의 형태이다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/paper/ddim/loss_term_1.png" height="100%" width="80%"> </div>
+<ol start="32">
+<li>해당 논문에서는 $\sigma$를 어떻게 선택하느냐에 따라서 다른 목적 함수가 되는데, 만약, $\sigma$가 <strong>0보다 크다면</strong> <code>DDPM</code>의 <code>ELBO와 같은 형태</code>가 되고, <strong>0이면</strong> <code>DDIM</code>의 목적 함수이다.</li>
+</ol>
+<ul>
+<li>즉 <code>DDIM</code>에서는 <code>non-markovian</code>을 위해서 $\sigma$를 0으로 설정한다.</li>
+</ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
