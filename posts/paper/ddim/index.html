@@ -6,11 +6,7 @@
         <meta name="robots" content="noodp" />
         <title>[Paper Review]Denoising Diffusion Implicit Models(DDIM) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]Denoising Diffusion Implicit Models(DDIM)" />
 <meta property="og:description" content="개요 DDPM 이후 DDPM의 샘플링 속도를 개선하여 보다 빠른 생성이 가능한 DDIM에 대하여 논문 리뷰 할 것이다. Introduction Deep generative model은 여러 분야에서 높은 품질의 샘플을 생성할 능력을 보여준다. GAN은 다른 어떤 생성 모델보다 더 높은 품질의 샘플을 생성 할 수 있다. 그러나 GAN은 매우 특정한 최적화 기법과 네트워크 구조를 선택해야 돼서, data 분포가 여러 모드를 충분히 학습하지 못하는 현상이 발견된다. 따라서 최근 연구에선 DDPM 같은 생성 모델이 GAN과 유사한 성능을 생성할 수 있다. DDPM과 같은 모델들은 adversarial training을 하지 않고, gaussian noise가 다양한 정도로 추가된 샘플을 복원하도록 denoising autoencoder를 훈련하는 방식으로 동작한다. 샘플링 과정은 Markov chain 방식을 따르며, 처음에는 화이트 노이즈에서 시작하여 점점 denoising하여 이미지를 복원하는 방식으로 진행된다. 이는 Langevin dynamics와 forward diffusion과정을 역전시키는 두 가지 방식으로 구현이 된다. DDPM과 같은 모델들은 샘플을 생성하는데 많은 반복이 필요하다는 것이 문제점이다. 따라서 GAN에 비하여 속도가 매우 느리다. 또한 이미지의 크기가 커질수록 더욱 심각해진다. 따라서 본 논문은 DDPM과 GAN의 효율성 차이를 줄이기 위해 DDIMs을 제안한다. DDIM은 암시적 확률 모델(implicit probabilistic models)(Mohamed &amp; Lakshminarayanan, 2016)과 밀접한 관련이 있다. 암시적 확률 모델은 DDPM과 동일한 목적 함수로 훈련된다는 점에서 유사하다. 본 논문에서는 기존 DDPM의 Markov Chain 확산 과정을 Non-Markovian 확산 과정으로 일반화 한다. Non-Markov를 사용하면 짧은 마르코프 체인을 구성할 수 있게 된다. 이는, 샘플링 속도를 획기적으로 줄일 수 있게 된다. 따라서 동일한 신경망(목적 함수)를 사용하면서도, Markov가 아닌 다양한 확산 과정을 선택함으로써 더욱 넓은 범위의 생성 모델을 자유롭게 선택할 수 있다. 또한, DDIM은 DDPM과 비교하여 세 가지의 장점을 지닌다.
-샘플링 속도를 더욱 가속화 해도 DDPM과 비교하여 더 뛰어난 샘플 품질을 제공한다. DDIM에 일관성 속성이 있기 때문에 초기 latent variable에서 출발하여 높은 수준의 특징을 공유하게 된다. 초기 latent variable을 조작하여 의미적으로 유의미한 이미지 보간을 수행할 수 있다. Background 해당 부분에서는 DDPM의 전반적인 내용에 대해서 설명을 한다. 이는 이전의 글에 더 자세히 나와 있다. DDPM의 샘플링 속도가 너무 느려 이를 해결하기 위해 DDIM이 등장하여 속도를 개선한다. Variational Inference For Non-Markovian Forward Processes 생성 모델은 inference process의 역(reverse)을 추정하기 때문에, 많은 반복을 줄이기 위해 inference process에 대한 새로운 접근이 필요하다.
-DDPM의 핵심적인 관찰은 DDPM의 목적함수가 오직 marginal probability distribution(주변 확률 분포) $q(x_t \mid x_0)$에만 의존하고 joint distribution(공동 확률 분포) $q(x_\text{1:T}\mid x_0)$엔 직접적으로 의존하지 않는다는 점이다.
-즉, 동일한 주변 확률 분포를 가지면서 다양한 공동 확률 분포가 존재하기 때문에, Markovian 특성을 갖지 않는 대체적인 생성 과정을 설계할 수 있다.
-Non-Markovian 추론 과정을 사용하더라도 DDPM과 동일한 대리 목적 함수를 유지할 수 있다. Non-Markovian Forward Porcesses 따라서 주변 확률 분포인 $q_\sigma(x_T|x_0)$ 는 $q_\sigma(x_T|x_0) = \mathcal{N}(\sqrt{\alpha_T}x_0, (1 - \alpha_T)I)$ 는 DDPM과 DDIM 둘 다 만족한다.
-하지만 공동 확률 분포인 $q_\sigma(x_\text{1:T}|x_0)$에 대해서는 DDPM과 DDIM이 아래와 같이 다르게 표현되고 있다. $$ \begin{aligned} DDPM &amp;: q(x_\text{1:T} | x_0) := \prod_\text{t=1}^T q(x_t | x_\text{t-1}) \\ DDIM &amp;: q(x_\text{1:T} | x_0) := q_\sigma(x_T|x_0) \prod_\text{t=2}^T q_\sigma(x_\text{t-1} | x_t,x_0) \end{aligned} $$
+샘플링 속도를 더욱 가속화 해도 DDPM과 비교하여 더 뛰어난 샘플 품질을 제공한다. DDIM에 일관성 속성이 있기 때문에 초기 latent variable에서 출발하여 높은 수준의 특징을 공유하게 된다. 초기 latent variable을 조작하여 의미적으로 유의미한 이미지 보간을 수행할 수 있다. Background 해당 부분에서는 DDPM의 전반적인 내용에 대해서 설명을 한다. 이는 이전의 글에 더 자세히 나와 있다. DDPM의 샘플링 속도가 너무 느려 이를 해결하기 위해 DDIM이 등장하여 속도를 개선한다. Variational Inference For Non-Markovian Forward Processes 생성 모델은 inference process의 역(reverse)을 추정하기 때문에, 많은 반복을 줄이기 위해 inference process에 대한 새로운 접근이 필요하다. DDPM의 핵심적인 관찰은 DDPM의 목적함수가 오직 marginal probability distribution(주변 확률 분포) $q(x_t \mid x_0)$에만 의존하고 joint distribution(공동 확률 분포) $q(x_\text{1:T}\mid x_0)$엔 직접적으로 의존하지 않는다는 점이다. 즉, 동일한 주변 확률 분포를 가지면서 다양한 공동 확률 분포가 존재하기 때문에, Markovian 특성을 갖지 않는 대체적인 생성 과정을 설계할 수 있다. Non-Markovian 추론 과정을 사용하더라도 DDPM과 동일한 대리 목적 함수를 유지할 수 있다. Non-Markovian Forward Porcesses 따라서 주변 확률 분포인 $q_\sigma(x_T|x_0)$ 는 $q_\sigma(x_T|x_0) = \mathcal{N}(\sqrt{\alpha_T}x_0, (1 - \alpha_T)I)$ 는 DDPM과 DDIM 둘 다 만족한다. 하지만 공동 확률 분포인 $q_\sigma(x_\text{1:T}|x_0)$에 대해서는 DDPM과 DDIM이 아래와 같이 다르게 표현되고 있다. $$ \begin{aligned} DDPM &amp;: q(x_\text{1:T} | x_0) := \prod_\text{t=1}^T q(x_t | x_\text{t-1}) \\ DDIM &amp;: q(x_\text{1:T} | x_0) := q_\sigma(x_T|x_0) \prod_\text{t=2}^T q_\sigma(x_\text{t-1} | x_t,x_0) \end{aligned} $$
 DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 $x_\text{t-1}$에만 의존하는 것이 아니라, $x_0$에 대한 직접적인 정보도 포함하도록 식을 변형 하려고 한다. $$ \begin{aligned} q_{\sigma}(x_{1:T} | x_0) &amp;:= q(x_1 | x_0) q(x_2 | x_1, x_0) q(x_3 | x_2, x_0) \dots q(x_T | x_{T-1}, x_0) \\ &amp;:= \cancel{q(x_1 | x_0)} \frac{q(x_1 | x_2, x_0) \cancel{q(x_2 | x_0)}} {\cancel{q(x_1 | x_0)}} \frac{q(x_2 | x_3, x_0) \cancel{q(x_3 | x_0)}}{\cancel{q(x_2 | x_0)}} \dots \frac{q(x_{T-1} | x_T, x_0) q(x_T | x_0)}{\cancel{q(x_{T-1} | x_0)}} \\ &amp;(\therefore q(x_T | x_{T-1}, x_0) = \frac{q(x_{T-1} | x_T, x_0) q(x_T | x_0)}{q(x_{T-1} | x_0)} \text{From Bayes&rsquo; rule})\\ &amp;:= q_\sigma(x_T|x_0) \prod_\text{t=2}^T q_\sigma(x_\text{t-1} | x_t,x_0) \end{aligned} $$ 따라서 DDPM은 Markovian의 특성을 가지고 있지만, DDIM은 Non-Markovian의 특징을 가지고 있다는 것을 알 수 있다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/paper/ddim/" /><meta property="article:section" content="posts" />
@@ -19,11 +15,7 @@ DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]Denoising Diffusion Implicit Models(DDIM)"/>
 <meta name="twitter:description" content="개요 DDPM 이후 DDPM의 샘플링 속도를 개선하여 보다 빠른 생성이 가능한 DDIM에 대하여 논문 리뷰 할 것이다. Introduction Deep generative model은 여러 분야에서 높은 품질의 샘플을 생성할 능력을 보여준다. GAN은 다른 어떤 생성 모델보다 더 높은 품질의 샘플을 생성 할 수 있다. 그러나 GAN은 매우 특정한 최적화 기법과 네트워크 구조를 선택해야 돼서, data 분포가 여러 모드를 충분히 학습하지 못하는 현상이 발견된다. 따라서 최근 연구에선 DDPM 같은 생성 모델이 GAN과 유사한 성능을 생성할 수 있다. DDPM과 같은 모델들은 adversarial training을 하지 않고, gaussian noise가 다양한 정도로 추가된 샘플을 복원하도록 denoising autoencoder를 훈련하는 방식으로 동작한다. 샘플링 과정은 Markov chain 방식을 따르며, 처음에는 화이트 노이즈에서 시작하여 점점 denoising하여 이미지를 복원하는 방식으로 진행된다. 이는 Langevin dynamics와 forward diffusion과정을 역전시키는 두 가지 방식으로 구현이 된다. DDPM과 같은 모델들은 샘플을 생성하는데 많은 반복이 필요하다는 것이 문제점이다. 따라서 GAN에 비하여 속도가 매우 느리다. 또한 이미지의 크기가 커질수록 더욱 심각해진다. 따라서 본 논문은 DDPM과 GAN의 효율성 차이를 줄이기 위해 DDIMs을 제안한다. DDIM은 암시적 확률 모델(implicit probabilistic models)(Mohamed &amp; Lakshminarayanan, 2016)과 밀접한 관련이 있다. 암시적 확률 모델은 DDPM과 동일한 목적 함수로 훈련된다는 점에서 유사하다. 본 논문에서는 기존 DDPM의 Markov Chain 확산 과정을 Non-Markovian 확산 과정으로 일반화 한다. Non-Markov를 사용하면 짧은 마르코프 체인을 구성할 수 있게 된다. 이는, 샘플링 속도를 획기적으로 줄일 수 있게 된다. 따라서 동일한 신경망(목적 함수)를 사용하면서도, Markov가 아닌 다양한 확산 과정을 선택함으로써 더욱 넓은 범위의 생성 모델을 자유롭게 선택할 수 있다. 또한, DDIM은 DDPM과 비교하여 세 가지의 장점을 지닌다.
-샘플링 속도를 더욱 가속화 해도 DDPM과 비교하여 더 뛰어난 샘플 품질을 제공한다. DDIM에 일관성 속성이 있기 때문에 초기 latent variable에서 출발하여 높은 수준의 특징을 공유하게 된다. 초기 latent variable을 조작하여 의미적으로 유의미한 이미지 보간을 수행할 수 있다. Background 해당 부분에서는 DDPM의 전반적인 내용에 대해서 설명을 한다. 이는 이전의 글에 더 자세히 나와 있다. DDPM의 샘플링 속도가 너무 느려 이를 해결하기 위해 DDIM이 등장하여 속도를 개선한다. Variational Inference For Non-Markovian Forward Processes 생성 모델은 inference process의 역(reverse)을 추정하기 때문에, 많은 반복을 줄이기 위해 inference process에 대한 새로운 접근이 필요하다.
-DDPM의 핵심적인 관찰은 DDPM의 목적함수가 오직 marginal probability distribution(주변 확률 분포) $q(x_t \mid x_0)$에만 의존하고 joint distribution(공동 확률 분포) $q(x_\text{1:T}\mid x_0)$엔 직접적으로 의존하지 않는다는 점이다.
-즉, 동일한 주변 확률 분포를 가지면서 다양한 공동 확률 분포가 존재하기 때문에, Markovian 특성을 갖지 않는 대체적인 생성 과정을 설계할 수 있다.
-Non-Markovian 추론 과정을 사용하더라도 DDPM과 동일한 대리 목적 함수를 유지할 수 있다. Non-Markovian Forward Porcesses 따라서 주변 확률 분포인 $q_\sigma(x_T|x_0)$ 는 $q_\sigma(x_T|x_0) = \mathcal{N}(\sqrt{\alpha_T}x_0, (1 - \alpha_T)I)$ 는 DDPM과 DDIM 둘 다 만족한다.
-하지만 공동 확률 분포인 $q_\sigma(x_\text{1:T}|x_0)$에 대해서는 DDPM과 DDIM이 아래와 같이 다르게 표현되고 있다. $$ \begin{aligned} DDPM &amp;: q(x_\text{1:T} | x_0) := \prod_\text{t=1}^T q(x_t | x_\text{t-1}) \\ DDIM &amp;: q(x_\text{1:T} | x_0) := q_\sigma(x_T|x_0) \prod_\text{t=2}^T q_\sigma(x_\text{t-1} | x_t,x_0) \end{aligned} $$
+샘플링 속도를 더욱 가속화 해도 DDPM과 비교하여 더 뛰어난 샘플 품질을 제공한다. DDIM에 일관성 속성이 있기 때문에 초기 latent variable에서 출발하여 높은 수준의 특징을 공유하게 된다. 초기 latent variable을 조작하여 의미적으로 유의미한 이미지 보간을 수행할 수 있다. Background 해당 부분에서는 DDPM의 전반적인 내용에 대해서 설명을 한다. 이는 이전의 글에 더 자세히 나와 있다. DDPM의 샘플링 속도가 너무 느려 이를 해결하기 위해 DDIM이 등장하여 속도를 개선한다. Variational Inference For Non-Markovian Forward Processes 생성 모델은 inference process의 역(reverse)을 추정하기 때문에, 많은 반복을 줄이기 위해 inference process에 대한 새로운 접근이 필요하다. DDPM의 핵심적인 관찰은 DDPM의 목적함수가 오직 marginal probability distribution(주변 확률 분포) $q(x_t \mid x_0)$에만 의존하고 joint distribution(공동 확률 분포) $q(x_\text{1:T}\mid x_0)$엔 직접적으로 의존하지 않는다는 점이다. 즉, 동일한 주변 확률 분포를 가지면서 다양한 공동 확률 분포가 존재하기 때문에, Markovian 특성을 갖지 않는 대체적인 생성 과정을 설계할 수 있다. Non-Markovian 추론 과정을 사용하더라도 DDPM과 동일한 대리 목적 함수를 유지할 수 있다. Non-Markovian Forward Porcesses 따라서 주변 확률 분포인 $q_\sigma(x_T|x_0)$ 는 $q_\sigma(x_T|x_0) = \mathcal{N}(\sqrt{\alpha_T}x_0, (1 - \alpha_T)I)$ 는 DDPM과 DDIM 둘 다 만족한다. 하지만 공동 확률 분포인 $q_\sigma(x_\text{1:T}|x_0)$에 대해서는 DDPM과 DDIM이 아래와 같이 다르게 표현되고 있다. $$ \begin{aligned} DDPM &amp;: q(x_\text{1:T} | x_0) := \prod_\text{t=1}^T q(x_t | x_\text{t-1}) \\ DDIM &amp;: q(x_\text{1:T} | x_0) := q_\sigma(x_T|x_0) \prod_\text{t=2}^T q_\sigma(x_\text{t-1} | x_t,x_0) \end{aligned} $$
 DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 $x_\text{t-1}$에만 의존하는 것이 아니라, $x_0$에 대한 직접적인 정보도 포함하도록 식을 변형 하려고 한다. $$ \begin{aligned} q_{\sigma}(x_{1:T} | x_0) &amp;:= q(x_1 | x_0) q(x_2 | x_1, x_0) q(x_3 | x_2, x_0) \dots q(x_T | x_{T-1}, x_0) \\ &amp;:= \cancel{q(x_1 | x_0)} \frac{q(x_1 | x_2, x_0) \cancel{q(x_2 | x_0)}} {\cancel{q(x_1 | x_0)}} \frac{q(x_2 | x_3, x_0) \cancel{q(x_3 | x_0)}}{\cancel{q(x_2 | x_0)}} \dots \frac{q(x_{T-1} | x_T, x_0) q(x_T | x_0)}{\cancel{q(x_{T-1} | x_0)}} \\ &amp;(\therefore q(x_T | x_{T-1}, x_0) = \frac{q(x_{T-1} | x_T, x_0) q(x_T | x_0)}{q(x_{T-1} | x_0)} \text{From Bayes&rsquo; rule})\\ &amp;:= q_\sigma(x_T|x_0) \prod_\text{t=2}^T q_\sigma(x_\text{t-1} | x_t,x_0) \end{aligned} $$ 따라서 DDPM은 Markovian의 특성을 가지고 있지만, DDIM은 Non-Markovian의 특징을 가지고 있다는 것을 알 수 있다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -39,7 +31,7 @@ DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/ddim\/"
-        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDIM","wordcount":  1074 ,
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DDIM","wordcount":  1528 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ddim\/","datePublished": "2025-02-13T15:14:36+09:00","dateModified": "2025-02-13T15:14:36+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -81,8 +73,8 @@ DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Denoising Diffusion Implicit Models(DDIM)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-13">2025-02-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1074 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;6 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-13">2025-02-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1528 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;8 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -99,6 +91,14 @@ DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 
         <li><a href="#generative-process-and-unified-variational-inference-objective">Generative Process and Unified Variational Inference Objective</a></li>
       </ul>
     </li>
+    <li><a href="#sampling-from-generalized-generative-process">Sampling From Generalized Generative Process</a>
+      <ul>
+        <li><a href="#denoising-diffusion-implicit-model">Denoising Diffusion Implicit Model</a></li>
+        <li><a href="#accelerated-generation-processes">Accelerated Generation Processes</a></li>
+      </ul>
+    </li>
+    <li><a href="#experiments">Experiments</a></li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><!-- image format
@@ -191,35 +191,37 @@ DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 
 <hr>
 <h2 id="variational-inference-for-non-markovian-forward-processes">Variational Inference For Non-Markovian Forward Processes</h2>
 <ol start="15">
-<li>
-<p>생성 모델은 <code>inference process</code>의 <code>역(reverse)</code>을 추정하기 때문에, 많은 반복을 줄이기 위해 <code>inference process</code>에 대한 새로운 접근이 필요하다.</p>
-</li>
-<li>
-<p><code>DDPM</code>의 <strong>핵심적인 관찰은</strong> <code>DDPM</code>의 <code>목적함수</code>가 오직 <code>marginal probability distribution(주변 확률 분포)</code> $q(x_t \mid x_0)$에만 의존하고 <code>joint distribution(공동 확률 분포)</code> $q(x_\text{1:T}\mid x_0)$엔 <strong>직접적으로 의존하지 않는다는 점이다.</strong></p>
-</li>
-<li>
-<p>즉, <strong>동일한</strong> <code>주변 확률 분포</code>를 가지면서 다양한 <code>공동 확률 분포</code>가 존재하기 때문에, <code>Markovian</code> <strong>특성을 갖지 않는</strong> 대체적인 생성 과정을 설계할 수 있다.</p>
-</li>
+<li>생성 모델은 <code>inference process</code>의 <code>역(reverse)</code>을 추정하기 때문에, 많은 반복을 줄이기 위해 <code>inference process</code>에 대한 새로운 접근이 필요하다.</li>
+</ol>
+<br>
+<ol start="16">
+<li><code>DDPM</code>의 <strong>핵심적인 관찰은</strong> <code>DDPM</code>의 <code>목적함수</code>가 오직 <code>marginal probability distribution(주변 확률 분포)</code> $q(x_t \mid x_0)$에만 의존하고 <code>joint distribution(공동 확률 분포)</code> $q(x_\text{1:T}\mid x_0)$엔 <strong>직접적으로 의존하지 않는다는 점이다.</strong></li>
+</ol>
+<br>
+<ol start="17">
+<li>즉, <strong>동일한</strong> <code>주변 확률 분포</code>를 가지면서 다양한 <code>공동 확률 분포</code>가 존재하기 때문에, <code>Markovian</code> <strong>특성을 갖지 않는</strong> 대체적인 생성 과정을 설계할 수 있다.</li>
 </ol>
 <ul>
 <li><code>Non-Markovian</code> 추론 과정을 사용하더라도 <code>DDPM</code>과 <code>동일한 대리 목적 함수</code>를 유지할 수 있다.</li>
 </ul>
 <hr>
 <h3 id="non-markovian-forward-porcesses">Non-Markovian Forward Porcesses</h3>
+<div style="text-align:center;">
+<img src="/images/paper/ddim/overview.png" height="100%" width="80%"> </div>
 <ol start="18">
-<li>
-<p>따라서 <code>주변 확률 분포</code>인 $q_\sigma(x_T|x_0)$ 는 $q_\sigma(x_T|x_0) = \mathcal{N}(\sqrt{\alpha_T}x_0, (1 - \alpha_T)I)$ 는 <code>DDPM</code>과 <code>DDIM</code> 둘 다 만족한다.</p>
-</li>
-<li>
-<p>하지만 공동 확률 분포인 $q_\sigma(x_\text{1:T}|x_0)$에 대해서는 <code>DDPM</code>과 <code>DDIM</code>이 아래와 같이 다르게 표현되고 있다.
-$$
+<li>따라서 <code>주변 확률 분포</code>인 $q_\sigma(x_T|x_0)$ 는 $q_\sigma(x_T|x_0) = \mathcal{N}(\sqrt{\alpha_T}x_0, (1 - \alpha_T)I)$ 는 <code>DDPM</code>과 <code>DDIM</code> 둘 다 만족한다.</li>
+</ol>
+<br>
+<ol start="19">
+<li>하지만 공동 확률 분포인 $q_\sigma(x_\text{1:T}|x_0)$에 대해서는 <code>DDPM</code>과 <code>DDIM</code>이 아래와 같이 다르게 표현되고 있다.</li>
+</ol>
+<br>
+<p>$$
 \begin{aligned}
 DDPM &amp;: q(x_\text{1:T} | x_0) := \prod_\text{t=1}^T q(x_t | x_\text{t-1}) \\
 DDIM &amp;: q(x_\text{1:T} | x_0) := q_\sigma(x_T|x_0) \prod_\text{t=2}^T q_\sigma(x_\text{t-1} | x_t,x_0)
 \end{aligned}
 $$</p>
-</li>
-</ol>
 <details>
   <summary> DDIM의 공동 확률 분포 증명 확인 </summary>
 <ul>
@@ -234,6 +236,7 @@ q_{\sigma}(x_{1:T} | x_0) &amp;:= q(x_1 | x_0) q(x_2 | x_1, x_0) q(x_3 | x_2, x_
 $$</li>
 </ul>
 </details>
+<br>
 <ol start="20">
 <li>따라서 <code>DDPM</code>은 <code>Markovian</code>의 특성을 가지고 있지만, <code>DDIM</code>은 <code>Non-Markovian</code>의 특징을 가지고 있다는 것을 알 수 있다.</li>
 </ol>
@@ -241,9 +244,11 @@ $$</li>
 <li><code>q</code>의 분포가 $x_t$가 $x_\text{t-1}$와 $x_0$에 의존하기 때문에 <strong>더이상 markovian이 아니게 되는 것이다.</strong></li>
 <li><code>Forward Process</code>를 <code>위 식</code>과 같이 정의하는 것은 <strong>직접적인 성능 향상을 주는 것은 아니다.</strong> <code>Reverse Process</code>에서 결정론적 샘플링과 빠른 샘플링을 가능하게 하려면 <code>Forward Process</code>를 이렇게 <code>Non-Markovian</code>을 사용하여 정의가 되어야 하기 때문이다.</li>
 </ul>
+<br>
 <ol start="21">
 <li><code>DDIM</code>에서 <code>위 식</code>을 만족하면 <code>mean function</code>은 <code>아래의 식</code>을 만족하게 된다.</li>
 </ol>
+<br>
 <p>$$q_{\sigma}(x_{t-1} | x_t, x_0) = \mathcal{N} \left( \sqrt{\alpha_{t-1}} x_0 + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \cdot \frac{x_t - \sqrt{\alpha_t} x_0}{\sqrt{1 - \alpha_t}}, \sigma_t^2 I \right)$$</p>
   <details>
     <summary> 증명 확인 </summary>
@@ -256,12 +261,14 @@ q_{\sigma}(x_{t-1} | x_t, x_0) &amp;= \mathcal{N} \left( x_{t-1}; \sqrt{\bar{\al
 \end{aligned}
 $$</p>
   </details>
+<br>
 <ol start="22">
 <li><code>DDPM</code>에서 $q$에 대해서 <strong>평균과 분산을 구해서</strong> 정의를 내렸지만, <code>DDIM</code>에서는 <code>바로 위 식</code>처럼 <strong>가우시안 식으로</strong> 정의를 내릴 수 있다.</li>
 </ol>
 <ul>
 <li>$DDPM : q(x_{t-1} | x_t, x_0) = \mathcal{N} \left( x_{t-1} ; \tilde{\mu}_t(x_t, x_0), \tilde{\beta}_t I \right)$</li>
 </ul>
+<br>
 <ol start="23">
 <li>$\sigma$의 값은 <code>forward process</code>가 얼마나 <code>stochastic</code>한지 컨트롤 하며, 이 값이 <strong>0에 가까워질수록</strong> $x_\text{t-1}$값이 fix 되며 <code>deterministic</code>해진다.</li>
 </ol>
@@ -273,23 +280,26 @@ $$</p>
 <ul>
 <li><code>reverse conditional distribution</code>: noisy한 $ x_t$ 가 있을 때, $ x_0$를 <strong>이용해</strong> $ x_{t-1}$를 샘플링</li>
 </ul>
+<br>
 <ol start="25">
-<li>
-<p>따라서 $p_\theta(x_\text{0:T})$ 가 수행되기 위하여 <strong>노이즈 관측 값</strong>인 $ x_t$에 대해 우리는 <strong>가장 먼저 대응하는</strong> $x_0$를 예측하고, $ q_{\sigma}(x_{t-1} | x_t, x_0)$을 통하여 샘플 $ x_{t-1}$을 얻는다.</p>
-</li>
-<li>
-<p>다음은 위 과정을 조금 더 자세하게 설명한 부분이다.</p>
-</li>
-<li>
-<p>$ x_0 \sim q(x_0)$와 $ \epsilon_t \sim \mathcal{N}(0, I)$에 대해 $ x_t = \sqrt{\alpha_t} x_0 + \sqrt{1 - \alpha_t} \epsilon$을 수행하여 $ x_t$를 얻어낼 수 있다.</p>
-</li>
+<li>따라서 $p_\theta(x_\text{0:T})$ 가 수행되기 위하여 <strong>노이즈 관측 값</strong>인 $ x_t$에 대해 우리는 <strong>가장 먼저 대응하는</strong> $x_0$를 예측하고, $ q_{\sigma}(x_{t-1} | x_t, x_0)$을 통하여 샘플 $ x_{t-1}$을 얻는다.</li>
+</ol>
+<br>
+<ol start="26">
+<li>다음은 위 과정을 조금 더 자세하게 설명한 부분이다.</li>
+</ol>
+<br>
+<ol start="27">
+<li>$ x_0 \sim q(x_0)$와 $ \epsilon_t \sim \mathcal{N}(0, I)$에 대해 $ x_t = \sqrt{\alpha_t} x_0 + \sqrt{1 - \alpha_t} \epsilon$을 수행하여 $ x_t$를 얻어낼 수 있다.</li>
 </ol>
 <ul>
 <li>모델 $ \epsilon_{\theta}^{(t)}(x_t)$는 $ x_0$에 대한 정보 없이 $ x_t$로부터 $ \epsilon_t$를 예측한다.</li>
 </ul>
+<br>
 <ol start="28">
 <li><code>위 식</code>을 $ x_0$에 대해 <strong>다시 표현하면</strong> 우리는 $x_t$에 대한 $ x_0$의 예측 값인 <strong>denoised observation</strong> 을 알 수 있다.</li>
 </ol>
+<br>
 <p>$$f_{\theta}^{(t)}(x_t) := \frac{x_t - \sqrt{1 - \alpha_t} \cdot \epsilon_{\theta}^{(t)}(x_t)}{\sqrt{\alpha_t}}$$</p>
 <ol start="29">
 <li>내가 이해한 대로 정리하자면, 기존 <code>DDPM</code>에서 사용되었던 <code>Forward Process</code>$(x_t = \sqrt{\alpha_t} x_0 + \sqrt{1 - \alpha_t} \epsilon )$ 의 식을 $x_0$ 식으로 변경하여 생성 과정$(p_\theta(x_\text{0:T}))$ 시 $f_{\theta}^{(t)}(x_t) := x_0$를 샘플링하여(<code>denoised observation</code> = <strong>노이즈가 제거된 관측값</strong>) 사용(추정)하겠다는 의미이다.</li>
@@ -298,6 +308,7 @@ $$</p>
 <li><code>DDIM</code>에서 기존 <code>DDPM</code>에서의 <code>Forward Process</code>에서의 과정은 변함이 없다.</li>
 <li><code>모델</code> $(\epsilon_{\theta}^{(t)}(x_t))$의 역할(노이즈 예측)도 동일히다.</li>
 </ul>
+<br>
 <ol start="30">
 <li>또한 <code>fixed prior</code>인 $ p_{\theta}(x_T) = \mathcal{N}(0, I)$를 통해 <strong>generative process</strong>를 아래와 같이 정의할 수 있다.
 $$p_{\theta}^{t}(x_{t-1} | x_t) =
@@ -311,9 +322,11 @@ $$</li>
 <li>항상 <code>generative process</code>를 보장하기 위해 $t = 1$ 일 때 <code>gaussian noise</code>$( \sigma_1^2 I )$를 추가해준다.</li>
 <li>$f_{\theta}^{t}$가 $x_0$을 대체했다.</li>
 </ul>
+<br>
 <ol start="31">
 <li>아래는 <code>generative process</code>를 최적화 시키기 위해 이용되는 <code>variational lower bound</code>의 형태이다.</li>
 </ol>
+<br>
 <div style="text-align:center;">
 <img src="/images/paper/ddim/loss_term_1.png" height="100%" width="80%"> </div>
 <ol start="32">
@@ -321,6 +334,149 @@ $$</li>
 </ol>
 <ul>
 <li>즉 <code>DDIM</code>에서는 <code>non-markovian</code>을 위해서 $\sigma$를 0으로 설정한다.</li>
+</ul>
+<br>
+<ol start="33">
+<li>해당 정보를 사용하여 본 논문은 <code>Theorem 1</code>을 정의하였다.</li>
+</ol>
+<br>
+<p>$$\textbf{Theorem 1. \quad} \textit{For all } \sigma &gt; 0, \textit{ there exists } \gamma \in \mathbb{R_\geq^T} \textit{ and } C \in \mathbb{R}, \textit{ such that } J_\sigma = L_\gamma + C$$</p>
+<ol start="34">
+<li>$\gamma = 1$이라면, <code>objective function</code>은 <code>DDPM</code>의 <code>variational lower bound</code>와 같다.</li>
+</ol>
+<ul>
+<li>$L_1 = J_\sigma$</li>
+</ul>
+<br>
+<ol start="35">
+<li>$J_\sigma$는 $L_\gamma$의 일종인데, 이는 $\gamma = 1$일 때 <code>DDIM</code>에서도 ($L_1$) 최적의 값을 가져서 최적의 학습이 가능하다는 뜻이다.</li>
+</ol>
+<ul>
+<li><code>objective function</code>의 $\gamma = 1$일때 최적의 값은 <code>DDPM</code>에서 언급 된 내용이다.</li>
+</ul>
+<hr>
+<h2 id="sampling-from-generalized-generative-process">Sampling From Generalized Generative Process</h2>
+<ol start="36">
+<li><code>35번</code>에서 말한대로 $\gamma = 1$ 일 때 <code>optimal</code>을 구할 수 있으므로 $L_1$을 <code>objective function</code>으로 두고 사용하는 경우를 살펴보자.</li>
+</ol>
+<br>
+<ol start="37">
+<li>그럴 경우 $\sigma$를 어떻게 설정하느냐에 따라 <code>forward process</code>를 <code>markovian</code>이나 <code>non-markovian</code>으로 학습 시킬 수 있게 된다.</li>
+</ol>
+<ul>
+<li>이때 $\sigma$ 의 값과는 상관 없이 학습해야하는 <code>parameter</code>는 $\theta$ 라는 점이다.
+<ul>
+<li><code>모델</code>($\theta$)이 학습하는 것은 <code>forward process</code>의 형태와는 독립적이다.</li>
+</ul>
+</li>
+<li>결론적으로 <code>markovian process</code>로 학습시킨 <code>DDPM</code>의 학습한 모델($\theta$)를 <code>DDIM</code>의 <code>generative process</code>에서 사용할 수 있게 된다는 것이다.</li>
+</ul>
+<br>
+<ol start="38">
+<li><code>DDIM</code>은 <code>새로운 학습 방식</code>을 제안한 것이 아니라, <code>새로운 샘플링 방법</code>을 제안한 것이다.</li>
+</ol>
+<hr>
+<h3 id="denoising-diffusion-implicit-model">Denoising Diffusion Implicit Model</h3>
+<ol start="39">
+<li><code>21번 식</code>($q_\sigma(x_\text{t-1}|x_t, x_0)$)과 $x_t = \sqrt{\alpha_t} x_0 + \sqrt{1 - \alpha_t} \epsilon$ 의 조합으로 <code>아래의 식</code>을 유도할 수 있게 된다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/ddim/prev.png" height="100%" width="80%"> </div>
+<ul>
+<li>위 식은 $x_t$로부터 $x_\text{t-1}$을 <code>sampling</code>하는 과정을 뜻한다.</li>
+</ul>
+<br>
+<ol start="40">
+<li>$\sigma$의 값에 따라서 <code>다른 process</code>가 되며, 같은 $\epsilon_\theta$를 사용하기 때문에 <code>재학습</code>은 불필요하다.</li>
+</ol>
+<br>
+<ol start="41">
+<li>$\sigma$가 0이 아니라면, <code>markovian</code>에 따라서 <code>DDPM</code>이 된다. $\sigma$가 0이라면, <code>random noise</code>가 0이 되기 때문에 <code>stochastic</code>한 <code>확률적인 변수</code>가 없어지기 때문에 <code>sampling process</code>($x_T$ -&gt; $x_0$)가 고정이 된다.</li>
+</ol>
+<ul>
+<li>$\sigma$가 0이 된다면, <code>forward process</code>가 $x_\text{t-1}, x_0$에 대해 <code>deterministic</code>해진다.
+<ul>
+<li>이 부분이 <code>Implicit Probabilistic Model</code>이 되는 이유이다.</li>
+<li>명시적으로 확률 분포를 <strong>정의하지 않지만</strong>, 특정한 함수 형태로 확률적인 특성을 <strong>암시적으로 표현하는 모델을 의미한다.</strong></li>
+</ul>
+</li>
+<li><code>reverse process</code>진행 시 노이즈($x_T$)랑 이미지($x_0$)가 <code>1:1 매칭</code>이 된다고 이해하면 될 것 같다.</li>
+</ul>
+<hr>
+<h3 id="accelerated-generation-processes">Accelerated Generation Processes</h3>
+<div style="text-align:center;">
+<img src="/images/paper/ddim/overview-2.png" height="100%" width="80%"> </div>
+<ol start="42">
+<li><code>Forward process</code>에서 <code>T</code> step을 가지고 있다고 해도 <code>sampling</code>과정에서 <strong>모든 스텝을 사용할 필요는 없다.</strong></li>
+</ol>
+<ul>
+<li>왜냐하면 <code>forward process</code>($q(x_t|x_0)$)이 고정되면, <code>모델의 재학습</code>을 할 필요 없이 <strong>샘플링 과정만 최적화 하면 된다.</strong></li>
+</ul>
+<br>
+<ol start="43">
+<li><code>일부 스텝</code>만 선택해서 샘플링하면 비슷한 품질의 데이터를 <code>DDPM</code>과 비교하여 <strong>훨씬 빠르게 생성 가능하다.</strong></li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/ddim/total.png" height="100%" width="80%"> </div>
+<ol start="44">
+<li>위 그림은 <code>DDPM</code>과 <code>DDIM</code>의 차이점에 대한 내용을 나타낸 것이다. 그림을 보면 알 수 있듯이 <code>다른 과정</code>은 같고, <code>sampling 과정</code>만 다른 것을 알 수 있다.</li>
+</ol>
+<hr>
+<h2 id="experiments">Experiments</h2>
+<div style="text-align:center;">
+<img src="/images/paper/ddim/result-1.png" height="100%" width="80%"> </div>
+<ol start="45">
+<li><code>위 사진</code>은 왼쪽이 <code>DDIM</code>이고 오른쪽이 <code>DDPM</code>의 성능을 비교한 사진이다.</li>
+</ol>
+<br>
+<ol start="46">
+<li><code>DDPM</code>이 <code>1000step</code> 정도 필요한 품질을 만드는 반면에 <code>DDIM</code>은 <code>20step</code>이면 생성할 수 있다.</li>
+</ol>
+<ul>
+<li><code>DDIM</code>이 <code>DDPM</code>보다 <strong>50배 빠른 속도이다.</strong></li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/ddim/result-2.png" height="100%" width="80%"> </div>
+<ol start="47">
+<li><code>위 사진</code>은 $x_T$는 이미지의 중요한 <code>high-level</code>의 정보를 담고 있는 <code>latent encoding</code>의 역할을 한다고 알 수 있다.</li>
+</ol>
+<br>
+<ol start="48">
+<li>왜냐하면 같은 $x_T$에서 시작하고, 샘플링 경로가 다르더라도 <code>고수준(high-level)특징</code>을 가지는 이미지가 비슷하게 나오기 때문이다.</li>
+</ol>
+<ul>
+<li>대부분 <code>20step</code>의 sample이 <code>1000step</code>의 sample 이랑 <strong>유사해진다.</strong></li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/ddim/result-3.png" height="100%" width="80%"> </div>
+<ol start="49">
+<li>따라서 <code>위 사진</code> 처럼 <code>semantic interpolation</code>이 가능하다는 사실을 볼 수 있다.</li>
+</ol>
+<ul>
+<li>$x_T$사이에서 <strong>두 샘플 사이</strong>의 <code>interpolation</code>이 가능하다는 사실을 알 수 있다. (<code>GAN</code>에서도 할 수 있다.)</li>
+<li><code>가운데 사진</code>을 보면 <code>양쪽 이미지의 특성</code>이 적절히 섞여있는 것을 알 수 있다.</li>
+</ul>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li>
+<p>전체 흐름</p>
+<ul>
+<li><a href="https://kyujinpy.tistory.com/97" target="_blank" rel="noopener noreffer ">https://kyujinpy.tistory.com/97</a></li>
+</ul>
+</li>
+<li>
+<p>논문 이해 참고</p>
+<ul>
+<li><a href="https://hyunseo-fullstackdiary.tistory.com/427" target="_blank" rel="noopener noreffer ">https://hyunseo-fullstackdiary.tistory.com/427</a></li>
+<li><a href="https://www.youtube.com/watch?v=uFoGaIVHfoE&amp;t=3390s" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=uFoGaIVHfoE&t=3390s</a> (DDIM Part)</li>
+<li><a href="https://www.youtube.com/watch?v=jaPPALsUZo8" target="_blank" rel="noopener noreffer ">https://www.youtube.com/watch?v=jaPPALsUZo8</a> (DDIM Part)</li>
+</ul>
+</li>
 </ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
