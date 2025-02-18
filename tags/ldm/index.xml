@@ -1,0 +1,15 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>LDM - Tag - Good Young</title>
+        <link>https://goodyoung.github.io/tags/ldm/</link>
+        <description>LDM - Tag - Good Young</description>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 17 Feb 2025 17:57:23 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/ldm/" rel="self" type="application/rss+xml" /><item>
+    <title>[Paper Review]High-Resolution Image Synthesis with Latent Diffusion Models(LDM)</title>
+    <link>https://goodyoung.github.io/posts/paper/ldm/</link>
+    <pubDate>Mon, 17 Feb 2025 17:57:23 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/paper/ldm/</guid>
+    <description><![CDATA[ 개요 DDPM 이후, 고해상도 이미지 생성을 위해 효율적인 latent space에서 확산 과정을 수행하는 LDM에 대해 논문 리뷰를 할 것이다. Introduction continue ]]></description>
+</item>
+</channel>
+</rss>
