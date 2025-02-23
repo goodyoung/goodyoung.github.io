@@ -5,14 +5,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[Paper Review]High-Resolution Image Synthesis with Latent Diffusion Models(LDM) - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[Paper Review]High-Resolution Image Synthesis with Latent Diffusion Models(LDM)" />
-<meta property="og:description" content=" 개요 DDPM 이후, 고해상도 이미지 생성을 위해 효율적인 latent space에서 확산 과정을 수행하는 LDM에 대해 논문 리뷰를 할 것이다. Introduction continue " />
+<meta property="og:description" content=" 개요 DDPM 이후, 고해상도 이미지 생성을 위해 효율적인 latent space에서 확산 과정을 수행하는 LDM에 대해 논문 리뷰를 할 것이다. Introduction 이미지 합성(Image synthesis)은 최근 가장 빠르게 발전이 되어왔지만, 많은 컴퓨터 계산 비용이 크다. 특히 고해상도 복원 문제는 AR(Autoregressive) 기반 모델들이 자주 사용하지만 모델 수십억 개의 파라미터를 요구한다. GAN은 학습 방식의 한계 때문에 multi-modal 분포에서는 모델링 하는데 한계가 있다. 이러한 가운데, Diffusion model이 이미지 합성의 여러 분야에서 뛰어난 성과(SOTA)를 보여줬다. Diffusion 모델은 다른 모델들과 다르게 모델 붕괴(model collapse), 학습 불안정성, 많은 파라미터에서 강점을 지닌다. 이러한 Diffusion 모델도 문제점이 있는데, Diffusion 모델은 mode-covering 성질을 갖고 있다. 그래서 데이터의 모든 세부 패턴을 학습하려는 경향이 있어서 많은 연산 자원을 필요로 하게 된다. Reweighted Variational Objective 방법이 연산을 줄이려고 하지만 여전히 계산량이 많다. A100 기준으로 50,000개의 샘플을 생성하는데 5일이 걸린다. 이러한 문제는 두 가지 영향을 보여준다. 첫 번째로는 훈련 시 거대한 컴퓨팅 자원을 필요로 하므로 일반 연구자나 소규모 연구팀에게 접근성이 낮다. 두 번째로는 추론 시 높은 비용과 시간을 소모하여 학습 뿐 아니라 샘플링 시에도 매우 비효율적이다.&#39; 따라서 이 두 가지의 문제를 해결하기 위한 것이 핵심이다. 본 논문은 pixel space에서 이미 학습된 diffusion 모델을 분석하는 것 부터 시작한다. 기존의 DM은 픽셀 단위에서 학습을 진행 하였다. 이미지 자체에 대해서 훈련하는 방식이였다. 위 그림과 같이 모든 likelihood-based 모델들의 학습 과정은 두 단계로 나뉠 수 있다. 첫 번째로 높은 주파수 영역의 세부사항을 제거하며 압축을 수행하는 지각적 압축 단계이고, 두 번째로는 실제 생성 모델이 데이터의 의미적이고 개념적인 구성을 학습하는 단계이다. 본 논문은 위 두 단계와 동일하지만, 계산적으로는 더욱 효율적인 공간을 사용하는 모델을 제안한다. 본 논문에서 모델은 두 단계를 제안한다. 첫 번째로 autoencoder를 학습하여 pixel space와 지각적으로 동일하지만, 더욱 효율적인 저차원의 잠재 공간을 만든다. 두 번째로는 추가적인 공간 압축에 의존할 필요 없이 잠재 공간에서 diffusion 모델을 학습시켜 공간적 차원성(spatial dimensionality)에 대해 더 나은 확장성을 갖고 있다. 이미지 자체에 노이즈를 추가하여 학습을 했던 방식과 달리, 잠재 공간에서 학습을 하자는 것이다. 이러한 복잡성 감소 때문에 단 한 번의 네트워크 실행으로도 효율적인 이미지 생성을 할 수 있고, 본 논문은 이 모델을 Latent Diffsion Models(LDMs) 라고 부른다. 이 방법의 장점은 방대한 autoencoder를 한 번만 학습을 하게 된다면, 이를 통해 나온 latent space를 여러 DM 모델의 훈련에 사용할 수 있게 된다. 이는 곧 여러 task에서도 재사용할 수 있게 된다는 것이다. 마지막으로 본 논문의 주요 contribution에 대해 정리한다. Transformer만으로 이루어진 접근법들과 달리 더 높은 차원의 데이터에도 효율적으로 적용할 수 있다.
+여러 task(inpainting 등)에서 계산 비용을 크게 감소 시키면서 경쟁력 있는 성능을 달성하였다.
+기존 연구는 재구성(reconstruction)과 생성(generative)능력 사이의 차이를 조절하는 것이 중요했지만, 본 논문의 모델은 그것이 필요 없다.
+두 가지를 분리해서 해결했기 때문이다. Autoencoder는 오직 **재구성(압축과 복원)**만 담당합니다. Diffusion 모델은 오직 **이미지 생성(새로운 이미지 합성)**만 담당합니다. 초해상도와 같은 고밀도 작업에서도 적용이 가능하다.
+cross attention을 기반으로 하는 매커니즘을 개발하여 multi-modal data에도 사용할 수 있다.
+Method continue " />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/paper/ldm/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2025-02-17T17:57:23+09:00" />
 <meta property="article:modified_time" content="2025-02-17T17:57:23+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[Paper Review]High-Resolution Image Synthesis with Latent Diffusion Models(LDM)"/>
-<meta name="twitter:description" content=" 개요 DDPM 이후, 고해상도 이미지 생성을 위해 효율적인 latent space에서 확산 과정을 수행하는 LDM에 대해 논문 리뷰를 할 것이다. Introduction continue "/>
+<meta name="twitter:description" content=" 개요 DDPM 이후, 고해상도 이미지 생성을 위해 효율적인 latent space에서 확산 과정을 수행하는 LDM에 대해 논문 리뷰를 할 것이다. Introduction 이미지 합성(Image synthesis)은 최근 가장 빠르게 발전이 되어왔지만, 많은 컴퓨터 계산 비용이 크다. 특히 고해상도 복원 문제는 AR(Autoregressive) 기반 모델들이 자주 사용하지만 모델 수십억 개의 파라미터를 요구한다. GAN은 학습 방식의 한계 때문에 multi-modal 분포에서는 모델링 하는데 한계가 있다. 이러한 가운데, Diffusion model이 이미지 합성의 여러 분야에서 뛰어난 성과(SOTA)를 보여줬다. Diffusion 모델은 다른 모델들과 다르게 모델 붕괴(model collapse), 학습 불안정성, 많은 파라미터에서 강점을 지닌다. 이러한 Diffusion 모델도 문제점이 있는데, Diffusion 모델은 mode-covering 성질을 갖고 있다. 그래서 데이터의 모든 세부 패턴을 학습하려는 경향이 있어서 많은 연산 자원을 필요로 하게 된다. Reweighted Variational Objective 방법이 연산을 줄이려고 하지만 여전히 계산량이 많다. A100 기준으로 50,000개의 샘플을 생성하는데 5일이 걸린다. 이러한 문제는 두 가지 영향을 보여준다. 첫 번째로는 훈련 시 거대한 컴퓨팅 자원을 필요로 하므로 일반 연구자나 소규모 연구팀에게 접근성이 낮다. 두 번째로는 추론 시 높은 비용과 시간을 소모하여 학습 뿐 아니라 샘플링 시에도 매우 비효율적이다.&#39; 따라서 이 두 가지의 문제를 해결하기 위한 것이 핵심이다. 본 논문은 pixel space에서 이미 학습된 diffusion 모델을 분석하는 것 부터 시작한다. 기존의 DM은 픽셀 단위에서 학습을 진행 하였다. 이미지 자체에 대해서 훈련하는 방식이였다. 위 그림과 같이 모든 likelihood-based 모델들의 학습 과정은 두 단계로 나뉠 수 있다. 첫 번째로 높은 주파수 영역의 세부사항을 제거하며 압축을 수행하는 지각적 압축 단계이고, 두 번째로는 실제 생성 모델이 데이터의 의미적이고 개념적인 구성을 학습하는 단계이다. 본 논문은 위 두 단계와 동일하지만, 계산적으로는 더욱 효율적인 공간을 사용하는 모델을 제안한다. 본 논문에서 모델은 두 단계를 제안한다. 첫 번째로 autoencoder를 학습하여 pixel space와 지각적으로 동일하지만, 더욱 효율적인 저차원의 잠재 공간을 만든다. 두 번째로는 추가적인 공간 압축에 의존할 필요 없이 잠재 공간에서 diffusion 모델을 학습시켜 공간적 차원성(spatial dimensionality)에 대해 더 나은 확장성을 갖고 있다. 이미지 자체에 노이즈를 추가하여 학습을 했던 방식과 달리, 잠재 공간에서 학습을 하자는 것이다. 이러한 복잡성 감소 때문에 단 한 번의 네트워크 실행으로도 효율적인 이미지 생성을 할 수 있고, 본 논문은 이 모델을 Latent Diffsion Models(LDMs) 라고 부른다. 이 방법의 장점은 방대한 autoencoder를 한 번만 학습을 하게 된다면, 이를 통해 나온 latent space를 여러 DM 모델의 훈련에 사용할 수 있게 된다. 이는 곧 여러 task에서도 재사용할 수 있게 된다는 것이다. 마지막으로 본 논문의 주요 contribution에 대해 정리한다. Transformer만으로 이루어진 접근법들과 달리 더 높은 차원의 데이터에도 효율적으로 적용할 수 있다.
+여러 task(inpainting 등)에서 계산 비용을 크게 감소 시키면서 경쟁력 있는 성능을 달성하였다.
+기존 연구는 재구성(reconstruction)과 생성(generative)능력 사이의 차이를 조절하는 것이 중요했지만, 본 논문의 모델은 그것이 필요 없다.
+두 가지를 분리해서 해결했기 때문이다. Autoencoder는 오직 **재구성(압축과 복원)**만 담당합니다. Diffusion 모델은 오직 **이미지 생성(새로운 이미지 합성)**만 담당합니다. 초해상도와 같은 고밀도 작업에서도 적용이 가능하다.
+cross attention을 기반으로 하는 매커니즘을 개발하여 multi-modal data에도 사용할 수 있다.
+Method continue "/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -27,7 +37,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/ldm\/"
-        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, LDM","wordcount":  21 ,
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, LDM","wordcount":  437 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ldm\/","datePublished": "2025-02-17T17:57:23+09:00","dateModified": "2025-02-17T17:57:23+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -69,8 +79,8 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]High-Resolution Image Synthesis with Latent Diffusion Models(LDM)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/diffusion/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Diffusion</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-17">2025-02-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;21 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;One minute&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-17">2025-02-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;437 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -80,6 +90,7 @@
   <ul>
     <li><a href="#개요">개요</a></li>
     <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#method">Method</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><!-- image format
@@ -93,6 +104,118 @@
 <hr>
 <h2 id="introduction">Introduction</h2>
 <ol>
+<li><code>이미지 합성(Image synthesis)</code>은 최근 가장 빠르게 발전이 되어왔지만, 많은 컴퓨터 계산 비용이 크다.</li>
+</ol>
+<ul>
+<li>특히 고해상도 복원 문제는 <code>AR(Autoregressive) 기반 모델</code>들이 자주 사용하지만 모델 수십억 개의 파라미터를 요구한다.</li>
+</ul>
+<br>
+<ol start="2">
+<li><code>GAN</code>은 학습 방식의 한계 때문에 <code>multi-modal 분포</code>에서는 모델링 하는데 한계가 있다.</li>
+</ol>
+<br>
+<ol start="3">
+<li>이러한 가운데, <code>Diffusion model</code>이 <code>이미지 합성</code>의 여러 분야에서 뛰어난 성과(SOTA)를 보여줬다.</li>
+</ol>
+<br>
+<ol start="4">
+<li><code>Diffusion 모델</code>은 다른 모델들과 다르게 <code>모델 붕괴(model collapse)</code>, <code>학습 불안정성</code>, <code>많은 파라미터</code>에서 강점을 지닌다.</li>
+</ol>
+<br>
+<ol start="5">
+<li>이러한 <code>Diffusion 모델</code>도 문제점이 있는데, <code>Diffusion 모델</code>은 <code>mode-covering</code> 성질을 갖고 있다. 그래서 데이터의 모든 세부 패턴을 학습하려는 경향이 있어서 <strong>많은 연산 자원을 필요로 하게 된다.</strong></li>
+</ol>
+<ul>
+<li><code>Reweighted Variational Objective</code> 방법이 연산을 줄이려고 하지만 여전히 계산량이 많다.</li>
+<li>A100 기준으로 50,000개의 샘플을 생성하는데 5일이 걸린다.</li>
+</ul>
+<br>
+<ol start="6">
+<li>이러한 문제는 두 가지 영향을 보여준다. <code>첫 번째로는</code> 훈련 시 거대한 컴퓨팅 자원을 필요로 하므로 <strong>일반 연구자나 소규모 연구팀에게 접근성이 낮다.</strong></li>
+</ol>
+<br>
+<ol start="7">
+<li><code>두 번째로는</code> 추론 시 높은 비용과 시간을 소모하여 학습 뿐 아니라 <code>샘플링 시</code>에도 <strong>매우 비효율적이다.</strong>'</li>
+</ol>
+<br>
+<ol start="8">
+<li>따라서 이 <code>두 가지의 문제</code>를 해결하기 위한 것이 핵심이다.</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/paper/ldm/model-1.png" height="70%" width="50%"> </div>
+<ol start="9">
+<li><code>본 논문</code>은 <code>pixel space</code>에서 이미 학습된 <code>diffusion 모델</code>을 분석하는 것 부터 시작한다.</li>
+</ol>
+<ul>
+<li>기존의 <code>DM</code>은 <code>픽셀 단위</code>에서 학습을 진행 하였다.</li>
+<li><strong>이미지 자체</strong>에 대해서 훈련하는 방식이였다.</li>
+</ul>
+<br>
+<ol start="10">
+<li><code>위 그림</code>과 같이 모든 <code>likelihood-based</code> 모델들의 학습 과정은 두 단계로 나뉠 수 있다.</li>
+</ol>
+<br>
+<ol start="11">
+<li><code>첫 번째로</code> 높은 주파수 영역의 세부사항을 제거하며 압축을 수행하는 <code>지각적 압축</code> 단계이고, <code>두 번째로는</code> 실제 생성 모델이 데이터의 의미적이고 <code>개념적인 구성</code>을 학습하는 단계이다.</li>
+</ol>
+<br>
+<ol start="12">
+<li><code>본 논문</code>은 위 <code>두 단계</code>와 <strong>동일하지만</strong>, 계산적으로는 더욱 효율적인 공간을 사용하는 모델을 제안한다.</li>
+</ol>
+<br>
+<ol start="13">
+<li>본 논문에서 모델은 <code>두 단계</code>를 제안한다. <code>첫 번째</code>로 <code>autoencoder</code>를 학습하여 <code>pixel space</code>와 <strong>지각적으로 동일하지만</strong>, 더욱 효율적인 <code>저차원의 잠재 공간</code>을 만든다.</li>
+</ol>
+<br>
+<ol start="14">
+<li><code>두 번째</code>로는 추가적인 공간 압축에 의존할 필요 없이 <code>잠재 공간</code>에서 <code>diffusion 모델</code>을 학습시켜 <code>공간적 차원성(spatial dimensionality)</code>에 대해 더 나은 확장성을 갖고 있다.</li>
+</ol>
+<ul>
+<li>이미지 자체에 노이즈를 추가하여 학습을 했던 방식과 달리, <strong>잠재 공간에서 학습을 하자는 것이다.</strong></li>
+</ul>
+<br>
+<ol start="15">
+<li>이러한 복잡성 감소 때문에 <strong>단 한 번의 네트워크 실행으로도 효율적인 이미지 생성</strong>을 할 수 있고, 본 논문은 이 모델을 <code>Latent Diffsion Models(LDMs) </code>라고 부른다.</li>
+</ol>
+<br>
+<ol start="16">
+<li>이 방법의 장점은 방대한 <code>autoencoder</code>를 <strong>한 번만</strong> 학습을 하게 된다면, 이를 통해 나온 <code>latent space</code>를 <code>여러 DM 모델의 훈련</code>에 사용할 수 있게 된다.</li>
+</ol>
+<ul>
+<li>이는 곧 <code>여러 task</code>에서도 <code>재사용</code>할 수 있게 된다는 것이다.</li>
+</ul>
+<br>
+<ol start="17">
+<li>마지막으로 본 논문의 주요 contribution에 대해 정리한다.</li>
+</ol>
+<ul>
+<li>
+<p><code>Transformer만</code>으로 이루어진 접근법들과 달리 <code>더 높은 차원의 데이터</code>에도 효율적으로 적용할 수 있다.</p>
+</li>
+<li>
+<p>여러 task(inpainting 등)에서 계산 비용을 <code>크게 감소</code> 시키면서 <code>경쟁력 있는 성능</code>을 달성하였다.</p>
+</li>
+<li>
+<p>기존 연구는 <code>재구성(reconstruction)</code>과 <code>생성(generative)</code>능력 사이의 차이를 조절하는 것이 중요했지만, <code>본 논문</code>의 모델은 그것이 필요 없다.</p>
+<ul>
+<li>두 가지를 분리해서 해결했기 때문이다.
+<ul>
+<li><code>Autoencoder</code>는 오직 **재구성(압축과 복원)**만 담당합니다.</li>
+<li><code>Diffusion</code> 모델은 오직 **이미지 생성(새로운 이미지 합성)**만 담당합니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>초해상도와 같은 고밀도 작업에서도 적용이 가능하다.</p>
+</li>
+<li>
+<p><code>cross attention</code>을 기반으로 하는 <strong>매커니즘</strong>을 개발하여 <code>multi-modal data</code>에도 사용할 수 있다.</p>
+</li>
+</ul>
+<hr>
+<h2 id="method">Method</h2>
+<ol start="18">
 <li>continue</li>
 </ol>
 </div><div class="post-footer" id="post-footer">
