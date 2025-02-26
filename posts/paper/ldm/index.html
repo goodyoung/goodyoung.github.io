@@ -37,7 +37,7 @@ Method Introduction에서도 설명이 되어있듯이, 기존 DM은 pixel space
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/ldm\/"
-        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, LDM","wordcount":  1040 ,
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, LDM","wordcount":  1246 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ldm\/","datePublished": "2025-02-17T17:57:23+09:00","dateModified": "2025-02-17T17:57:23+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -79,8 +79,8 @@ Method Introduction에서도 설명이 되어있듯이, 기존 DM은 pixel space
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]High-Resolution Image Synthesis with Latent Diffusion Models(LDM)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/diffusion/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Diffusion</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-17">2025-02-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1040 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-17">2025-02-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1246 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;6 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -97,6 +97,7 @@ Method Introduction에서도 설명이 되어있듯이, 기존 DM은 pixel space
         <li><a href="#conditioning-mechanisms">Conditioning Mechanisms</a></li>
       </ul>
     </li>
+    <li><a href="#experiments">Experiments</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><!-- image format
@@ -362,6 +363,57 @@ Method Introduction에서도 설명이 되어있듯이, 기존 DM은 pixel space
 <hr>
 <h3 id="conditioning-mechanisms">Conditioning Mechanisms</h3>
 <ol start="37">
+<li>다른 생성 모델과 마찬가지로 <code>DM</code>은 조건부 확률 분포로 이루어질 수 있다. ($p(z|y)$)</li>
+</ol>
+<br>
+<ol start="38">
+<li>이를 구현하는 방법은 <code>conditional denosing autoencoder</code> $\epsilon_\theta(z_t, t, y)$를 사용하는 것이다.</li>
+</ol>
+<ul>
+<li>이를 통해 입력 $y$가 다양한 task에 사용될 수 있게 된다.</li>
+</ul>
+<br>
+<ol start="39">
+<li><code>본 논문</code>에서는 <code>conditional DM</code>을 만들기 위해 <code>Unet</code>에 <code>cross-attention mechanism</code>을 부착한 구조를 제안한다.</li>
+</ol>
+<br>
+<ol start="40">
+<li>그렇게 하기 위하여 <code>domain-specific encoder</code>($\tau_\theta$) 를 도입한다. $\tau_\theta(y)$는 <code>UNet</code>의 <code>중간 표현</code>의 <code>cross-attention layer</code>를 통해 연결 된다.</li>
+</ol>
+<br>
+<ol start="41">
+<li>아래는 <code>cross-attention</code>에 condition을 적용하는 식이다.</li>
+</ol>
+<p>$$
+\text{Attention}(Q,K,V) = \text{softmax} \left( \frac{QK^T}{\sqrt{d}} \right) \cdot V \\
+\textbf{쿼리(Query)}: ( Q = W_Q^{(i)} \cdot \varphi_i(z_t) ) \\
+\textbf{키(Key)}: ( K = W_K^{(i)} \cdot \tau_{\theta}(y) ) \\
+\textbf{값(Value)}: ( V = W_V^{(i)} \cdot \tau_{\theta}(y) )
+$$</p>
+<ul>
+<li>$ \varphi_i(z_t) \in \mathbb{R}^{N \times d_{\epsilon}^{i}}$ 는 <code>UNet</code>에서 <strong>Flatten된 중간 표현을 의미한다.</strong>
+<ul>
+<li>더 쉽게 설명하자면, 기존의 <code>DM</code>에서 시간 $t$에서 추출된 표현($z_t)$을 <code>attention mechanism</code>에 <strong>적용</strong>하기 위하여 <code>Flatten</code>한 것이다.
+<details>
+  <summary> Query에만 $\varphi_i$가 곱해지는 이유? </summary>
+- `Cross-attention`에서 `쿼리(Q)`는 모델이 주어진 입력을 기반으로 **어텐션을 적용할 요소를 결정하는 역할**이다.
+- 즉, `쿼리(Q)`는 `DM`이 현재 생성 중인 **이미지의 정보를 포함하는 특징 맵(feature map)**이 되기 때문에 쿼리에 $\varphi_i$를 곱하는 것이다.
+</details>
+</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="42">
+<li>아래는 <code>본 논문</code>에서 제안하는 <code>LDM</code>의 최종 목적식이다.</li>
+</ol>
+<p>$$L_{LDM} := \mathbb{E_{\mathcal{E}(x), y, \epsilon \sim \mathcal{N}(0,1), t} }\left[ \left| \epsilon - \epsilon_{\theta}(z_t, t, \tau_\theta(y)) \right|_2^2 \right].$$</p>
+<ul>
+<li>기존 모델에 <code>condition</code>을 부여할 수 있게 $y$와 학습 가능한 $\tau_\theta$가 추가되어 있는 것을 볼 수 있다.</li>
+</ul>
+<hr>
+<h2 id="experiments">Experiments</h2>
+<ol start="43">
 <li>continue</li>
 </ol>
 </div><div class="post-footer" id="post-footer">
