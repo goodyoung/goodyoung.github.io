@@ -37,7 +37,7 @@ Method Introduction에서도 설명이 되어있듯이, 기존 DM은 pixel space
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/ldm\/"
-        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, LDM","wordcount":  1246 ,
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, LDM","wordcount":  1468 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/ldm\/","datePublished": "2025-02-17T17:57:23+09:00","dateModified": "2025-02-17T17:57:23+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -79,8 +79,8 @@ Method Introduction에서도 설명이 되어있듯이, 기존 DM은 pixel space
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]High-Resolution Image Synthesis with Latent Diffusion Models(LDM)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/diffusion/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Diffusion</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-17">2025-02-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1246 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;6 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-17">2025-02-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1468 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;7 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -98,6 +98,8 @@ Method Introduction에서도 설명이 되어있듯이, 기존 DM은 pixel space
       </ul>
     </li>
     <li><a href="#experiments">Experiments</a></li>
+    <li><a href="#limitation">Limitation</a></li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><!-- image format
@@ -413,9 +415,67 @@ $$</p>
 </ul>
 <hr>
 <h2 id="experiments">Experiments</h2>
+<div style="text-align:center;">
+<img src="/images/paper/ldm/result-1.png" height="70%" width="50%"> </div>
 <ol start="43">
-<li>continue</li>
+<li><code>위 그래프</code>는 <code>ImageNet</code>을 학습 할 때 step에 대한 <code>샘플 품질(FID, IS)</code>를 나타낸다.</li>
 </ol>
+<ul>
+<li>
+<p>작은 downsampling factor는 학습을 느리게 하는 것을 확인 할 수 있다.</p>
+</li>
+<li>
+<p>큰 factor는 비교적 적은 step에서 샘플 품질이 정체가 되는 것을 확인 할 수 있다.</p>
+<details>
+  <summary> FID Score란? </summary>
+- `FID(Fréchet Inception Distance) Score`는 `생성된 이미지`와 `실제 이미지` 간의 **품질 차이**를 측정하는 평가 지표이다.
+- `실제 데이터셋`과 `생성된 이미지`의 `특징 벡터`를 추출하여, 두 분포의 `평균`과 `분산`을 계산하고 두 정규 분포 간의 **Fréchet Distance (Wasserstein-2 거리)**를 구한다.
+- `FID Score` **값이 낮을수록** 더 좋은 성능을 의미한다.
+- 
+</details>
+</li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/paper/ldm/result-2.png" height="70%" width="50%"> </div>
+<ol start="44">
+<li><code>위 그래프</code>는 <code>CelebA-HQ</code>와 <code>ImageNet</code>으로 학습한 LDM의 <code>샘플링 속도</code>와 <code>FID</code>를 비교한 그래프이다.</li>
+</ol>
+<ul>
+<li><code>LDM-4</code>, <code>LDM-8</code>이 성능이 제일 좋다는 것을 알 수 있게 된다.</li>
+</ul>
+<br>
+<ol start="45">
+<li><code>LDM</code>은 기존 <code>DM</code>, <code>생성 모델</code>들 대비 좋은 성능을 내보였으며 <code>여러 Task</code>에서도 좋은 성능을 보였다.</li>
+</ol>
+<hr>
+<h2 id="limitation">Limitation</h2>
+<ol start="46">
+<li><code>LDM</code>은 <code>Pixel-based 방법</code>과 비교하여 <code>계산량</code>을 줄일 수 있지만 <code>샘플링 과정</code>이 순차적으로 이루어지기 때문에 <code>GAN</code>보다는 속도가 느리다.</li>
+</ol>
+<br>
+<ol start="47">
+<li>또한 <code>High Precision</code>을 원할 경우 <code>LDM</code>의 활용이 제한될 수 있다.</li>
+</ol>
+<ul>
+<li>본 논문에서 제안한 $f = 4$인 <code>AE</code>의 경우에 loss가 매우 작다.</li>
+<li>하지만 <code>픽셀 수준</code>에서의 <code>정밀한 복원</code>이 필요한 작업에서는 <code>재구성 성능(reconstruction capability)</code>이 <code>병목(bottleneck)</code>이 될 수도 있다.</li>
+</ul>
+<br>
+<ol start="48">
+<li>또한 논문에서는 생성 모델에 대한 문제점에 대해서 설명하고 있다.</li>
+</ol>
+<ul>
+<li>조작된 데이터의 생성을 할 수 있는 <code>사회적 영향 문제</code></li>
+<li>학습 데이터 유출 가능성이 있는 <code>데이터 프라이버시 문제</code></li>
+<li><code>DM</code>은 데이터 분포를 그대로 학습하기 때문에 학습 데이터에서 분포가 충분하지 않거나 편향되어있다면 생성 데이터에 대한 정당성 또한 편향적일 수 있는 <code>편향(bias)문제</code></li>
+</ul>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2112.10752" target="_blank" rel="noopener noreffer ">https://arxiv.org/abs/2112.10752</a></li>
+<li><a href="https://kimjy99.github.io/%EB%85%BC%EB%AC%B8%EB%A6%AC%EB%B7%B0/ldm/" target="_blank" rel="noopener noreffer ">https://kimjy99.github.io/%EB%85%BC%EB%AC%B8%EB%A6%AC%EB%B7%B0/ldm/</a></li>
+</ul>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
