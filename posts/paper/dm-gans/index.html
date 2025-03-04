@@ -27,7 +27,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/paper\/dm-gans\/"
-        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DM-GANs, Classifier Guidance","wordcount":  553 ,
+        },"genre": "posts","keywords": "논문 리뷰, computer vision, Diffusion, DM-GANs, Classifier Guidance","wordcount":  942 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/paper\/dm-gans\/","datePublished": "2025-02-27T16:42:40+09:00","dateModified": "2025-02-27T16:42:40+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -69,8 +69,8 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[Paper Review]Diffusion Models Beat GANs on Image Synthesis(DM-GANs)</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/paper-review/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Paper Review</a>&nbsp;<a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/diffusion/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Diffusion</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-27">2025-02-27</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;553 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-02-27">2025-02-27</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;942 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -81,7 +81,16 @@
     <li><a href="#개요">개요</a></li>
     <li><a href="#introduction">Introduction</a></li>
     <li><a href="#background">Background</a></li>
-    <li><a href="#architecture-improvements">Architecture Improvements</a></li>
+    <li><a href="#architecture-improvements">Architecture Improvements</a>
+      <ul>
+        <li><a href="#adaptive-group-normalizationadagn">Adaptive Group Normalization(AdaGN)</a></li>
+      </ul>
+    </li>
+    <li><a href="#classifier-guidance">Classifier Guidance</a>
+      <ul>
+        <li><a href="#conditional-reverse-noising-process">Conditional Reverse Noising Process</a></li>
+      </ul>
+    </li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><!-- image format
@@ -216,13 +225,108 @@
 </ol>
 <hr>
 <h2 id="architecture-improvements">Architecture Improvements</h2>
+<div style="text-align:center;">
+<img src="/images/paper/dm-gans/model-1.png" height="70%" width="70%"> </div>
 <ol start="25">
-<li>
-<p><code>Introduction 11번 글</code>에서 설명했듯이 <code>모델의 아키텍쳐</code>를 <code>개선한 방법론</code>을 먼저 설명을 할 것이다. 그 후 <code>다양성</code>과 <code>정확성</code>을 조절한 <code>Classifier Guidance</code>를 설명할 것이다.</p>
+<li><code>Introduction 11번 글</code>에서 설명했듯이 <code>모델의 아키텍쳐</code>를 <code>개선한 방법론</code>을 먼저 설명을 할 것이다. 그 후 <code>다양성</code>과 <code>정확성</code>을 조절한 <code>Classifier Guidance</code>를 설명할 것이다.</li>
+</ol>
+<br>
+<ol start="26">
+<li><code>모델의 아키텍쳐</code>를 개선하기 위하여 <code>모델 구조</code>에 대하여 <code>ablation study</code>를 진행하였다. <code>DDPM</code>에서는 <code>UNet</code>을 사용하였고 해당 구조는 다음과 같은 구성을 가진다. 모든 <code>실험</code>은 <code>동일한</code> 데이터 셋에서 진행했다.</li>
+</ol>
+<ul>
+<li><code>Residual layers</code>와 <code>다운샘플링 &amp; 업샘플링 convolutions</code>을 거쳐 피처를 <strong>압축 및 복원</strong></li>
+<li><code>Skip connections</code>을 사용하여 같은 공간 크기(spatial size)를 갖는 레이어 간 정보를 직접 전달</li>
+<li><code>16×16</code>에서 <code>단일 헤드</code>를 사용하는 <code>글로벌 어텐션(Global Attention) 레이어</code> 추가</li>
+<li><code>각 Residual block</code>에 <code>timestep embedding</code> 투영(projection)</li>
+</ul>
+<br>
+<ol start="27">
+<li><code>본 논문</code>에서는 다음의 구성을 추가하여 모델 구조를 변형하여 실험한다.</li>
+</ol>
+<ul>
+<li><code>깊이 vs. 너비</code> 조정 → 모델 크기를 유지하면서 깊이를 늘릴지, 너비를 늘릴지 실험
+<ul>
+<li>깊이를 증가시키면 <strong>성능이 향상되지만</strong>, 학습 시간이 <strong>길어지는 단점이 발생</strong></li>
+<li>이후 실험에서 깊이를 증가시키는 실험을 사용하지 않기로 결정함</li>
+</ul>
 </li>
-<li>
-<p>continue</p>
+<li><code>attention head 수 증가</code> → 더 많은 <code>attention head</code>가 성능 향상에 기여하는지 실험
+<ul>
+<li><code>고정된 attention head 수</code> vs <code>고정된 채널 수</code>를 비교 실험을 하였다.
+<ul>
+<li>attention를 <strong>늘리거나</strong> head당 채널 수를 <strong>줄이는 것</strong>이 <code>FID 향상</code></li>
+</ul>
 </li>
+</ul>
+</li>
+<li><code>attention 범위 확장</code> → 기존 16×16에서만 적용하던 <code>attention</code>을 <code>32×32</code>, <code>16×16</code>, <code>8×8</code>에도 적용</li>
+<li><code>BigGAN residual block 활용</code> → 업샘플링 및 다운샘플링 과정에서 <code>BigGAN</code>의 <code>residual block</code> 사용</li>
+<li><code>Residual connection rescaling</code> → 안정성을 위해 residual connection을 √(1/2)로 조정</li>
+</ul>
+<br>
+<ol start="28">
+<li>결론적으로 이러한 실험 사항들이 서로 결합될 때 <code>더 큰 성능 향상</code>을 보였다.</li>
+</ol>
+<h3 id="adaptive-group-normalizationadagn">Adaptive Group Normalization(AdaGN)</h3>
+<ol start="29">
+<li><code>AdaGN</code>은 <code>Group Normalization</code> 후에 <code>timestep</code> 및 <code>class embedding</code>을 <code>residual block</code>에 적용하는 방식이다.</li>
+</ol>
+<br>
+<p>$$\text{AdaGN}(h,y) =y_s\text{GroupNorm}(h) + y_b$$</p>
+<ul>
+<li>$h$: 첫 번째 <code>convolution</code> 이후의 <code>residual block</code>의 <code>중간 활성값(intermediate activations)</code></li>
+<li>$y = [y_s, y_b]$: <code>timestep 및 class embedding</code>을 <code>선형 변환</code>하여 생성된 벡터</li>
+</ul>
+<ol start="30">
+<li>이로 인하여 <code>각 residual block</code>에 <code>timestep</code>과 <code>클래스 정보</code>를 반영할 수 있음</li>
+</ol>
+<br>
+<ol start="31">
+<li>초기에 <code>AdaGN</code>을 적용한 <code>diffusion model</code>에서 성능 향상을 하여, 기본 값으로 사용을 한다.</li>
+</ol>
+<br>
+<ol start="32">
+<li>그래서 <code>모든 비교 실험</code>을 거쳐 <code>최종 모델 아키텍쳐</code>는 다음과 같다.</li>
+</ol>
+<ul>
+<li>각 해상도당 <code>residual block</code> 2개</li>
+<li>64채널 per head의 <code>다중 어텐션 구조</code></li>
+<li>해상도 <code>32×32</code>, <code>16×16</code>, <code>8×8</code>에서 어텐션 적용</li>
+<li><code>BigGAN residual blocks</code>을 업/다운샘플링에 사용</li>
+<li><code>AdaGN</code> 적용</li>
+</ul>
+<hr>
+<h2 id="classifier-guidance">Classifier Guidance</h2>
+<ol start="33">
+<li><code>conditional gan</code>은 잘 설계된 아키텍쳐뿐 아니라 <code>class labels</code>을 활용한다. <code>class 정보</code>가 생성 모델의 <strong>중요한 역할을 한다.</strong></li>
+</ol>
+<ul>
+<li><code>GAN</code>에서는 <code>discriminator</code>를 통하여 <code>class 정보</code>를 반영한다.</li>
+</ul>
+<br>
+<ol start="34">
+<li>따라서 <code>conditional diffusion</code>도 연구해볼만한 가치가 있다.</li>
+</ol>
+<br>
+<ol start="35">
+<li>이미 <code>AdaGN</code>에서 <code>class 정보</code>를 <strong>포함하는 방법</strong>을 사용했는데, 이 방법 말고 <code>본 논문</code>은 <code>classifier</code> ($p(y|x)$)를 활용하여 <code>diffusion</code>의 <strong>성능을 향상</strong>시키는 것을 보여준다.</li>
+</ol>
+<br>
+<ol start="36">
+<li><code>이전 연구</code>에서는 <code>pretrained diffusion model</code>이 <code>classifier</code>의 <strong>gradient를 활용</strong>하여 조건부 생성이 가능함을 보였다.</li>
+</ol>
+<br>
+<ol start="37">
+<li>따라서 <code>본 논문</code>은 <code>noisy</code>한 $x_t$를 기반으로 분류기 $p_\phi(y|x_t,t)$를 학습시키고, 그 <strong>gradient를 활용</strong> ($\nabla_{x_t}logp_\phi(y|x_t,t)$)하여 <code>diffusion sampling process</code>를 <code>특정 클래스</code> $y$로 유도되도록 할 것이다.</li>
+</ol>
+<br>
+<ol start="38">
+<li>앞으로 <code>분류기 조건부 샘플링 방법</code>에 대해 <code>두 가지</code>를 검토 한 후 샘플 품질 개선에 대해서 사용하는 방법을 설명 할 것이다.</li>
+</ol>
+<h3 id="conditional-reverse-noising-process">Conditional Reverse Noising Process</h3>
+<ol start="39">
+<li>continue</li>
 </ol>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
