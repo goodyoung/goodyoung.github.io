@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[CS236] 2. Background - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS236] 2. Background" />
+<meta property="og:description" content="개요 CS236: Deep Generative Models (Stanford)는 스탠포드 대학교에서 진행하는 딥러닝 기반 생성 모델(Deep Generative Models) 에 대한 심화 강의이다. 이번 포스트에서는 CS236 강의의 2강 내용을 정리한다. 2강에서는 말그대로 Generative 분야를 공부하기 전에 필요한 배경 지식을 설명하고 있다. 조건부 독립 (conditional independence) generative model vs discriminative model 생성 모델이란 주어진 데이터(x)의 확률 분포(p(x))를 학습하여 샘플링하여 유사한 데이터를 생성해내는 것이다. ($x ~ p(x)$) 이런 확률 분포 p(x)에 대하여 여러 활용을 할 수 있는데, 아래는 그 활용에 대해서 나타낸다. 밀도 추정: 데이터 유사도 기반 이상 탐지 (원하는 object엔 p(x)가 높다.) Unsupervised representation learning: 공통된 특징 추출 그럼 이제 이러한 데이터의 확률분포 p(x)를 어떻게 표현을 할 것이냐가 먼저이다. Representation p(x) 확률 분포의 표현은 여러가지이다. 베르누이 분포와 범주형(categorical)분포는 위 사진과 같이 표현할 수 있다. 만약 3개의 discrete random variable인 이미지 데이터라면, $p(R = r, G = g, B = b)$의 joint distribution을 구하기 위하여 $256 * 256 * 256 - 1$의 파라미터가 발생한다. 이때 말하는 파라미터란 무엇인가? 파라미터란 확률 분포를 정의하기 위해 필요한 개별 확률값을 의미한다. $X_1, X_2 \in {0, 1}$ 의 변수가 있다고 가정할 때 가능한 조합은 4가지 ((0,0), &hellip; (1,1))이다. 각 조합에 대해 확률 값을 지정해야 하지만, 전체 확률 합은 1이어야 하므로 4개 중 3개만 자유롭게 정하면 나머지 하나는 자동으로 정해진다. 따라서 이 경우 $4 - 1 = 3$ 개의 파라미터를 가진다. 만약 n개의 binary(Bernoulli) random variable이라면 가능한 image의 수는 $2 \times 2 \times &hellip; \times 2 = 2^n$ (n: pixel 수)일 것이다. 그럼 이때 이 분포에서 sampling을 한다면 특정 분포의 joint distribution $p(x_1,&hellip;,x_n)$은 $2^n - 1$의 파라미터가 필요하다. 따라서 random variable의 수에 따라 파라미터의 수가 기하급수적으로 증가한다는 사실을 알 수 있다. 이 모든 값들을 컴퓨터에 저장하기엔 무리가 있다. 그렇기 때문에 수학적 가정이 필요한 순간이다. 그래서 독립성 가정(Independence Assumption)을 하겠다. $X_1, &hellip; , X_n$ 베르누이 분포를 만족하는 확률 변수들이 있다고 가정했을 때 $p(x_1, &hellip; , x_n) = p(x_1)\dot\dot\dot p(x_n)$ 을 만족한다. 이 경우, 가능한 상태(이미지)는 동일하게 $2^n$이고 joint distribution의 파라미터는 $n$이다. Marginal distribution $p(x_1)$의 파라미터가 1이다. 따라서 $1 &#43; 1 &#43; &hellip; &#43; 1$이기 때문에 파라미터는 n이 된다. 독립성 가정은 너무 strong해서 위의 그림 처럼 모든 값이 독립적으로 무작위 값을 선택하여 샘플링 결과가 안좋다. $$p(S_1 \cap S_2 \cap \cdots \cap S_n) = p(S_1) \cdot p(S_2 \mid S_1) \cdot \cdots \cdot p(S_n \mid S_1 \cap \cdots \cap S_{n-1})$$ $$p(S_1 \mid S_2) = \frac{p(S_1 \cap S_2)}{p(S_2)} = \frac{p(S_2 \mid S_1) \cdot p(S_1)}{p(S_2)} $$
+따라서 다른 가정이 필요하여 두가지 중요한 rule(공식)이 있다. 위는 순서대로 Chain rule (probability)와 Bayes&#39; rule의 식이다. $$p(x_1, x_2, \ldots, x_n) = p(x_1) \cdot p(x_2 \mid x_1) \cdot p(x_3 \mid x_1, x_2) \cdots p(x_n \mid x_1, \ldots, x_{n-1})$$
+Chain Rule을 사용하면 위의 식이 된다. 이때 파라미터는 $1&#43;2&#43;&hellip;&#43;2^\text{n-1} = 2^n - 1$이다. 여전히 exponential하다는 것을 알 수 있다. 이 chain rule을 사용한 식에 conditional independence를 가정을 한다. $$p(x_1, x_2, \ldots, x_n) = p(x_1) \cdot p(x_2 \mid x_1) \cdot p(x_3 \mid x_2) \cdots p(x_n \mid x_{n-1})$$
+그렇게 되면 위의 식과 같아지고 파라미터는 $2n - 1$로 해결이 가능해졌다. ($X_{i&#43;1} \perp {X_1, \ldots, X_{i-1}} \mid X_i$ 이렇게도 표기한다.) Bayes Network Chain rule을 통해 모든 확률변수의 joint distribution을 표현할 수 있지만, 이때 conditional independence를 활용하면 필요한 파라미터 수를 대폭 줄일 수 있다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/cs236/lecture2/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-04-03T09:32:32+09:00" />
+<meta property="article:modified_time" content="2025-04-03T09:32:32+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS236] 2. Background"/>
+<meta name="twitter:description" content="개요 CS236: Deep Generative Models (Stanford)는 스탠포드 대학교에서 진행하는 딥러닝 기반 생성 모델(Deep Generative Models) 에 대한 심화 강의이다. 이번 포스트에서는 CS236 강의의 2강 내용을 정리한다. 2강에서는 말그대로 Generative 분야를 공부하기 전에 필요한 배경 지식을 설명하고 있다. 조건부 독립 (conditional independence) generative model vs discriminative model 생성 모델이란 주어진 데이터(x)의 확률 분포(p(x))를 학습하여 샘플링하여 유사한 데이터를 생성해내는 것이다. ($x ~ p(x)$) 이런 확률 분포 p(x)에 대하여 여러 활용을 할 수 있는데, 아래는 그 활용에 대해서 나타낸다. 밀도 추정: 데이터 유사도 기반 이상 탐지 (원하는 object엔 p(x)가 높다.) Unsupervised representation learning: 공통된 특징 추출 그럼 이제 이러한 데이터의 확률분포 p(x)를 어떻게 표현을 할 것이냐가 먼저이다. Representation p(x) 확률 분포의 표현은 여러가지이다. 베르누이 분포와 범주형(categorical)분포는 위 사진과 같이 표현할 수 있다. 만약 3개의 discrete random variable인 이미지 데이터라면, $p(R = r, G = g, B = b)$의 joint distribution을 구하기 위하여 $256 * 256 * 256 - 1$의 파라미터가 발생한다. 이때 말하는 파라미터란 무엇인가? 파라미터란 확률 분포를 정의하기 위해 필요한 개별 확률값을 의미한다. $X_1, X_2 \in {0, 1}$ 의 변수가 있다고 가정할 때 가능한 조합은 4가지 ((0,0), &hellip; (1,1))이다. 각 조합에 대해 확률 값을 지정해야 하지만, 전체 확률 합은 1이어야 하므로 4개 중 3개만 자유롭게 정하면 나머지 하나는 자동으로 정해진다. 따라서 이 경우 $4 - 1 = 3$ 개의 파라미터를 가진다. 만약 n개의 binary(Bernoulli) random variable이라면 가능한 image의 수는 $2 \times 2 \times &hellip; \times 2 = 2^n$ (n: pixel 수)일 것이다. 그럼 이때 이 분포에서 sampling을 한다면 특정 분포의 joint distribution $p(x_1,&hellip;,x_n)$은 $2^n - 1$의 파라미터가 필요하다. 따라서 random variable의 수에 따라 파라미터의 수가 기하급수적으로 증가한다는 사실을 알 수 있다. 이 모든 값들을 컴퓨터에 저장하기엔 무리가 있다. 그렇기 때문에 수학적 가정이 필요한 순간이다. 그래서 독립성 가정(Independence Assumption)을 하겠다. $X_1, &hellip; , X_n$ 베르누이 분포를 만족하는 확률 변수들이 있다고 가정했을 때 $p(x_1, &hellip; , x_n) = p(x_1)\dot\dot\dot p(x_n)$ 을 만족한다. 이 경우, 가능한 상태(이미지)는 동일하게 $2^n$이고 joint distribution의 파라미터는 $n$이다. Marginal distribution $p(x_1)$의 파라미터가 1이다. 따라서 $1 &#43; 1 &#43; &hellip; &#43; 1$이기 때문에 파라미터는 n이 된다. 독립성 가정은 너무 strong해서 위의 그림 처럼 모든 값이 독립적으로 무작위 값을 선택하여 샘플링 결과가 안좋다. $$p(S_1 \cap S_2 \cap \cdots \cap S_n) = p(S_1) \cdot p(S_2 \mid S_1) \cdot \cdots \cdot p(S_n \mid S_1 \cap \cdots \cap S_{n-1})$$ $$p(S_1 \mid S_2) = \frac{p(S_1 \cap S_2)}{p(S_2)} = \frac{p(S_2 \mid S_1) \cdot p(S_1)}{p(S_2)} $$
+따라서 다른 가정이 필요하여 두가지 중요한 rule(공식)이 있다. 위는 순서대로 Chain rule (probability)와 Bayes&#39; rule의 식이다. $$p(x_1, x_2, \ldots, x_n) = p(x_1) \cdot p(x_2 \mid x_1) \cdot p(x_3 \mid x_1, x_2) \cdots p(x_n \mid x_1, \ldots, x_{n-1})$$
+Chain Rule을 사용하면 위의 식이 된다. 이때 파라미터는 $1&#43;2&#43;&hellip;&#43;2^\text{n-1} = 2^n - 1$이다. 여전히 exponential하다는 것을 알 수 있다. 이 chain rule을 사용한 식에 conditional independence를 가정을 한다. $$p(x_1, x_2, \ldots, x_n) = p(x_1) \cdot p(x_2 \mid x_1) \cdot p(x_3 \mid x_2) \cdots p(x_n \mid x_{n-1})$$
+그렇게 되면 위의 식과 같아지고 파라미터는 $2n - 1$로 해결이 가능해졌다. ($X_{i&#43;1} \perp {X_1, \ldots, X_{i-1}} \mid X_i$ 이렇게도 표기한다.) Bayes Network Chain rule을 통해 모든 확률변수의 joint distribution을 표현할 수 있지만, 이때 conditional independence를 활용하면 필요한 파라미터 수를 대폭 줄일 수 있다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs236/lecture2/" /><link rel="prev" href="https://goodyoung.github.io/posts/paper/dm-gans/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[CS236] 2. Background",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture2\/"
+        },"genre": "posts","keywords": "Bayesian network, Conditional Independence, CS236","wordcount":  1262 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture2\/","datePublished": "2025-04-03T09:32:32+09:00","dateModified": "2025-04-03T09:32:32+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS236] 2. Background</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a>&nbsp;<a href="/categories/deep-generative-models/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Deep Generative Models</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-04-03">2025-04-03</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1262 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;6 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#representation-px">Representation p(x)</a></li>
+    <li><a href="#bayes-network">Bayes Network</a></li>
+    <li><a href="#naive-bayes">Naive Bayes</a></li>
+    <li><a href="#generative--discriminative-model">Generative &amp; Discriminative Model</a></li>
+    <li><a href="#neural-models">Neural Models</a></li>
+    <li><a href="#continuous-variable">Continuous Variable</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li><code>CS236: Deep Generative Models (Stanford)</code>는 스탠포드 대학교에서 진행하는 <strong>딥러닝 기반 생성 모델(Deep Generative Models)</strong> 에 대한 심화 강의이다.</li>
+</ol>
+<br>
+<ol>
+<li>이번 포스트에서는 <code>CS236</code> 강의의 2강 내용을 정리한다.</li>
+</ol>
+<br>
+<ol start="2">
+<li>2강에서는 말그대로 Generative 분야를 공부하기 전에 필요한 배경 지식을 설명하고 있다.</li>
+</ol>
+<ul>
+<li><code>조건부 독립 (conditional independence)</code></li>
+<li><code>generative model</code> vs <code>discriminative model</code></li>
+</ul>
+<br>
+<ol start="3">
+<li><code>생성 모델</code>이란 주어진 데이터(x)의 확률 분포(p(x))를 학습하여 샘플링하여 유사한 데이터를 생성해내는 것이다. ($x ~ p(x)$)</li>
+</ol>
+<ul>
+<li>이런 확률 분포 p(x)에 대하여 여러 활용을 할 수 있는데, 아래는 그 활용에 대해서 나타낸다.
+<ul>
+<li><code>밀도 추정</code>: 데이터 유사도 기반 이상 탐지 (원하는 object엔 p(x)가 높다.)</li>
+<li><code>Unsupervised representation learning</code>: 공통된 특징 추출</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="4">
+<li>그럼 이제 이러한 데이터의 확률분포 p(x)를 <strong>어떻게 표현을 할 것이냐가 먼저이다.</strong></li>
+</ol>
+<hr>
+<h2 id="representation-px">Representation p(x)</h2>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/distribution.png" height="70%" width="70%"> </div>
+<ol start="5">
+<li><code>확률 분포</code>의 표현은 여러가지이다. 베르누이 분포와 범주형(categorical)분포는 위 사진과 같이 표현할 수 있다.</li>
+</ol>
+<br>
+<ol start="6">
+<li>만약 3개의 discrete random variable인 이미지 데이터라면, $p(R = r, G = g, B = b)$의 <code>joint distribution</code>을 구하기 위하여 $256 * 256 * 256 - 1$의 <code>파라미터</code>가 발생한다.</li>
+</ol>
+<ul>
+<li>이때 말하는 <code>파라미터</code>란 무엇인가?
+<ul>
+<li><code>파라미터</code>란 <strong>확률 분포를 정의하기 위해 필요한 개별 확률값</strong>을 의미한다.</li>
+<li>$X_1, X_2 \in {0, 1}$ 의 변수가 있다고 가정할 때 가능한 조합은 4가지 ((0,0), &hellip; (1,1))이다.</li>
+<li>각 조합에 대해 <code>확률 값</code>을 지정해야 하지만, 전체 확률 합은 1이어야 하므로 <strong>4개 중 3개만</strong> 자유롭게 정하면 <strong>나머지 하나는 자동으로 정해진다.</strong>
+<ul>
+<li>따라서 이 경우 $4 - 1 = 3$ 개의 파라미터를 가진다.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/discrete.png" height="70%" width="70%"> </div>
+<br>
+<ol start="7">
+<li>만약 n개의 <code>binary(Bernoulli) random variable</code>이라면 가능한 image의 수는 $2 \times 2 \times &hellip; \times 2 = 2^n$ (n: pixel 수)일 것이다.</li>
+</ol>
+<br>
+<ol start="8">
+<li>그럼 이때 이 분포에서 sampling을 한다면 특정 분포의 <code>joint distribution</code> $p(x_1,&hellip;,x_n)$은 $2^n - 1$의 <code>파라미터</code>가 필요하다.</li>
+</ol>
+<br>
+<ol start="9">
+<li>따라서 <code>random variable</code>의 수에 따라 <strong>파라미터의 수가 기하급수적으로 증가한다는 사실</strong>을 알 수 있다. 이 모든 값들을 컴퓨터에 저장하기엔 무리가 있다.</li>
+</ol>
+<br>
+<ol start="10">
+<li>그렇기 때문에 <code>수학적 가정</code>이 필요한 순간이다. 그래서 <code>독립성 가정(Independence Assumption)</code>을 하겠다. $X_1, &hellip; , X_n$ 베르누이 분포를 만족하는 확률 변수들이 있다고 가정했을 때 $p(x_1, &hellip; , x_n) = p(x_1)\dot\dot\dot p(x_n)$ 을 만족한다.</li>
+</ol>
+<br>
+<ol start="11">
+<li>이 경우, 가능한 상태(이미지)는 동일하게 $2^n$이고 <code>joint distribution</code>의 <code>파라미터</code>는 $n$이다.</li>
+</ol>
+<ul>
+<li><code>Marginal distribution</code> $p(x_1)$의 <code>파라미터</code>가 1이다.</li>
+<li>따라서 $1 + 1 + &hellip; + 1$이기 때문에 <code>파라미터</code>는 n이 된다.</li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/sampling.png" height="50%" width="50%"> </div>
+<ol start="12">
+<li><code>독립성 가정</code>은 너무 strong해서 <code>위의 그림</code> 처럼 <strong>모든 값이 독립적으로 무작위 값을 선택하여 샘플링 결과가 안좋다.</strong></li>
+</ol>
+<br>
+<p>$$p(S_1 \cap S_2 \cap \cdots \cap S_n) = p(S_1) \cdot p(S_2 \mid S_1) \cdot \cdots \cdot p(S_n \mid S_1 \cap \cdots \cap S_{n-1})$$
+$$p(S_1 \mid S_2) = \frac{p(S_1 \cap S_2)}{p(S_2)} = \frac{p(S_2 \mid S_1) \cdot p(S_1)}{p(S_2)} $$</p>
+<br>
+<ol start="13">
+<li>따라서 다른 가정이 필요하여 두가지 중요한 rule(공식)이 있다. 위는 순서대로 <code>Chain rule (probability)</code>와 <code>Bayes' rule</code>의 식이다.</li>
+</ol>
+<br>
+<p>$$p(x_1, x_2, \ldots, x_n) = p(x_1) \cdot p(x_2 \mid x_1) \cdot p(x_3 \mid x_1, x_2) \cdots p(x_n \mid x_1, \ldots, x_{n-1})$$</p>
+<br>
+<ol start="14">
+<li><code>Chain Rule</code>을 사용하면 <code>위의 식</code>이 된다. 이때 파라미터는 $1+2+&hellip;+2^\text{n-1} = 2^n - 1$이다.</li>
+</ol>
+<br>
+<ol start="15">
+<li>여전히 <code>exponential</code>하다는 것을 알 수 있다. 이 <code>chain rule</code>을 사용한 식에 <code>conditional independence</code>를 가정을 한다.</li>
+</ol>
+<br>
+<p>$$p(x_1, x_2, \ldots, x_n) = p(x_1) \cdot p(x_2 \mid x_1) \cdot p(x_3 \mid x_2) \cdots p(x_n \mid x_{n-1})$$</p>
+<br>
+<ol start="16">
+<li>그렇게 되면 <code>위의 식</code>과 같아지고 파라미터는 $2n - 1$로 해결이 가능해졌다. ($X_{i+1} \perp {X_1, \ldots, X_{i-1}} \mid X_i$ 이렇게도 표기한다.)</li>
+</ol>
+<hr>
+<h2 id="bayes-network">Bayes Network</h2>
+<ol start="17">
+<li><code>Chain rule</code>을 통해 모든 확률변수의 <code>joint distribution</code>을 표현할 수 있지만, 이때 <code>conditional independence</code>를 활용하면 필요한 파라미터 수를 <strong>대폭 줄일 수 있다</strong>. <code>베이지안 네트워크</code>는 이러한 조건부 독립 구조를 <strong>그래프 형태로 표현한 모델이다.</strong></li>
+</ol>
+<ul>
+<li><code>베이지안 네트워크</code>는 각 확률 변수마다 노드를 가진다.</li>
+<li>노드 간 관계는 부모 자식 구조($\text{Pa}(i)$)로 표현이 된다.</li>
+<li>각 노드마다 부모 노드의 값에 조건부 형태로 표현을 할 수 있고 전체 분포는 아래 식과 같다.</li>
+<li>$p(x_1, x_2, \ldots, x_n) = \prod_{i \in V} p(x_i \mid x_{\text{Pa}(i)})$</li>
+</ul>
+<br>
+<ol start="18">
+<li><code>Conditional Independence</code>를 기반으로 복잡한 분포를 단순하게 표현을 하여 조합 수가 많은 경우에도, <strong>각 노드의 부모 수만큼만 파라미터가 필요</strong>하여 효율적이다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/independece.png" height="50%" width="50%"> </div>
+<ol start="19">
+<li><code>위 그림</code>을 보면 그래프를 <code>베이지안 네트워크</code>로 표현을 할 수 있고, 독립성들을 파악하기 쉽다.</li>
+</ol>
+<ul>
+<li><code>최종 정리</code>를 하자면 <code>베이지안 네트워크</code>는 확률 변수들 간의 조건부 독립성을 방향 그래프(DAG)로 표현한 모델이다.</li>
+</ul>
+<hr>
+<h2 id="naive-bayes">Naive Bayes</h2>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/naive.png" height="30%" width="30%"> </div>
+<p>$$p(y, x_1, \ldots, x_n) = p(y) \prod_{i=1}^{n} p(x_i \mid y)$$</p>
+<ol start="20">
+<li>이메일이 스팸인지 여부(y) 를 판단할 때, <code>Naive Bayes</code>를 사용하여 분류를 진행한다. 이때 이 방법은 <code>가정</code>이 있게되는데 바로 단어들이 클래스 $Y$가 주어졌을 때 <code>조건부 독립</code>이라고 가정한다. 이 가정을 활용한 식은 <code>위 식</code>과 같다.</li>
+</ol>
+<br>
+<ol start="21">
+<li><code>나이브 베이즈 분류기</code>는 <code>학습 시</code> 각 조건부 확률 $p(X_i | Y)$와 클래스 분포 $p(Y)$를 학습한다. 그리고 <code>추론 시</code> $p(Y = 1 | X)$를 계산하면 된다. <code>추론 시</code> 베이즈 정리를 적용 하면 <code>아래 식</code>과 같아지게 된다.</li>
+</ol>
+<ul>
+<li>이 <code>나이브 베이즈 분류기</code>는 <strong>완벽하지 않지만, 유용할 수 있다.</strong></li>
+<li><code>나이브 베이즈 분류기</code>는 <code>베이지안 네트워크</code>의 <strong>아주 단순화된 형태라고 생각하면 될 것 같다.</strong></li>
+</ul>
+<p>$$p(Y = 1 \mid x_1, \ldots, x_n) =
+\frac{
+p(Y = 1) \prod_{i=1}^{n} p(x_i \mid Y = 1)
+}{
+\sum\limits_{y \in {0,1}} p(Y = y) \prod_{i=1}^{n} p(x_i \mid Y = y)
+}$$</p>
+<hr>
+<h2 id="generative--discriminative-model">Generative &amp; Discriminative Model</h2>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/generative.png" height="50%" width="50%"> </div>
+<ol start="22">
+<li><code>생성 모델</code>과 <code>판별 모델</code>을 노드로 관계를 나타낸 것이다. <code>생성 모델</code>은 x,y사이의 전체 관계($p(x,y) = p(x|y)p(y)$)를나타내고 <code>판별 모델</code>은 주어진 x에 대해 y를 바로 예측($p(y|x)$)을 한다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/generative1.png" height="50%" width="50%"> </div>
+<ol start="23">
+<li>따라서 <code>생성 모델</code>은 모든 조건부 분포를 다 배울 필요가 있지만 <code>판별 모델</code>은 분류만 하므로 <strong>x의 분포를 신경을 안써도 된다.</strong></li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/generative2.png" height="50%" width="50%"> </div>
+<br>
+<ol start="24">
+<li>따라서 이런 <code>생성 모델</code>의 복잡한 관계를 <code>naive Bayes 가정</code>을 활용하여 단순하게 만들 수 있게 된다.</li>
+</ol>
+<ul>
+<li><code>위 그림</code>을 보면 y를 알면 x를 알 수 있게 된다.</li>
+</ul>
+<br>
+<ol start="25">
+<li>이런 <code>나이브 베이즈</code>를 사용한 모델은 가정으로 인하여 <strong>X들간의 상관관계는 무시되기 때문에</strong> $X_1$과 $X_2$가 y와 항상 같이 나온다면 $X_1$과 $X_2$가 실제로 각각 유의미해도 $p(X_1|Y) = p(X_2|Y) $ 으로 처리한다.</li>
+</ol>
+<br>
+<ol start="26">
+<li>하지만 <code>판별 모델</code> 중 하나인 <code>로지스틱 회귀</code>는 각 특성의 기여도를 조정할 수 있어 이런 <strong>중복 문제를 해결할 수 있다.</strong></li>
+</ol>
+<ul>
+<li><code>로지스틱 회귀</code>란 <code>Linear Regression</code>에 <code>로지스틱 함수</code>를 적용한 모델이다. 아래는 관련 식이다.</li>
+<li>$z(\alpha, x) = \alpha_0 + \sum_{i=1}^{n} \alpha_i x_i$ 의 선형 결합으로 나타낼 수 있다.</li>
+<li>$p(Y = 1 \mid x; \alpha) = \sigma(z(\alpha, x)) = \frac{1}{1 + e^{-z(\alpha, x)}}$ 으로 확률로 변경할 수 있다.</li>
+<li>이 같은 식을 통하여 <code>decision boundary</code>를 정할 수 있게 된다.</li>
+</ul>
+<br>
+<ol start="27">
+<li>이런 <code>생성 모델</code>도 장점이 있는데 바로 <strong>X의 일부 값이 관측되지 않았을 때</strong>도 추론이 가능하다는 점이다.</li>
+</ol>
+<hr>
+<h2 id="neural-models">Neural Models</h2>
+<p>$$h(A, b, x) = f(Ax + b)$$
+$$p_{\text{Neural}}(Y = 1 \mid x; \alpha, A, b) = \sigma\left( \alpha_0 + \sum_{i=1}^{h} \alpha_i h_i \right)$$
+28. 기존 <code>로지스틱 회귀</code>는 <code>선형 관계</code>라 구조가 단순하다. 따라서 <code>비선형 모델링</code>(Neural Network)이 필요해졌다. 따라서 <code>위의 식</code>과 같이 표현이 가능하고 기존보다 더 다양한 파라미터가 생긴 것을 확인 할 수 있다.</p>
+<br>
+<ol start="29">
+<li>따라서 지금까지의 모델들을 정리를 해보면 아래와 같다.</li>
+</ol>
+<ul>
+<li><code>Chain Rule 공식</code>
+<ul>
+<li>$p(x_1, x_2, x_3, x_4) = p(x_1) \cdot p(x_2 \mid x_1) \cdot p(x_3 \mid x_1, x_2) \cdot p(x_4 \mid x_1, x_2, x_3)$</li>
+</ul>
+</li>
+<li><code>Bayesian Network</code> (assumes conditional independency)
+<ul>
+<li>$p(x_1, x_2, x_3, x_4) \approx p(x_1) \cdot p(x_2 \mid x_1) \cdot p(x_3 \mid \cancel{x_1}, x_2) \cdot p(x_4 \mid \cancel{x_1}, \cancel{x_2}, x_3)$</li>
+</ul>
+</li>
+<li><code>Neural Models</code>
+<ul>
+<li>$p(x_1, x_2, x_3, x_4) \approx p(x_1) \cdot p(x_2 \mid x_1) \cdot p_{\text{Neural}}(x_3 \mid x_1, x_2) \cdot p_{\text{Neural}}(x_4 \mid x_1, x_2, x_3)$</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="continuous-variable">Continuous Variable</h2>
+<ol start="29">
+<li>$X$가 <code>연속확률변수</code>일 때는 지금까지 배운 방법을 어떻게 적용시키는 지에 대하여 나온다.</li>
+</ol>
+<br>
+<ol start="30">
+<li>바로 <code>Probability Density Function (PDF)</code>를 사용하여 모델링을 하고 <code>Chain rule</code>, <code>Bayes rule</code>에 똑같이 조건부 확률 형태를 적용하면 된다.</li>
+</ol>
+<ul>
+<li>이때 모델링 시 사용되는 분포가 있다.
+<ul>
+<li>정규 분포, 다변량 정규 분포 등이 있다.</li>
+</ul>
+</li>
+<li><code>정규분포</code>와 같은 분포에서는 각 점에서의 확률이 아니라 확률 밀도 $p(x)$가 주어지고, 우리가 원하는 <code>실제 확률</code>은 <strong>이 밀도 값을 구간에 대해 적분해서 얻는다.</strong></li>
+</ul>
+<br>
+<ol start="31">
+<li>그럼 이런 <code>연속확률변수</code>를 사용하여 어떻게 <code>Bayesian network</code>를 활용한 모델이 구성될 수 있는지에 대한 예제를 설명할 것이다.</li>
+</ol>
+<br>
+<ol start="32">
+<li>이제 설명하는 모델들은 $Z$-&gt; $X$ 의 관계를 $p(Z, X) = p(Z) \cdot p(X \mid Z)$ 으로 **분해(factorization)**가 가능한 <code>Bayesian network</code>라고 생각하면 된다.</li>
+</ol>
+<ul>
+<li>아래 세개의 모델들은 다음과 같은 순서로 진행되고 그 순서에서 안에 구성만이 다른 것이다.
+<ol>
+<li>z가 어떤 분포에서 샘플링이 된다.</li>
+<li>그 z의 값으로 정규분포가 정해진다. 그리고 그 정규분포에서 X를 샘플링을 한다.</li>
+</ol>
+</li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/model1.png" height="50%" width="50%"> </div>
+<ol start="33">
+<li><code>첫번째 모델</code>은 <code>Mixture of 2 Gaussian</code>이다. 베르누이 분포에서 뽑은(2가지 경우) z에 해당하는 분포에서 X를 샘플링을 한다.</li>
+</ol>
+<ul>
+<li><code>z</code>는 어떤 분포($\mu_0, \mu_1)$에서 샘플링(X)을 할 지 알려준다.</li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture2/model2.png" height="50%" width="50%"> </div>
+<ol start="34">
+<li><code>두번째 모델</code>은 <code>uniform 분포</code>에서 뽑아서 뽑은 z를 중심으로 <code>아주 약간 움직인 분포</code>로 구성할 수 있다.</li>
+</ol>
+<br>
+<ol start="35">
+<li><code>세번째 모델</code>은 정규분포의 평균과 분산이 <code>신경망</code>으로부터 결정이 된 분포에서 샘플링이 된다.</li>
+</ol>
+<ul>
+<li><strong>신경망 기반 조건부 확률 분포이다.</strong></li>
+</ul>
+<br>
+<ol start="36">
+<li>결론적으로 <code>베이지안 네트워크</code>는 다양한 <code>생성 모델</code>(Gaussian mixture, VAE 등)을 구조적으로 설명하고 일반화 할 수 있다.</li>
+</ol>
+<hr>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://deepgenerativemodels.github.io/" target="_blank" rel="noopener noreffer ">https://deepgenerativemodels.github.io/</a></li>
+<li><a href="https://www.youtube.com/playlist?list=PLoROMvodv4rPOWA-omMM6STXaWW4FvJT8" target="_blank" rel="noopener noreffer ">https://www.youtube.com/playlist?list=PLoROMvodv4rPOWA-omMM6STXaWW4FvJT8</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2025-04-03</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/cs236/lecture2/" data-title="[CS236] 2. Background" data-hashtags="Bayesian network,Conditional Independence,CS236"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/cs236/lecture2/" data-hashtag="Bayesian network"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/cs236/lecture2/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/cs236/lecture2/" data-title="[CS236] 2. Background"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/cs236/lecture2/" data-title="[CS236] 2. Background"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/cs236/lecture2/" data-title="[CS236] 2. Background"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/cs236/lecture2/" data-title="[CS236] 2. Background" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/bayesian-network/">Bayesian network</a>,&nbsp;<a href="/tags/conditional-independence/">Conditional Independence</a>,&nbsp;<a href="/tags/cs236/">CS236</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/paper/dm-gans/" class="prev" rel="prev" title="[Paper Review]Diffusion Models Beat GANs on Image Synthesis(ADM-G)"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[Paper Review]Diffusion Models Beat GANs on Image Synthesis(ADM-G)</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
