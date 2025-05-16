@@ -33,7 +33,7 @@ MNIST 데이터셋으로 Autoregressive Model을 구성하는 수식을 살펴�
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture3\/"
-        },"genre": "posts","keywords": "Bayesian network, Conditional Independence, CS236","wordcount":  820 ,
+        },"genre": "posts","keywords": "Bayesian network, Conditional Independence, CS236","wordcount":  1012 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture3\/","datePublished": "2025-05-07T22:58:36+09:00","dateModified": "2025-05-07T22:58:36+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -75,8 +75,8 @@ MNIST 데이터셋으로 Autoregressive Model을 구성하는 수식을 살펴�
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS236] 3. Autoregressive Models</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a>&nbsp;<a href="/categories/deep-generative-models/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Deep Generative Models</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-05-07">2025-05-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;820 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;4 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-05-07">2025-05-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1012 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -92,7 +92,7 @@ MNIST 데이터셋으로 Autoregressive Model을 구성하는 수식을 살펴�
     <li><a href="#recurrent-neural-nets-rnn">Recurrent Neural Nets (RNN)</a></li>
     <li><a href="#pixelrnn">PixelRNN</a></li>
     <li><a href="#pixelcnn">PixelCNN</a></li>
-    <li><a href="#pixeldefend">PixelDefend</a></li>
+    <li><a href="#summary">Summary</a></li>
     <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
@@ -297,9 +297,55 @@ $$</p>
 <ol start="28">
 <li>이런 <code>rnn</code>을 사용하면 입력 길이가 고정되지 않아도 된다. 또한 컴퓨팅의 비용이 상당히 줄어드는 장점이 있다. 하지만 <code>long-term dependency</code>의 문제가 있고, 여전히 <strong>입력 순서</strong>는 필요하다는 단점이 있다. 또한 훈련, 생성시 속도가 <strong>느리다는 단점</strong>이 있다.</li>
 </ol>
+<ul>
+<li>이러한 단점을 해결하기위하여 attention based 모델이 등장했다.</li>
+</ul>
+<hr>
 <h2 id="pixelrnn">PixelRNN</h2>
+<ol start="29">
+<li><code>Autoregressive</code>의 방법은 이미지 분야에도 적용이 되었다. 바로 <code>PixelRNN</code>이다. $p(x_t \mid x_{1:t-1})$ 를 예측하기 위하여  아래 수식과 같이 <strong>R,G,B의 세개의 값을 예측을 해야한다.</strong></li>
+</ol>
+<br>
+<p>$$
+p(x_t \mid x_{1:t-1}) = p(x_t^{\text{red}} \mid x_{1:t-1}) \cdot p(x_t^{\text{green}} \mid x_{1:t-1}, x_t^{\text{red}}) \cdot p(x_t^{\text{blue}} \mid x_{1:t-1}, x_t^{\text{red}}, x_t^{\text{green}})
+$$</p>
+<ul>
+<li>해당 모델 결과를 보면, 모델이 이미지의 구조를 어느정도 파악하고 있음을 알 수 있다.</li>
+</ul>
+<hr>
 <h2 id="pixelcnn">PixelCNN</h2>
-<h2 id="pixeldefend">PixelDefend</h2>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture3/pixelcnn.png" height="85%" width="85%"> </div>
+<ol start="30">
+<li><code>CNN구조</code>에 <code>autoregresive</code>를 적용시킨 모델도 있다. 바로 <code>PixelCNN</code>이다. 이 모델은 CNN 구조를 사용하면서 이웃 픽셀들의 정보를 가지고 다음 pixel을 예측하는 방법이다.</li>
+</ol>
+<br>
+<ol start="31">
+<li>하지만 <code>autoregressive</code>하기 위하여 <code>MADE</code>방법 처럼 masked convolution을 사용하여 예측에 시도하는 방법이다.</li>
+</ol>
+<hr>
+<h2 id="summary">Summary</h2>
+<ol start="33">
+<li><code>생성 모델</code>은 주어진 데이터셋 $D$로부터 데이터가 생성되는 확률 분포 $p_\text{data}$를 추정하여, 이 분포로부터 가능한 데이터 샘플 $x \sim p_\text{data}(x)$을 생성하는 방식이다</li>
+</ol>
+<br>
+<ol start="34">
+<li>그러나 실제로 $p_\text{data}$를 <strong>직접 구하는 것은 불가능하므로</strong>, 모델은 이와 유사한 분포를 나타내는 파라미터 $\theta$를 학습하여 근사 분포 $p_\theta(x)$ 를 모델링하는 방식(여기서 여러 생성 알고리즘이 등장)으로 작동한다.</li>
+</ol>
+<ul>
+<li>이때 $p_\theta(x)$ 로부터 생성한 데이터 $\hat{x}$ 가 실제 데이터의 분포에서 생성한 데이터 x와 유사하게 설정할 수 있게 되는 것이다.</li>
+</ul>
+<br>
+<ol start="35">
+<li><code>Autoregressive model</code>은 $p_\theta(x)$ 를 <strong>연쇄 법칙</strong>을 통해 $i$ 시점 데이터 $x_i$ 의 가능도(확률) $p(x_i)$ 는 이전 시점까지의($i-1$) 데이터를 바탕으로 예측하는 조건부 확률 형태를 나타낸다.</li>
+</ol>
+<br>
+<ol start="36">
+<li>이런 <code>Autoregressive model</code>이 샘플링하고, 확률을 계산하는 방법은 아래와 같다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture3/summary.png" height="85%" width="85%"> </div>
 <h2 id="reference">Reference</h2>
 <ul>
 <li><a href="https://deepgenerativemodels.github.io/" target="_blank" rel="noopener noreffer ">https://deepgenerativemodels.github.io/</a></li>
