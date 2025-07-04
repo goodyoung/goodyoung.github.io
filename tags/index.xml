@@ -3,7 +3,23 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 07 May 2025 22:58:36 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 30 Jun 2025 17:00:38 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>CS236</title>
+    <link>https://goodyoung.github.io/tags/cs236/</link>
+    <pubDate>Mon, 30 Jun 2025 17:00:38 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/cs236/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>KL-Divergence</title>
+    <link>https://goodyoung.github.io/tags/kl-divergence/</link>
+    <pubDate>Mon, 30 Jun 2025 17:00:38 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/kl-divergence/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
     <title>Bayesian network</title>
     <link>https://goodyoung.github.io/tags/bayesian-network/</link>
     <pubDate>Wed, 07 May 2025 22:58:36 &#43;0900</pubDate>
@@ -17,14 +33,6 @@
     <pubDate>Wed, 07 May 2025 22:58:36 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/conditional-independence/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>CS236</title>
-    <link>https://goodyoung.github.io/tags/cs236/</link>
-    <pubDate>Wed, 07 May 2025 22:58:36 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/cs236/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
@@ -73,14 +81,6 @@
     <pubDate>Mon, 17 Feb 2025 17:57:23 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/ldm/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>DDIM</title>
-    <link>https://goodyoung.github.io/tags/ddim/</link>
-    <pubDate>Thu, 13 Feb 2025 15:14:36 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/ddim/</guid>
     <description><![CDATA[]]></description>
 </item>
 </channel>
