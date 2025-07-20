@@ -3,12 +3,28 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 30 Jun 2025 17:00:38 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
     <title>CS236</title>
     <link>https://goodyoung.github.io/tags/cs236/</link>
-    <pubDate>Mon, 30 Jun 2025 17:00:38 &#43;0900</pubDate>
+    <pubDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/cs236/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>Latent Variable Models</title>
+    <link>https://goodyoung.github.io/tags/latent-variable-models/</link>
+    <pubDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/latent-variable-models/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>VAEs</title>
+    <link>https://goodyoung.github.io/tags/vaes/</link>
+    <pubDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/vaes/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
@@ -65,22 +81,6 @@
     <pubDate>Fri, 28 Feb 2025 16:42:40 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/dm-gans/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>논문 리뷰</title>
-    <link>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</link>
-    <pubDate>Fri, 28 Feb 2025 16:42:40 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>LDM</title>
-    <link>https://goodyoung.github.io/tags/ldm/</link>
-    <pubDate>Mon, 17 Feb 2025 17:57:23 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/ldm/</guid>
     <description><![CDATA[]]></description>
 </item>
 </channel>

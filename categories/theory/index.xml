@@ -3,7 +3,26 @@
         <title>Theory - Category - Good Young</title>
         <link>https://goodyoung.github.io/categories/theory/</link>
         <description>Theory - Category - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 30 Jun 2025 17:00:38 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/theory/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/theory/" rel="self" type="application/rss+xml" /><item>
+    <title>[CS236] 5. Latent Variable Models</title>
+    <link>https://goodyoung.github.io/posts/cs236/lecture5/</link>
+    <pubDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs236/lecture5/</guid>
+    <description><![CDATA[ 개요 이번 포스트에서는 CS236 강의의 5강 내용을 정리한다.
+Autoregressive 구조는 장/단점을 지닌다. 장점은 likelihood를 평가하여 maximum likelihood를 구할 수 있어 훈련이 비교적 쉽다.
+반면, 단점은 순서대로 생성하여 생성 시간이 오래걸린다. 그리고 비지도 학습을 사용하여 데이터의 특징을 추출하는 것이 명확하지 않다. 이 점이 잠재 변수 모델을 사용해서 해결할 수 있는 일 중 하나이다.
+이번 챕터에서는 이 latent variable(잠재 변수)가 있을 때 생성 모델이 추론과 학습을 수행하는 방법에 대해서 나오게 된다.
+Latent Variable 위 그림과 같이 사람 이미지와 같은 이미지 데이터 안에는 단순히 픽셀 데이터가 아니라 그 안에 성별, 눈 색깔 등의 여러 변동성 큰 정보들이 포함되어 있다. 하지만 이 모든 정보들을 annotated 하여 이용하기 쉽지 않다. 그렇기 떄문에 latent variable에 원본 데이터 상에 숨겨진 특징들이 존재하게 된다.
+만약 특정한 특징을 나타내는 latent variable(z)을 사용하여 생성하게 되면, 우린 더욱 더 유연한 생성 모델을 얻을 수 있을 것 이다.
+그래서 이 latent variable(z)을 반영하여 모델의 확률 분포 $p(x,z)$를 구하는 Latent Variable Model에 대해서 알아볼 것이다.
+왼쪽 그림은 Latent Variable Model을 간략하게 나타낸 구조이고 오른쪽 그림은 베이지안 네트워크일 때를 나타낸다.
+우리는 $x$와 $z$의 결합 분포인 $p(x,z) = p(z)p(x|z)$ 를 구하게 될 것이고 이것이 베이지안 네트워크로 가면 $p(x,z) = p(z_1)p(x|z_1)+&hellip;+p(z_k)p(x|z_k)$ 가 될 것이다.
+이렇게 잠재변수 z를 포함한 모델링을 사용하면 x만을 활용한 것보다 쉽다. 또한 만약 z의 특징을 각각 추출할 수 있다면, 그것을 이용해서 다른 종류의 task에도 이용이 가능하다. (ex)eyeColor = Blue만 식별 가능)
+하지만 현실적으로 모든 z중에 특정 z만 따로 추출하는 것이 어렵다는 것이다.(이 말은 위에서 현실적으로 모든 z의 확률을 구할 수 없어서 베이지안 네트워크를 사용하기 어려울 수 있다는 말과 동일하다.) 따라서 우리는 이 문제를 해결하기 위하여 **단순한 z(가우시안)**만을 가정하여 deep neural network(모든 각각의 관계의 정보를 따로따로 확인하지 않아도 모든 정보를 고려해줄 수 있다.) 를 사용하여 이 z를 예측하려고 한다.
+$z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 이 문제는 비지도학습의 representation learning이기 때문애 학습 시 z에 대해서 잘 학습(z의 특징을 잘 추출)되기를 희망하게 된다. (이 모델이 어떤 z를 추출할지 명확하지 않다.) 만약 학습이 잘된다면, z의 분포를 클러스터링 하여 우리가 원하는 클러스터에 해당하는 z의 값($p(z)$)을 구할 수 있고 이 z를 가지고 새로운 데이터 $p_\theta(x,z)$를 만들어낼 수 있게 된다. ]]></description>
+</item>
+<item>
     <title>[CS236] 4. Maximum Likelihood Learning</title>
     <link>https://goodyoung.github.io/posts/cs236/lecture4/</link>
     <pubDate>Mon, 30 Jun 2025 17:00:38 &#43;0900</pubDate>
@@ -126,15 +145,6 @@ PReLU는 음수 영역에 backpropagation에서의 파라미터로 기울기 값
 이를 통해 함수는 BackPropagation이라는 기술을 사용하고, gradient를 얻기 위하여 Chain-rule를 활용한다.
 BackPropagation의 과정은 다음과 같다. 각 입력이 local node로 들어오고 다음 노드로 직접 전달된다. local gradient는 이때의 입력된 노드의 출력의 gradient이다. 각각의 입력마다 그때의 local gradient를 구한다. 즉, z에 대한 x로의 미분, z에 대한 y로의 미분을 구한다. 이를 Forward Pass (Foward Propagation)이라고 한다. Forward Pass의 맨 마지막에는 loss function을 통한 loss가 나온다. Forward Pass가 모든 노드가 진행이 되었으면 Backward Pass (Back Propagation)이 진행된다. 이때 Back Propagation은 수많은 계산을 거쳐 나온 loss에 대한 z의 미분을 나타내고 이는 global gradient (위 그림에선 빨간색 글씨로 gradients라고 표기)라고 칭한다. 이때 그럼 loss에 대한 x, y의 미분값을 구할 수 있게 되는데 이때 활용되는 개념이 Chain-rule이다. Forward Pass로 구한 local gradient의 값과 그 노드의 global gradient를 곱하면 우리고 최종적으로 원하는 gradient가 나오게 된다. $gradient = local \ gradient * global \ gradient$ 이런 Computational graph에서 그룹화를 할 수 있다는 사실도 알 수 있다. 위 그림을 보면 sigmoid gate로 하나의 노드로 묶어서 계산 할 수도 있다. 따라서 얼마나 그룹화를 하여 노드를 표현할 것인지에 대한 고민이 필요할 수 있다. 또한 Back Propagation에는 3가지 패턴이 존재한다고 한다. add gate gradient 전달하는 역할 max gate 한 방향으로 gradient 모두 전달하는 역할 mul gate 서로 gradient 전환하는 역할 종합적으로 위에서 배운 Back Propagation을 아래와 같이 일반화된 식으로 표현한다. $$ \frac{\partial f}{\partial x} = \sum \frac{\partial f}{\partial q_i} \cdot \frac{\partial q_i}{\partial x} $$
 이제 위에서 배운 Back Propagation에서 변수가 벡터라고 생각한다면 gradient는 Jacobian matrix로 표현할 수 있게 된다. Jacobian matrix: 각 요소의 미분을 포함하는 행렬 따라서 4096의 input이 들어온다면 이 Jacobian matrix의 크기는 $4096 * 4096$ 일 것이다. 이때 gradient의 각 요소는 함수의 최종 출력에 얼마나 영향을 미치는가를 정량화 한 값으로 표현이 되고 이는 결국 편미분한 값과 이어지게 된다. 따라서 입력의 어떤 차원이 출력의 어떤 차원에 영향을 주는지, 그래서 Jacobian matrix는 입력의 각 요소가 오직 출력의 해당 요소에만 영향을 주기 때문에 대각 행렬이 될 것이다. Neural Networks 위 그림 처럼 2계층 신경망을 얻기 위해 다른 것 위에 비선형 변환을 하면 된다. 이렇게 계속 층층 쌓아가면 Deep Neural Network의 형태가 된다. 위의 W1, W2는 각각 gradient로 학습 시키고, 그 gradient들은 Chain-rule으로 계산하여 구한다. 이런 비선형성의 특징을 표현하기 위해 activation function이라는 함수가 존재한다. 이는 강의 후반부에 더 자세히 다룬다고 한다. 아래는 이 Forward pass과정을 코드로 표현한 것이다. f = lambda x: 1.0/(1.0+ np.exp(-x)) # sigmoid (activation function) x = np.random.randn(3, 1) # random input vector h1 = f(np.dot(W1, x) + b1) # calculate first hidden layer h2 = f(np.dot(W2, h1) + b2) # calculate second hidden layer out = np.dot(W3,h2) + b3 # output neuron (1*1) Reference https://chasuyeon.tistory.com/entry/cs231n-4%EA%B0%95-%EC%A0%95%EB%A6%AC-Introduction-to-Neural-Networks ]]></description>
-</item>
-<item>
-    <title>[CS231n] 03.Loss Functions and Optimization</title>
-    <link>https://goodyoung.github.io/posts/cs231n/lecture3/</link>
-    <pubDate>Tue, 02 Jul 2024 15:32:06 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/posts/cs231n/lecture3/</guid>
-    <description><![CDATA[개요 CS231n의 3강에 대한 내용을 정리 할 것이다. 저번 강에서는 선형 분류기에 대해서 공부를 했는데 이때 어떻게 이미지의 가중치인 W의 값들의 badness를 판단하는지(loss function), 또 W의 값들을 업데이트 하는 방법(optimization)에 대해서 집중적으로 다룰 것이다. Loss Function Loss Function이란 W를 가져와서 점수를 보고 얼마나 정량적으로 좋은지 나쁜지 알려주는 함수이다. 또는 실제값과 예측값의 차이를 수치화 해주는 함수이다. Loos Function의 기본 식은 아래와 같다. xi: pixel value yi: predict label - f: predict y Li: loss function - L: loss mean 따라서 위 식을 통해 어떤 W가 가장 좋은 결과를 가져오는지 정량적으로 판단할 수 있게 된다. Multiclass SVM Loss 다음으론 image classification에 적합한 multi-class SVM Loss에 대한 설명이다. loss function의 식은 아래와 같다. sj: 잘못된 label의 score syi: 제대로 된 label의 score - 1: safety margin 따라서 위 식은 제대로 예측을 했고 그 값이 safety margin보다 뛰어나다면 loss는 0을 나타내고, 그것이 아니라면 잘못된 label과 정상 label간의 차이만큼이 loss인 것을 알 수 있다. 이를 그래프로 시각화를 하면 아래 그림과 같은데 이를 hinge loss라고 한다. 이 그래프를 통해 알 수 있는 사실은 잘 분류된 point는 loss가 작거나 없고, 잘못 분류된 point는 loss가 높다. 잘 분류되었을 수록 syi가 클 것이다. 그러므로 sj - syi의 식에서 음수값이 나올 가능성이 크다. 다음은 hinge loss에 관하여 6가지의 질문이 나온다. Q1: 잘 예측 했을 경우 데이터가 미세하게 변한다고 해서 loss의 값이 변하지는 않는다. Q2: hinge loss의 최솟값은 0, 최대값은 무한대일 것이다. (class score가 엄청 낮은 음수 값을 가지고 있다면) Q3: W를 임의의 작은 수로 초기화를 할 때 sj - syi의 값이 0일 경우 classes_num - 1의 값이 나오게 된다. 이는 debugging시 유용하다. 훈련 시 초기의 loss값이 classes_num - 1이 아니라면 과정 중 어떤 것이 잘못되었는지 다시 볼 필요가 있다. Q4: 정답 class도 계산을 한다면 기존 loss에 1이 증가한 형태일 것이다. Q5: Summation이 아니라 Mean이라도 loss의 값은 변함 없다. (rescale만 된다. 큰 영향 없다.) Q6: 아래의 그림과 같이 제곱항으로 변경한다면 결과는 달라진다. 선형적이었던 관계를 비선형적으로 바꿔서 표현이 된다. 따라서 잘못 예측한 것은 제곱만큼 loss가 커지게 되는 상황이 발생한다. 따라서 데이터의 특성에 따라 극심한 차이를 보고싶을 때 사용한다. 따라서 어떤 loss를 사용하냐는 error값을 얼마나 신경쓰고 있고, 어떻게 정량화 할거냐에 따라 다르다. 아래는 hinge-loss의 example code이다.
-def L_i_vectorzed(x, y, W): scores = W.dot(x) # Predict margins = np.maximum(0, scores - scores[y] + 1) # Calc Loss margins[y] = 0 # class label에 해당하는 것은 0으로 두는 일종의 trick에 해당한다. loss_i = np.sum(margins) # Summation Loss return loss_i # return Regularization 또다른 질문이 있다. *Loss가 0인 W를 찾았다면 이 값과 동일한 다른 W도 존재하는가?*에 대한 질문이다. 정답은 있다! 이다. 기존 W에 2배를 한다고 해서 Loss는 변하지 않는다. 앞서 loss function이 최적의 W를 찾기 위해 정량적으로 나타내는 것이라고 설명을 했다. 하지만 우리는 수많은 W가 0이 된다는 사실을 방금 알게 되었다. 이는 모순임을 알 수 있다. 왜냐하면 오직 위 식은 data의 loss에만 신경을 쓰고 있기 때문이다. 이때의 data는 xi, 즉 training data이다. 이는 아래 그림과 같이 과대 적합 (Overfitting) 인 문제가 발생한다. 우리는 test data에 대한 performance에 관심이 있지 training data에는 관심이 없다. 따라서 우리는 아래 그림과 같이 되기를 원한다. 따라서 기존 Loss 식에 변화를 주어야 된다. 기존 식에 Regularization을 추가하여 이 식은 분류기가 더 간단한 W를 선택하도록 패널티를 주는 역할을 한다.]]></description>
 </item>
 </channel>
 </rss>

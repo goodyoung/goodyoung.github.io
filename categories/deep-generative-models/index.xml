@@ -3,7 +3,26 @@
         <title>Deep Generative Models - Category - Good Young</title>
         <link>https://goodyoung.github.io/categories/deep-generative-models/</link>
         <description>Deep Generative Models - Category - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 30 Jun 2025 17:00:38 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/deep-generative-models/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/deep-generative-models/" rel="self" type="application/rss+xml" /><item>
+    <title>[CS236] 5. Latent Variable Models</title>
+    <link>https://goodyoung.github.io/posts/cs236/lecture5/</link>
+    <pubDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs236/lecture5/</guid>
+    <description><![CDATA[ 개요 이번 포스트에서는 CS236 강의의 5강 내용을 정리한다.
+Autoregressive 구조는 장/단점을 지닌다. 장점은 likelihood를 평가하여 maximum likelihood를 구할 수 있어 훈련이 비교적 쉽다.
+반면, 단점은 순서대로 생성하여 생성 시간이 오래걸린다. 그리고 비지도 학습을 사용하여 데이터의 특징을 추출하는 것이 명확하지 않다. 이 점이 잠재 변수 모델을 사용해서 해결할 수 있는 일 중 하나이다.
+이번 챕터에서는 이 latent variable(잠재 변수)가 있을 때 생성 모델이 추론과 학습을 수행하는 방법에 대해서 나오게 된다.
+Latent Variable 위 그림과 같이 사람 이미지와 같은 이미지 데이터 안에는 단순히 픽셀 데이터가 아니라 그 안에 성별, 눈 색깔 등의 여러 변동성 큰 정보들이 포함되어 있다. 하지만 이 모든 정보들을 annotated 하여 이용하기 쉽지 않다. 그렇기 떄문에 latent variable에 원본 데이터 상에 숨겨진 특징들이 존재하게 된다.
+만약 특정한 특징을 나타내는 latent variable(z)을 사용하여 생성하게 되면, 우린 더욱 더 유연한 생성 모델을 얻을 수 있을 것 이다.
+그래서 이 latent variable(z)을 반영하여 모델의 확률 분포 $p(x,z)$를 구하는 Latent Variable Model에 대해서 알아볼 것이다.
+왼쪽 그림은 Latent Variable Model을 간략하게 나타낸 구조이고 오른쪽 그림은 베이지안 네트워크일 때를 나타낸다.
+우리는 $x$와 $z$의 결합 분포인 $p(x,z) = p(z)p(x|z)$ 를 구하게 될 것이고 이것이 베이지안 네트워크로 가면 $p(x,z) = p(z_1)p(x|z_1)+&hellip;+p(z_k)p(x|z_k)$ 가 될 것이다.
+이렇게 잠재변수 z를 포함한 모델링을 사용하면 x만을 활용한 것보다 쉽다. 또한 만약 z의 특징을 각각 추출할 수 있다면, 그것을 이용해서 다른 종류의 task에도 이용이 가능하다. (ex)eyeColor = Blue만 식별 가능)
+하지만 현실적으로 모든 z중에 특정 z만 따로 추출하는 것이 어렵다는 것이다.(이 말은 위에서 현실적으로 모든 z의 확률을 구할 수 없어서 베이지안 네트워크를 사용하기 어려울 수 있다는 말과 동일하다.) 따라서 우리는 이 문제를 해결하기 위하여 **단순한 z(가우시안)**만을 가정하여 deep neural network(모든 각각의 관계의 정보를 따로따로 확인하지 않아도 모든 정보를 고려해줄 수 있다.) 를 사용하여 이 z를 예측하려고 한다.
+$z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 이 문제는 비지도학습의 representation learning이기 때문애 학습 시 z에 대해서 잘 학습(z의 특징을 잘 추출)되기를 희망하게 된다. (이 모델이 어떤 z를 추출할지 명확하지 않다.) 만약 학습이 잘된다면, z의 분포를 클러스터링 하여 우리가 원하는 클러스터에 해당하는 z의 값($p(z)$)을 구할 수 있고 이 z를 가지고 새로운 데이터 $p_\theta(x,z)$를 만들어낼 수 있게 된다. ]]></description>
+</item>
+<item>
     <title>[CS236] 4. Maximum Likelihood Learning</title>
     <link>https://goodyoung.github.io/posts/cs236/lecture4/</link>
     <pubDate>Mon, 30 Jun 2025 17:00:38 &#43;0900</pubDate>
