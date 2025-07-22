@@ -5,36 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[CS236] 5. Latent Variable Models - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS236] 5. Latent Variable Models" />
-<meta property="og:description" content=" 개요 이번 포스트에서는 CS236 강의의 5강 내용을 정리한다.
-Autoregressive 구조는 장/단점을 지닌다. 장점은 likelihood를 평가하여 maximum likelihood를 구할 수 있어 훈련이 비교적 쉽다.
-반면, 단점은 순서대로 생성하여 생성 시간이 오래걸린다. 그리고 비지도 학습을 사용하여 데이터의 특징을 추출하는 것이 명확하지 않다. 이 점이 잠재 변수 모델을 사용해서 해결할 수 있는 일 중 하나이다.
-이번 챕터에서는 이 latent variable(잠재 변수)가 있을 때 생성 모델이 추론과 학습을 수행하는 방법에 대해서 나오게 된다.
-Latent Variable 위 그림과 같이 사람 이미지와 같은 이미지 데이터 안에는 단순히 픽셀 데이터가 아니라 그 안에 성별, 눈 색깔 등의 여러 변동성 큰 정보들이 포함되어 있다. 하지만 이 모든 정보들을 annotated 하여 이용하기 쉽지 않다. 그렇기 떄문에 latent variable에 원본 데이터 상에 숨겨진 특징들이 존재하게 된다.
-만약 특정한 특징을 나타내는 latent variable(z)을 사용하여 생성하게 되면, 우린 더욱 더 유연한 생성 모델을 얻을 수 있을 것 이다.
-그래서 이 latent variable(z)을 반영하여 모델의 확률 분포 $p(x,z)$를 구하는 Latent Variable Model에 대해서 알아볼 것이다.
-왼쪽 그림은 Latent Variable Model을 간략하게 나타낸 구조이고 오른쪽 그림은 베이지안 네트워크일 때를 나타낸다.
-우리는 $x$와 $z$의 결합 분포인 $p(x,z) = p(z)p(x|z)$ 를 구하게 될 것이고 이것이 베이지안 네트워크로 가면 $p(x,z) = p(z_1)p(x|z_1)&#43;&hellip;&#43;p(z_k)p(x|z_k)$ 가 될 것이다.
-이렇게 잠재변수 z를 포함한 모델링을 사용하면 x만을 활용한 것보다 쉽다. 또한 만약 z의 특징을 각각 추출할 수 있다면, 그것을 이용해서 다른 종류의 task에도 이용이 가능하다. (ex)eyeColor = Blue만 식별 가능)
-하지만 현실적으로 모든 z중에 특정 z만 따로 추출하는 것이 어렵다는 것이다.(이 말은 위에서 현실적으로 모든 z의 확률을 구할 수 없어서 베이지안 네트워크를 사용하기 어려울 수 있다는 말과 동일하다.) 따라서 우리는 이 문제를 해결하기 위하여 **단순한 z(가우시안)**만을 가정하여 deep neural network(모든 각각의 관계의 정보를 따로따로 확인하지 않아도 모든 정보를 고려해줄 수 있다.) 를 사용하여 이 z를 예측하려고 한다.
-$z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 이 문제는 비지도학습의 representation learning이기 때문애 학습 시 z에 대해서 잘 학습(z의 특징을 잘 추출)되기를 희망하게 된다. (이 모델이 어떤 z를 추출할지 명확하지 않다.) 만약 학습이 잘된다면, z의 분포를 클러스터링 하여 우리가 원하는 클러스터에 해당하는 z의 값($p(z)$)을 구할 수 있고 이 z를 가지고 새로운 데이터 $p_\theta(x,z)$를 만들어낼 수 있게 된다. " />
+<meta property="og:description" content="개요 이번 포스트에서는 CS236 강의의 5강 내용을 정리한다. Autoregressive 구조는 장/단점을 지닌다. 장점은 likelihood를 평가하여 maximum likelihood를 구할 수 있어 훈련이 비교적 쉽다. 반면, 단점은 순서대로 생성하여 생성 시간이 오래걸린다. 그리고 비지도 학습을 사용하여 데이터의 특징을 추출하는 것이 명확하지 않다. 이 점이 잠재 변수 모델을 사용해서 해결할 수 있는 일 중 하나이다. 이번 챕터에서는 이 latent variable(잠재 변수)가 있을 때 생성 모델이 추론과 학습을 수행하는 방법에 대해서 나오게 된다. Latent Variable Model 위 그림과 같이 사람 이미지와 같은 이미지 데이터 안에는 단순히 픽셀 데이터가 아니라 그 안에 성별, 눈 색깔 등의 여러 변동성 큰 정보들이 포함되어 있다. 하지만 이 모든 정보들을 annotated 하여 이용하기 쉽지 않다. 그렇기 떄문에 latent variable에 원본 데이터 상에 숨겨진 특징들이 존재하게 된다. 만약 특정한 특징을 나타내는 latent variable(z)을 사용하여 생성하게 되면, 우린 더욱 더 유연한 생성 모델을 얻을 수 있을 것 이다. 그래서 이 latent variable(z)을 반영하여 모델의 확률 분포 $p(x,z)$를 구하는 Latent Variable Model에 대해서 알아볼 것이다. 왼쪽 그림은 Latent Variable Model을 간략하게 나타낸 구조이고 오른쪽 그림은 베이지안 네트워크일 때를 나타낸다. 우리는 $x$와 $z$의 결합 분포인 $p(x,z) = p(z)p(x|z)$ 를 구하게 될 것이고 이것이 베이지안 네트워크로 가면 $p(x,z) = p(z_1)p(x|z_1)&#43;&hellip;&#43;p(z_k)p(x|z_k)$ 가 될 것이다. 이렇게 잠재변수 z를 포함한 모델링을 사용하면 x만을 활용한 것보다 쉽다. 또한 만약 z의 특징을 각각 추출할 수 있다면, 그것을 이용해서 다른 종류의 task에도 이용이 가능하다. (ex)eyeColor = Blue만 식별 가능) 하지만 현실적으로 모든 z중에 특정 z만 따로 추출하는 것이 어렵다는 것이다.(이 말은 위에서 현실적으로 모든 z의 확률을 구할 수 없어서 베이지안 네트워크를 사용하기 어려울 수 있다는 말과 동일하다.) 따라서 우리는 이 문제를 해결하기 위하여 단순한 z(가우시안) 만을 가정하여 deep neural network(모든 각각의 관계의 정보를 따로따로 확인하지 않아도 모든 정보를 고려해줄 수 있다.) 를 사용하여 이 z를 예측하려고 한다. $z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 이 문제는 비지도학습의 representation learning이기 때문애 학습 시 z에 대해서 잘 학습(z의 특징을 잘 추출)되기를 희망하게 된다. (이 모델이 어떤 z를 추출할지 명확하지 않다.) 만약 학습이 잘된다면, z의 분포를 클러스터링 하여 우리가 원하는 클러스터에 해당하는 z의 값($p(z)$)을 구할 수 있고 이 z를 가지고 새로운 데이터 $p_\theta(x,z)$를 만들어낼 수 있게 된다. 다음 챕터에서 이에 대해 더 자세히 설명할 것이다. Mixture of Gaussians (GMM,VAE) 그렇다면 z를 어떻게 예측 하는 방법에 대해서 자세히 알아볼 필요가 있다. 데이터의 분포를 확인하면 위 그림과 같을 것이다. 그 후, $K$개의 가우시안 분포(혼합 성분)를 나눌 수 있다. 그럼 생성 과정에선 K개 중 하나를 선택하여 그 K에 해당하는 평균, 공분산을 따르는 가우시안 분포에서 x를 샘플링한다. (이는 VAE에서 생성 과정에서도 동일하다.) $\mathbf{z} \sim \text{Categorical}(1, \cdots, K)$ $\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z} = k) = \mathcal{N}(\mu_k, \Sigma_k)$ (likelihood) 이 방법은 생성 과정 뿐 아니라, x가 주어졌을 때 어떤 z에 속하는지 맞출 수 있는 추론 과정에도 (posterior $p(z|x)$) 사용할 수 있다. (clustering, unsupervised representation learning) 또한 Mixture of Gaussians의 전체 확률 ($p(x)$)도 구할 수 있는데 다음과 같은 식으로 가능하다. $p(\mathbf{x}) = \sum_{z} p(\mathbf{x}, z) = \sum_{z} p(z) \cdot p(\mathbf{x} \mid z) = \sum_{k=1}^{K} p(z=k) \cdot \mathcal{N}(\mathbf{x}; \mu_k, \Sigma_k)$ 이때 얻을 수 있는 직관은 simple한 $p(x|z)$를 활용하여 복잡한 혼합 모델($p(x)$)을 구할 수 있다는 것이다. 지금까진 z를 어떻게 예측을 할지에 대해서 알아보았다. 이 Mixture of Gaussians에서는 Neural Network(NN)를 사용하지 않아 z의 수가 많아지면 계산하기 어려운 단점이 있다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/cs236/lecture5/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2025-07-14T17:24:25+09:00" />
 <meta property="article:modified_time" content="2025-07-14T17:24:25+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS236] 5. Latent Variable Models"/>
-<meta name="twitter:description" content=" 개요 이번 포스트에서는 CS236 강의의 5강 내용을 정리한다.
-Autoregressive 구조는 장/단점을 지닌다. 장점은 likelihood를 평가하여 maximum likelihood를 구할 수 있어 훈련이 비교적 쉽다.
-반면, 단점은 순서대로 생성하여 생성 시간이 오래걸린다. 그리고 비지도 학습을 사용하여 데이터의 특징을 추출하는 것이 명확하지 않다. 이 점이 잠재 변수 모델을 사용해서 해결할 수 있는 일 중 하나이다.
-이번 챕터에서는 이 latent variable(잠재 변수)가 있을 때 생성 모델이 추론과 학습을 수행하는 방법에 대해서 나오게 된다.
-Latent Variable 위 그림과 같이 사람 이미지와 같은 이미지 데이터 안에는 단순히 픽셀 데이터가 아니라 그 안에 성별, 눈 색깔 등의 여러 변동성 큰 정보들이 포함되어 있다. 하지만 이 모든 정보들을 annotated 하여 이용하기 쉽지 않다. 그렇기 떄문에 latent variable에 원본 데이터 상에 숨겨진 특징들이 존재하게 된다.
-만약 특정한 특징을 나타내는 latent variable(z)을 사용하여 생성하게 되면, 우린 더욱 더 유연한 생성 모델을 얻을 수 있을 것 이다.
-그래서 이 latent variable(z)을 반영하여 모델의 확률 분포 $p(x,z)$를 구하는 Latent Variable Model에 대해서 알아볼 것이다.
-왼쪽 그림은 Latent Variable Model을 간략하게 나타낸 구조이고 오른쪽 그림은 베이지안 네트워크일 때를 나타낸다.
-우리는 $x$와 $z$의 결합 분포인 $p(x,z) = p(z)p(x|z)$ 를 구하게 될 것이고 이것이 베이지안 네트워크로 가면 $p(x,z) = p(z_1)p(x|z_1)&#43;&hellip;&#43;p(z_k)p(x|z_k)$ 가 될 것이다.
-이렇게 잠재변수 z를 포함한 모델링을 사용하면 x만을 활용한 것보다 쉽다. 또한 만약 z의 특징을 각각 추출할 수 있다면, 그것을 이용해서 다른 종류의 task에도 이용이 가능하다. (ex)eyeColor = Blue만 식별 가능)
-하지만 현실적으로 모든 z중에 특정 z만 따로 추출하는 것이 어렵다는 것이다.(이 말은 위에서 현실적으로 모든 z의 확률을 구할 수 없어서 베이지안 네트워크를 사용하기 어려울 수 있다는 말과 동일하다.) 따라서 우리는 이 문제를 해결하기 위하여 **단순한 z(가우시안)**만을 가정하여 deep neural network(모든 각각의 관계의 정보를 따로따로 확인하지 않아도 모든 정보를 고려해줄 수 있다.) 를 사용하여 이 z를 예측하려고 한다.
-$z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 이 문제는 비지도학습의 representation learning이기 때문애 학습 시 z에 대해서 잘 학습(z의 특징을 잘 추출)되기를 희망하게 된다. (이 모델이 어떤 z를 추출할지 명확하지 않다.) 만약 학습이 잘된다면, z의 분포를 클러스터링 하여 우리가 원하는 클러스터에 해당하는 z의 값($p(z)$)을 구할 수 있고 이 z를 가지고 새로운 데이터 $p_\theta(x,z)$를 만들어낼 수 있게 된다. "/>
+<meta name="twitter:description" content="개요 이번 포스트에서는 CS236 강의의 5강 내용을 정리한다. Autoregressive 구조는 장/단점을 지닌다. 장점은 likelihood를 평가하여 maximum likelihood를 구할 수 있어 훈련이 비교적 쉽다. 반면, 단점은 순서대로 생성하여 생성 시간이 오래걸린다. 그리고 비지도 학습을 사용하여 데이터의 특징을 추출하는 것이 명확하지 않다. 이 점이 잠재 변수 모델을 사용해서 해결할 수 있는 일 중 하나이다. 이번 챕터에서는 이 latent variable(잠재 변수)가 있을 때 생성 모델이 추론과 학습을 수행하는 방법에 대해서 나오게 된다. Latent Variable Model 위 그림과 같이 사람 이미지와 같은 이미지 데이터 안에는 단순히 픽셀 데이터가 아니라 그 안에 성별, 눈 색깔 등의 여러 변동성 큰 정보들이 포함되어 있다. 하지만 이 모든 정보들을 annotated 하여 이용하기 쉽지 않다. 그렇기 떄문에 latent variable에 원본 데이터 상에 숨겨진 특징들이 존재하게 된다. 만약 특정한 특징을 나타내는 latent variable(z)을 사용하여 생성하게 되면, 우린 더욱 더 유연한 생성 모델을 얻을 수 있을 것 이다. 그래서 이 latent variable(z)을 반영하여 모델의 확률 분포 $p(x,z)$를 구하는 Latent Variable Model에 대해서 알아볼 것이다. 왼쪽 그림은 Latent Variable Model을 간략하게 나타낸 구조이고 오른쪽 그림은 베이지안 네트워크일 때를 나타낸다. 우리는 $x$와 $z$의 결합 분포인 $p(x,z) = p(z)p(x|z)$ 를 구하게 될 것이고 이것이 베이지안 네트워크로 가면 $p(x,z) = p(z_1)p(x|z_1)&#43;&hellip;&#43;p(z_k)p(x|z_k)$ 가 될 것이다. 이렇게 잠재변수 z를 포함한 모델링을 사용하면 x만을 활용한 것보다 쉽다. 또한 만약 z의 특징을 각각 추출할 수 있다면, 그것을 이용해서 다른 종류의 task에도 이용이 가능하다. (ex)eyeColor = Blue만 식별 가능) 하지만 현실적으로 모든 z중에 특정 z만 따로 추출하는 것이 어렵다는 것이다.(이 말은 위에서 현실적으로 모든 z의 확률을 구할 수 없어서 베이지안 네트워크를 사용하기 어려울 수 있다는 말과 동일하다.) 따라서 우리는 이 문제를 해결하기 위하여 단순한 z(가우시안) 만을 가정하여 deep neural network(모든 각각의 관계의 정보를 따로따로 확인하지 않아도 모든 정보를 고려해줄 수 있다.) 를 사용하여 이 z를 예측하려고 한다. $z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 이 문제는 비지도학습의 representation learning이기 때문애 학습 시 z에 대해서 잘 학습(z의 특징을 잘 추출)되기를 희망하게 된다. (이 모델이 어떤 z를 추출할지 명확하지 않다.) 만약 학습이 잘된다면, z의 분포를 클러스터링 하여 우리가 원하는 클러스터에 해당하는 z의 값($p(z)$)을 구할 수 있고 이 z를 가지고 새로운 데이터 $p_\theta(x,z)$를 만들어낼 수 있게 된다. 다음 챕터에서 이에 대해 더 자세히 설명할 것이다. Mixture of Gaussians (GMM,VAE) 그렇다면 z를 어떻게 예측 하는 방법에 대해서 자세히 알아볼 필요가 있다. 데이터의 분포를 확인하면 위 그림과 같을 것이다. 그 후, $K$개의 가우시안 분포(혼합 성분)를 나눌 수 있다. 그럼 생성 과정에선 K개 중 하나를 선택하여 그 K에 해당하는 평균, 공분산을 따르는 가우시안 분포에서 x를 샘플링한다. (이는 VAE에서 생성 과정에서도 동일하다.) $\mathbf{z} \sim \text{Categorical}(1, \cdots, K)$ $\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z} = k) = \mathcal{N}(\mu_k, \Sigma_k)$ (likelihood) 이 방법은 생성 과정 뿐 아니라, x가 주어졌을 때 어떤 z에 속하는지 맞출 수 있는 추론 과정에도 (posterior $p(z|x)$) 사용할 수 있다. (clustering, unsupervised representation learning) 또한 Mixture of Gaussians의 전체 확률 ($p(x)$)도 구할 수 있는데 다음과 같은 식으로 가능하다. $p(\mathbf{x}) = \sum_{z} p(\mathbf{x}, z) = \sum_{z} p(z) \cdot p(\mathbf{x} \mid z) = \sum_{k=1}^{K} p(z=k) \cdot \mathcal{N}(\mathbf{x}; \mu_k, \Sigma_k)$ 이때 얻을 수 있는 직관은 simple한 $p(x|z)$를 활용하여 복잡한 혼합 모델($p(x)$)을 구할 수 있다는 것이다. 지금까진 z를 어떻게 예측을 할지에 대해서 알아보았다. 이 Mixture of Gaussians에서는 Neural Network(NN)를 사용하지 않아 z의 수가 많아지면 계산하기 어려운 단점이 있다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -49,7 +27,7 @@ $z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture5\/"
-        },"genre": "posts","keywords": "Latent Variable Models, VAEs, CS236","wordcount":  332 ,
+        },"genre": "posts","keywords": "Latent Variable Models, VAEs, CS236","wordcount":  612 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture5\/","datePublished": "2025-07-14T17:24:25+09:00","dateModified": "2025-07-14T17:24:25+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -91,8 +69,8 @@ $z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS236] 5. Latent Variable Models</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a>&nbsp;<a href="/categories/deep-generative-models/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Deep Generative Models</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-07-14">2025-07-14</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;332 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;2 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-07-14">2025-07-14</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;612 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -101,7 +79,9 @@ $z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
     <li><a href="#개요">개요</a></li>
-    <li><a href="#latent-variable">Latent Variable</a></li>
+    <li><a href="#latent-variable-model">Latent Variable Model</a></li>
+    <li><a href="#mixture-of-gaussians-gmmvae">Mixture of Gaussians (GMM,VAE)</a></li>
+    <li><a href="#maximum-marginal-likelihood">Maximum Marginal Likelihood</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><!-- image format
@@ -110,57 +90,115 @@ $z \sim \mathcal{N}(0,1)$ $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))
  -->
 <h2 id="개요">개요</h2>
 <ol start="0">
-<li>
-<p>이번 포스트에서는 <code>CS236</code> 강의의 5강 내용을 정리한다.</p>
-</li>
-<li>
-<p><code>Autoregressive</code> 구조는 장/단점을 지닌다. 장점은 likelihood를 평가하여 <code>maximum likelihood</code>를 구할 수 있어 훈련이 비교적 쉽다.</p>
-</li>
-<li>
-<p>반면, 단점은 순서대로 생성하여 <strong>생성 시간이 오래걸린다.</strong> 그리고 <code>비지도 학습</code>을 사용하여 데이터의 특징을 추출하는 것이 명확하지 않다. 이 점이 <code>잠재 변수 모델</code>을 사용해서 해결할 수 있는 일 중 하나이다.</p>
-</li>
-<li>
-<p>이번 챕터에서는 이 <code>latent variable(잠재 변수)</code>가 있을 때 생성 모델이 추론과 학습을 수행하는 방법에 대해서 나오게 된다.</p>
-</li>
+<li>이번 포스트에서는 <code>CS236</code> 강의의 5강 내용을 정리한다.</li>
 </ol>
-<h2 id="latent-variable">Latent Variable</h2>
+<br>
+<ol>
+<li><code>Autoregressive</code> 구조는 장/단점을 지닌다. 장점은 likelihood를 평가하여 <code>maximum likelihood</code>를 구할 수 있어 훈련이 비교적 쉽다.</li>
+</ol>
+<br>
+<ol start="2">
+<li>반면, 단점은 순서대로 생성하여 <strong>생성 시간이 오래걸린다.</strong> 그리고 <code>비지도 학습</code>을 사용하여 데이터의 특징을 추출하는 것이 명확하지 않다. 이 점이 <code>잠재 변수 모델</code>을 사용해서 해결할 수 있는 일 중 하나이다.</li>
+</ol>
+<br>
+<ol start="3">
+<li>이번 챕터에서는 이 <code>latent variable(잠재 변수)</code>가 있을 때 생성 모델이 추론과 학습을 수행하는 방법에 대해서 나오게 된다.</li>
+</ol>
+<hr>
+<h2 id="latent-variable-model">Latent Variable Model</h2>
 <div style="text-align:center;">
 <img src="/images/cs236/lecture5/people.png" height="85%" width="80%"> </div>
 <ol start="4">
-<li>
-<p><code>위 그림</code>과 같이 사람 이미지와 같은 이미지 데이터 안에는 단순히 픽셀 데이터가 아니라 그 안에 성별, 눈 색깔 등의 <strong>여러 변동성 큰 정보들</strong>이 포함되어 있다. 하지만 이 모든 정보들을 annotated <strong>하여 이용하기 쉽지 않다.</strong> 그렇기 떄문에 <code>latent variable</code>에 원본 데이터 상에 숨겨진 특징들이 존재하게 된다.</p>
-</li>
-<li>
-<p>만약 특정한 특징을 나타내는 <code>latent variable(z)</code>을 사용하여 생성하게 되면, 우린 더욱 더 <strong>유연한 생성 모델을 얻을 수</strong> 있을 것 이다.</p>
-</li>
-<li>
-<p>그래서 이 <code>latent variable(z)</code>을 반영하여 모델의 확률 분포 $p(x,z)$를 구하는 <code>Latent Variable Model</code>에 대해서 알아볼 것이다.</p>
-</li>
+<li><code>위 그림</code>과 같이 사람 이미지와 같은 이미지 데이터 안에는 단순히 픽셀 데이터가 아니라 그 안에 성별, 눈 색깔 등의 <strong>여러 변동성 큰 정보들</strong>이 포함되어 있다. 하지만 이 모든 정보들을 annotated <strong>하여 이용하기 쉽지 않다.</strong> 그렇기 떄문에 <code>latent variable</code>에 원본 데이터 상에 숨겨진 특징들이 존재하게 된다.</li>
 </ol>
+<br>
+<ol start="5">
+<li>만약 특정한 특징을 나타내는 <code>latent variable(z)</code>을 사용하여 생성하게 되면, 우린 더욱 더 <strong>유연한 생성 모델을 얻을 수</strong> 있을 것 이다.</li>
+</ol>
+<br>
+<ol start="6">
+<li>그래서 이 <code>latent variable(z)</code>을 반영하여 모델의 확률 분포 $p(x,z)$를 구하는 <code>Latent Variable Model</code>에 대해서 알아볼 것이다.</li>
+</ol>
+<br>
 <div style="text-align:center;">
 <img src="/images/cs236/lecture5/z-model.png" height="85%" width="80%"> </div>
 <ol start="7">
-<li>
-<p>왼쪽 그림은 <code>Latent Variable Model</code>을 간략하게 나타낸 구조이고 오른쪽 그림은 베이지안 네트워크일 때를 나타낸다.</p>
-</li>
-<li>
-<p>우리는 $x$와 $z$의 결합 분포인 $p(x,z) = p(z)p(x|z)$ 를 구하게 될 것이고 이것이 베이지안 네트워크로 가면 $p(x,z) = p(z_1)p(x|z_1)+&hellip;+p(z_k)p(x|z_k)$ 가 될 것이다.</p>
-</li>
-<li>
-<p>이렇게 잠재변수 z를 포함한 모델링을 사용하면 x만을 활용한 것보다 쉽다. 또한 만약 z의 특징을 각각 추출할 수 있다면, 그것을 이용해서 <strong>다른 종류의 task에도 이용이 가능하다</strong>. (ex)eyeColor = Blue만 식별 가능)</p>
-</li>
-<li>
-<p>하지만 현실적으로 모든 z중에 <strong>특정 z만 따로 추출하는 것이 어렵다는</strong> 것이다.(이 말은 위에서 현실적으로 모든 z의 확률을 구할 수 없어서 <strong>베이지안 네트워크를 사용하기 어려울 수 있다는 말</strong>과 동일하다.) 따라서 우리는 이 문제를 해결하기 위하여 **단순한 z(가우시안)**만을 가정하여 <code>deep neural network</code>(모든 각각의 관계의 정보를 따로따로 확인하지 않아도 모든 정보를 고려해줄 수 있다.) 를 사용하여 이 z를 예측하려고 한다.</p>
-</li>
+<li>왼쪽 그림은 <code>Latent Variable Model</code>을 간략하게 나타낸 구조이고 오른쪽 그림은 베이지안 네트워크일 때를 나타낸다.</li>
+</ol>
+<br>
+<ol start="8">
+<li>우리는 $x$와 $z$의 결합 분포인 $p(x,z) = p(z)p(x|z)$ 를 구하게 될 것이고 이것이 베이지안 네트워크로 가면 $p(x,z) = p(z_1)p(x|z_1)+&hellip;+p(z_k)p(x|z_k)$ 가 될 것이다.</li>
+</ol>
+<br>
+<ol start="9">
+<li>이렇게 잠재변수 z를 포함한 모델링을 사용하면 x만을 <strong>활용한 것보다 쉽다</strong>. 또한 만약 z의 특징을 각각 추출할 수 있다면, 그것을 이용해서 <strong>다른 종류의 task에도 이용이 가능하다</strong>. (ex)eyeColor = Blue만 식별 가능)</li>
+</ol>
+<br>
+<ol start="10">
+<li>하지만 현실적으로 모든 z중에 <strong>특정 z만 따로 추출하는 것이 어렵다는</strong> 것이다.(이 말은 위에서 현실적으로 모든 z의 확률을 구할 수 없어서 <strong>베이지안 네트워크를 사용하기 어려울 수 있다는 말</strong>과 동일하다.)</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture5/z-model-2.png" height="50%" width="50%"> </div>
+<ol start="11">
+<li>따라서 우리는 이 문제를 해결하기 위하여 <strong>단순한 z(가우시안)</strong> 만을 가정하여 <code>deep neural network</code>(모든 각각의 관계의 정보를 따로따로 확인하지 않아도 모든 정보를 고려해줄 수 있다.) 를 사용하여 이 z를 예측하려고 한다.</li>
 </ol>
 <ul>
 <li>$z \sim \mathcal{N}(0,1)$</li>
 <li>$p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$</li>
 <li>이 문제는 비지도학습의 <code>representation learning</code>이기 때문애 학습 시 z에 대해서 잘 학습(z의 특징을 잘 추출)되기를 희망하게 된다. (이 모델이 어떤 z를 추출할지 명확하지 않다.)</li>
-<li>만약 <strong>학습이 잘된다면</strong>, z의 분포를 클러스터링 하여 우리가 원하는 클러스터에 해당하는 z의 값($p(z)$)을 구할 수 있고 이 z를 가지고 새로운 데이터 $p_\theta(x,z)$를 만들어낼 수 있게 된다.</li>
+<li>만약 <strong>학습이 잘된다면</strong>, z의 분포를 클러스터링 하여 우리가 원하는 클러스터에 해당하는 z의 값($p(z)$)을 구할 수 있고 이 z를 가지고 새로운 데이터 $p_\theta(x,z)$를 만들어낼 수 있게 된다. 다음 챕터에서 이에 대해 더 자세히 설명할 것이다.</li>
 </ul>
-<ol start="11">
-<li></li>
+<hr>
+<h2 id="mixture-of-gaussians-gmmvae">Mixture of Gaussians (GMM,VAE)</h2>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture5/gaussian.png" height="50%" width="50%"> </div>
+<ol start="12">
+<li>그렇다면 z를 어떻게 예측 하는 방법에 대해서 자세히 알아볼 필요가 있다. 데이터의 분포를 확인하면 <code>위 그림</code>과 같을 것이다. 그 후, $K$개의 가우시안 분포(혼합 성분)를 나눌 수 있다.
+그럼 <code>생성 과정</code>에선 K개 중 하나를 선택하여 그 K에 해당하는 평균, 공분산을 따르는 가우시안 분포에서 x를 샘플링한다. (이는 <code>VAE</code>에서 <strong>생성 과정에서도 동일하다.</strong>)</li>
+</ol>
+<ul>
+<li>$\mathbf{z} \sim \text{Categorical}(1, \cdots, K)$</li>
+<li>$\mathbf{x} \sim p(\mathbf{x} \mid \mathbf{z} = k) = \mathcal{N}(\mu_k, \Sigma_k)$ (likelihood)</li>
+</ul>
+<br>
+<ol start="13">
+<li>이 방법은 <code>생성 과정</code> 뿐 아니라, x가 주어졌을 때 어떤 z에 속하는지 맞출 수 있는 <code>추론 과정</code>에도 (posterior $p(z|x)$) 사용할 수 있다. (<code>clustering</code>, <code>unsupervised representation learning</code>)</li>
+</ol>
+<br>
+<ol start="14">
+<li>또한 <code>Mixture of Gaussians</code>의 전체 확률 ($p(x)$)도 구할 수 있는데 다음과 같은 식으로 가능하다.</li>
+</ol>
+<ul>
+<li>$p(\mathbf{x}) = \sum_{z} p(\mathbf{x}, z) = \sum_{z} p(z) \cdot p(\mathbf{x} \mid z) = \sum_{k=1}^{K} p(z=k) \cdot \mathcal{N}(\mathbf{x}; \mu_k, \Sigma_k)$</li>
+<li>이때 얻을 수 있는 직관은 simple한 $p(x|z)$를 활용하여 복잡한 혼합 모델($p(x)$)을 구할 수 있다는 것이다.</li>
+</ul>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture5/z-model-2.png" height="50%" width="50%"> </div>
+<ol start="15">
+<li>지금까진 z를 어떻게 예측을 할지에 대해서 알아보았다. 이 <code>Mixture of Gaussians</code>에서는 <code>Neural Network(NN)</code>를 사용하지 않아 z의 수가 많아지면 <strong>계산하기 어려운 단점이 있다.</strong> 그럼 우린 이 z를 가지고 <code>deep neural network</code>를 사용한 <code>VAE</code>에서 어떻게 활용이 되는지 알아볼 필요가 있다.</li>
+</ol>
+<br>
+<ol start="16">
+<li><code>Mixture of Gaussians</code>에서는 <code>NN</code>을 사용하지 않기 때문에 <code>임의의 k</code>에 따른 평균과 표준편차를 <strong>조회 테이블에서 각각 구할 수 있다.</strong> 하지만 <code>VAE</code>에선 유한한 수의 k개를 <strong>구하지 않아도 된다.</strong></li>
+</ol>
+<ul>
+<li>무한한 수의 혼합 성분(각각 가우시안을 가지는)이 있다고 생각 해도 된다.</li>
+<li>$\mathbf{z} \sim \mathcal{N}(1, I)$</li>
+<li>$p(x|z) = \mathcal{N}(\mu_\theta(\mathbf{z}), \Sigma_\theta(\mathbf{z}))$</li>
+</ul>
+<br>
+<ol start="17">
+<li>또한 z를 샘플링 하고 z를 <code>neural network</code>에 넣어 가우시안 요소에 대한 평균, 표준편차를 구할 수 있다.</li>
+</ol>
+<ul>
+<li><code>VAE</code>의 <code>생성 과정</code>은 <code>GMM</code>과 동일하다. 구성 요소($K$)를 정하고 z값을 샘플링한다. 그 다음 z에 맞는 평균, 표준편차를 구한 다음(<code>neural network</code>를 통하여) x를 샘플링 하는 과정으로 진행된다.</li>
+</ul>
+<hr>
+<h2 id="maximum-marginal-likelihood">Maximum Marginal Likelihood</h2>
+<ol start="18">
+<li>continue</li>
 </ol>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
