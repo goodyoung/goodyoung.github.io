@@ -2,18 +2,19 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
+            <loc>https://goodyoung.github.io/posts/cs236/lecture6/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/cs236/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/deep-generative-models/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/dl/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/latent-variable-models/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/lecture/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/posts/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/theory/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/vae/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/cs236/lecture5/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/cs236/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/deep-generative-models/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/dl/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/latent-variable-models/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/lecture/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/posts/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/theory/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/vaes/</loc><lastmod>2025-07-14T17:24:25&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/cs236/lecture4/</loc><lastmod>2025-06-30T17:00:38&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/kl-divergence/</loc><lastmod>2025-06-30T17:00:38&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/cs236/lecture3/</loc><lastmod>2025-05-07T22:58:36&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
@@ -45,7 +46,6 @@
             <loc>https://goodyoung.github.io/categories/survey/</loc><lastmod>2024-08-29T18:37:03&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/paper/vae/</loc><lastmod>2024-08-26T18:21:20&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/reparametrization-trick/</loc><lastmod>2024-08-26T18:21:20&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/vae/</loc><lastmod>2024-08-26T18:21:20&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/cs231n/lecture10/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/cs231n/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/lstm/</loc><lastmod>2024-08-21T16:55:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>

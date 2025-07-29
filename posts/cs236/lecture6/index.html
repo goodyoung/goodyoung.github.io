@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[CS236] 6. Latent Variable Models-2 - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS236] 6. Latent Variable Models-2" />
+<meta property="og:description" content="개요 이번 포스트에서는 CS236 강의의 6강 내용을 정리한다. 지난 포스트에서 Latent Variable Model에서 z라는 latent variable이 여러개 있을 때 Mixture of Gaussian이 된다는 점, 그 수많은 분포에서 x의 값을 구하는 방법(marginal likelihood) 등에 대해서 배웠고 그 분포를 최적화 하는 과정에서 Evidence Lower Bound(ELBO) 개념이 나오게 되었다. ELBO 개념이 나오면서, 수식들을 전개했는데 이어서 설명하겠다. Evidence Lower Bound(ELBO) - 2 $$ \begin{aligned} \log p(x; \theta) &amp;\geq \sum_{z} q(z) \log \left( \frac{p_\theta(x, z)}{q(z)} \right) \\ &amp;= \sum_{z} q(z) \log p_\theta(x, z) - \sum_{z} q(z) \log q(z) \\ &amp;= \sum_{z} q(z) \log p_\theta(x, z) &#43; H(q) \ \text{(H(q) is entropy)} \\ \end{aligned} $$ $$ \begin{aligned} &amp;\text{Equality holds if } q = p(z \mid x; \theta)\\ &amp;\log p(x; \theta) = \sum_{z} q(z) \log p(z, x; \theta) &#43; H(q) \end{aligned} $$
+지난 포스트에서 위 식이 나오게 된 이유를 간단하게 정리해보겠다. 우리는 latent variable z를 직접 관측할 수 없기 때문에, 이를 추론하기 위하여 보조의 분포 q를 도입했다. 이때 x는 관측할 수 있는 부분이고 z는 보이지 않는 부분이다. 이 상황에서 우리는 x만 관찰될 때 z 분포를 근사하고자 하며, 이 과정에서 $logp(x)$ 를 직접 계산하기 어렵기 때문에, 이 식을 최적화 가능한 ELBO 식이 등장하게 나오게 된 것이다. 이제 본론으로 넘어와서, 2번째 식을 살펴보자면 $\sum_{z} q(z) \log p_\theta(x, z)$ 이 항은 q모델을 사용하여 z부분을 추론할 때 x,z 부분이 모두 관찰될 떄의 평균 로그 확률이다. (모든 것이 관찰된다. 이는 본질적으로 생성 모델이다.) $\sum_{z} q(z) \log q(z)$ 이 항은 q함수이고, q의 entropy라고 볼 수 있다. (q가 얼마나 무작위적인지 알려주는 양이다.) $$D_{\mathrm{KL}}(q(z) \parallel p(z \mid x; \theta)) = - \sum_{z} q(z) \log p(z, x; \theta) &#43; \log p(x; \theta) - H(q) \geq 0$$
+이제 Equality 부분을 설명할 것이다. KL 식을 전개하면 위와 같은 식을 얻을 수 있는데 오른쪽 항에서 $\log p(z, x; \theta)$ 만 남기고 다 넘기면 ELBO의 식과 동일해지는 것을 확인할 수 있다. 그렇다면 어떻게 전개를 하면 위와 같은 식이 나왔을까? KL의 값은 항상 0보다 크거나 같다의 성질을 이용한다. 그 후, 기존 KL의 식에서 $p(z \mid x; \theta)$ 을 Bayes 정리를 활용해서 $p(z \mid x; \theta) = \frac{p(x, z; \theta)}{p(x; \theta)}$ 로 변형하여 식 전개하면 위와 같은 식이 나온다. 그렇기 때문에 만약 $ q = p(z \mid x; \theta)$ 라면 KL의 값이 0이 되기 때문에 부등식이 등식이 되는 것이다. 하지만 우리는 $p(z|x;\theta)$가 계산이 불가능하다는 것을 안다. GMM (lecture 5 12-17)에서 심층 가우시안 분포를 사용해 $p_\theta(x|z)$ 는 z의 분포가 정해져 있었기 때문에 구할 수 있었다. (lecture 5 16) 하지만 $p(z|x;\theta) = \frac{p(z)p_\theta(x|z)}{p_\theta(x)}$ 이기 때문에, $p(x)$ 를 구할 수 없다.(lecture 5 23) 따라서 $p(z|x;\theta)$ 도 계산이 불가능하다. 사실 따지고 보면 만약 posterior가 계산이 가능했으면 위 ELBO식도 필요가 없다. 결국, q분포가 $p(z \mid x; \theta)$에 최대한 가까운 q를 선택해야 하는 것을 알 수 있다. 이는 앞으로 나올 Variational Inference의 이론적 도구로써 작용이 될 것이다. 정리하자면 추정이 불가능한 분포를 근사하는 q를 두어 이 분포를 최적화하여 가장 강력한 lower bound를 찾는 것이 최종 목표인 것이다. 따라서 q의 역할을 하는 별도의 신경망을 두고, p와 q를 공동으로 최적화하여 ELBO를 최대화 시킨다. 조금 더 나아가, VAE의 인코더는 q가 되고 디코더는 p가 된다. Variational Inference Variational Auto Encoder(VAE) 모델에서는 decoder인 $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 의 neural network가 있으면 이것을 뒤집은 encoder의 역할을 하는 $p(z|x;\theta)$ 를 계산하여 x가 주어지고 이 x를 생성할 가능성이 높은 z를 찾으려고 한다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/cs236/lecture6/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-07-26T14:23:31+09:00" />
+<meta property="article:modified_time" content="2025-07-26T14:23:31+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS236] 6. Latent Variable Models-2"/>
+<meta name="twitter:description" content="개요 이번 포스트에서는 CS236 강의의 6강 내용을 정리한다. 지난 포스트에서 Latent Variable Model에서 z라는 latent variable이 여러개 있을 때 Mixture of Gaussian이 된다는 점, 그 수많은 분포에서 x의 값을 구하는 방법(marginal likelihood) 등에 대해서 배웠고 그 분포를 최적화 하는 과정에서 Evidence Lower Bound(ELBO) 개념이 나오게 되었다. ELBO 개념이 나오면서, 수식들을 전개했는데 이어서 설명하겠다. Evidence Lower Bound(ELBO) - 2 $$ \begin{aligned} \log p(x; \theta) &amp;\geq \sum_{z} q(z) \log \left( \frac{p_\theta(x, z)}{q(z)} \right) \\ &amp;= \sum_{z} q(z) \log p_\theta(x, z) - \sum_{z} q(z) \log q(z) \\ &amp;= \sum_{z} q(z) \log p_\theta(x, z) &#43; H(q) \ \text{(H(q) is entropy)} \\ \end{aligned} $$ $$ \begin{aligned} &amp;\text{Equality holds if } q = p(z \mid x; \theta)\\ &amp;\log p(x; \theta) = \sum_{z} q(z) \log p(z, x; \theta) &#43; H(q) \end{aligned} $$
+지난 포스트에서 위 식이 나오게 된 이유를 간단하게 정리해보겠다. 우리는 latent variable z를 직접 관측할 수 없기 때문에, 이를 추론하기 위하여 보조의 분포 q를 도입했다. 이때 x는 관측할 수 있는 부분이고 z는 보이지 않는 부분이다. 이 상황에서 우리는 x만 관찰될 때 z 분포를 근사하고자 하며, 이 과정에서 $logp(x)$ 를 직접 계산하기 어렵기 때문에, 이 식을 최적화 가능한 ELBO 식이 등장하게 나오게 된 것이다. 이제 본론으로 넘어와서, 2번째 식을 살펴보자면 $\sum_{z} q(z) \log p_\theta(x, z)$ 이 항은 q모델을 사용하여 z부분을 추론할 때 x,z 부분이 모두 관찰될 떄의 평균 로그 확률이다. (모든 것이 관찰된다. 이는 본질적으로 생성 모델이다.) $\sum_{z} q(z) \log q(z)$ 이 항은 q함수이고, q의 entropy라고 볼 수 있다. (q가 얼마나 무작위적인지 알려주는 양이다.) $$D_{\mathrm{KL}}(q(z) \parallel p(z \mid x; \theta)) = - \sum_{z} q(z) \log p(z, x; \theta) &#43; \log p(x; \theta) - H(q) \geq 0$$
+이제 Equality 부분을 설명할 것이다. KL 식을 전개하면 위와 같은 식을 얻을 수 있는데 오른쪽 항에서 $\log p(z, x; \theta)$ 만 남기고 다 넘기면 ELBO의 식과 동일해지는 것을 확인할 수 있다. 그렇다면 어떻게 전개를 하면 위와 같은 식이 나왔을까? KL의 값은 항상 0보다 크거나 같다의 성질을 이용한다. 그 후, 기존 KL의 식에서 $p(z \mid x; \theta)$ 을 Bayes 정리를 활용해서 $p(z \mid x; \theta) = \frac{p(x, z; \theta)}{p(x; \theta)}$ 로 변형하여 식 전개하면 위와 같은 식이 나온다. 그렇기 때문에 만약 $ q = p(z \mid x; \theta)$ 라면 KL의 값이 0이 되기 때문에 부등식이 등식이 되는 것이다. 하지만 우리는 $p(z|x;\theta)$가 계산이 불가능하다는 것을 안다. GMM (lecture 5 12-17)에서 심층 가우시안 분포를 사용해 $p_\theta(x|z)$ 는 z의 분포가 정해져 있었기 때문에 구할 수 있었다. (lecture 5 16) 하지만 $p(z|x;\theta) = \frac{p(z)p_\theta(x|z)}{p_\theta(x)}$ 이기 때문에, $p(x)$ 를 구할 수 없다.(lecture 5 23) 따라서 $p(z|x;\theta)$ 도 계산이 불가능하다. 사실 따지고 보면 만약 posterior가 계산이 가능했으면 위 ELBO식도 필요가 없다. 결국, q분포가 $p(z \mid x; \theta)$에 최대한 가까운 q를 선택해야 하는 것을 알 수 있다. 이는 앞으로 나올 Variational Inference의 이론적 도구로써 작용이 될 것이다. 정리하자면 추정이 불가능한 분포를 근사하는 q를 두어 이 분포를 최적화하여 가장 강력한 lower bound를 찾는 것이 최종 목표인 것이다. 따라서 q의 역할을 하는 별도의 신경망을 두고, p와 q를 공동으로 최적화하여 ELBO를 최대화 시킨다. 조금 더 나아가, VAE의 인코더는 q가 되고 디코더는 p가 된다. Variational Inference Variational Auto Encoder(VAE) 모델에서는 decoder인 $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 의 neural network가 있으면 이것을 뒤집은 encoder의 역할을 하는 $p(z|x;\theta)$ 를 계산하여 x가 주어지고 이 x를 생성할 가능성이 높은 z를 찾으려고 한다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs236/lecture6/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs236/lecture5/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[CS236] 6. Latent Variable Models-2",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture6\/"
+        },"genre": "posts","keywords": "Latent Variable Models, VAE, CS236","wordcount":  654 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture6\/","datePublished": "2025-07-26T14:23:31+09:00","dateModified": "2025-07-26T14:23:31+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS236] 6. Latent Variable Models-2</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a>&nbsp;<a href="/categories/deep-generative-models/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Deep Generative Models</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-07-26">2025-07-26</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;654 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;4 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#evidence-lower-boundelbo---2">Evidence Lower Bound(ELBO) - 2</a></li>
+    <li><a href="#variational-inference">Variational Inference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li>이번 포스트에서는 <code>CS236</code> 강의의 6강 내용을 정리한다.</li>
+</ol>
+<br>
+<ol>
+<li>지난 포스트에서 <code>Latent Variable Model</code>에서 z라는 latent variable이 여러개 있을 때 <code>Mixture of Gaussian</code>이 된다는 점, 그 수많은 분포에서 x의 값을 구하는 방법(<code>marginal likelihood</code>) 등에 대해서 배웠고 그 분포를 최적화 하는 과정에서 <code>Evidence Lower Bound(ELBO)</code> 개념이 나오게 되었다.</li>
+</ol>
+<br>
+<ol start="2">
+<li>ELBO 개념이 나오면서, 수식들을 전개했는데 이어서 설명하겠다.</li>
+</ol>
+<hr>
+<h2 id="evidence-lower-boundelbo---2">Evidence Lower Bound(ELBO) - 2</h2>
+<p>$$
+\begin{aligned}
+\log p(x; \theta) &amp;\geq \sum_{z} q(z) \log \left( \frac{p_\theta(x, z)}{q(z)} \right) \\
+&amp;= \sum_{z} q(z) \log p_\theta(x, z) - \sum_{z} q(z) \log q(z) \\
+&amp;= \sum_{z} q(z) \log p_\theta(x, z) + H(q) \ \text{(H(q) is entropy)} \\
+\end{aligned}
+$$
+$$
+\begin{aligned}
+&amp;\text{Equality holds if } q = p(z \mid x; \theta)\\
+&amp;\log p(x; \theta) = \sum_{z} q(z) \log p(z, x; \theta) + H(q)
+\end{aligned}
+$$</p>
+<ol start="3">
+<li>지난 포스트에서 위 식이 나오게 된 이유를 간단하게 정리해보겠다. 우리는 <code>latent variable z</code>를 직접 관측할 수 없기 때문에, 이를 추론하기 위하여 <code>보조의 분포 q</code>를 도입했다. 이때 x는 관측할 수 있는 부분이고 <strong>z는 보이지 않는 부분이다.</strong> 이 상황에서 우리는 x만 관찰될 때 z 분포를 근사하고자 하며, 이 과정에서 $logp(x)$ 를 직접 계산하기 어렵기 때문에, 이 식을 최적화 가능한 ELBO 식이 등장하게 나오게 된 것이다.</li>
+</ol>
+<br>
+<ol start="4">
+<li>이제 본론으로 넘어와서, 2번째 식을 살펴보자면 $\sum_{z} q(z) \log p_\theta(x, z)$ 이 항은 q모델을 사용하여 z부분을 추론할 때 x,z 부분이 모두 관찰될 떄의 평균 로그 확률이다. (모든 것이 관찰된다. 이는 본질적으로 <code>생성 모델</code>이다.) $\sum_{z} q(z) \log q(z)$ 이 항은 q함수이고, q의 entropy라고 볼 수 있다. (q가 얼마나 무작위적인지 알려주는 양이다.)</li>
+</ol>
+<br>
+<p>$$D_{\mathrm{KL}}(q(z) \parallel p(z \mid x; \theta)) = - \sum_{z} q(z) \log p(z, x; \theta) + \log p(x; \theta) - H(q) \geq 0$$</p>
+<ol start="5">
+<li>이제 Equality 부분을 설명할 것이다. KL 식을 전개하면 위와 같은 식을 얻을 수 있는데 오른쪽 항에서 $\log p(z, x; \theta)$ 만 남기고 다 넘기면 <code>ELBO</code>의 식과 <strong>동일해지는 것을 확인할 수 있다.</strong>
+<ul>
+<li>그렇다면 어떻게 전개를 하면 위와 같은 식이 나왔을까?</li>
+<li>KL의 값은 <strong>항상 0보다 크거나 같다</strong>의 성질을 이용한다.</li>
+<li>그 후, 기존 KL의 식에서 $p(z \mid x; \theta)$ 을 Bayes 정리를 활용해서 $p(z \mid x; \theta) = \frac{p(x, z; \theta)}{p(x; \theta)}$ 로 변형하여 식 전개하면 위와 같은 식이 나온다.</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="6">
+<li>그렇기 때문에 만약 $ q = p(z \mid x; \theta)$ 라면 KL의 값이 0이 되기 때문에 <strong>부등식이 등식</strong>이 되는 것이다.</li>
+</ol>
+<br>
+<ol start="7">
+<li>하지만 우리는 $p(z|x;\theta)$가 <strong>계산이 불가능하다는 것을 안다.</strong>
+<ul>
+<li><code>GMM (lecture 5 12-17)</code>에서 심층 가우시안 분포를 사용해 $p_\theta(x|z)$ 는 <strong>z의 분포가 정해져 있었기 때문에</strong> 구할 수 있었다. <code>(lecture 5 16)</code></li>
+<li>하지만 $p(z|x;\theta) = \frac{p(z)p_\theta(x|z)}{p_\theta(x)}$ 이기 때문에, $p(x)$ 를 구할 수 없다.<code>(lecture 5 23)</code></li>
+<li>따라서 $p(z|x;\theta)$ 도 계산이 불가능하다. 사실 따지고 보면 만약 posterior가 계산이 가능했으면 위 <code>ELBO</code>식도 <strong>필요가 없다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="8">
+<li>결국, q분포가 $p(z \mid x; \theta)$에 <strong>최대한 가까운 q를 선택해야</strong> 하는 것을 알 수 있다. 이는 앞으로 나올 <code>Variational Inference</code>의 <code>이론적 도구로써</code> 작용이 될 것이다.
+<ul>
+<li>정리하자면 <code>추정이 불가능한 분포를 근사하는 q</code>를 두어 이 분포를 최적화하여 <code>가장 강력한 lower bound</code>를 찾는 것이 최종 목표인 것이다.</li>
+<li>따라서 q의 역할을 하는 <strong>별도의 신경망을 두고</strong>, p와 q를 <strong>공동으로 최적화하여</strong> <code>ELBO</code>를 최대화 시킨다.</li>
+<li>조금 더 나아가, <code>VAE</code>의 인코더는 q가 되고 디코더는 p가 된다.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="variational-inference">Variational Inference</h2>
+<ol start="9">
+<li><code>Variational Auto Encoder(VAE)</code> 모델에서는 <code>decoder</code>인 $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 의 <code>neural network</code>가 있으면 이것을 뒤집은 <code>encoder</code>의 역할을 하는 $p(z|x;\theta)$ 를 계산하여 x가 주어지고 이 x를 생성할 가능성이 높은 z를 찾으려고 한다. 하지만 확률 모델을 단순히 뒤집는 것이 <strong>쉬운 문제는 아니다.</strong> 따라서 이를 해결하기 위한 방법은 지금까지 우리가 배워왔던 방법을 이용하면 된다.</li>
+</ol>
+<br>
+<ol start="10">
+<li>우리는 <code>ELBO</code>식을 보면서 <strong>계산 불가능한 식</strong>을 보조 분포를 정의하여 계산 불가능한 식의 분포를 근사하여 추론하는 방법을 배웠다.</li>
+</ol>
+<br>
+<ol start="11">
+<li>따라서 이를 적용하기 위하여 우리는 <code>latent variable z</code>에 대한 분포군을 정의할 것이다. 분포 q를 아래와 같이 정의할 수 있다.
+<ul>
+<li>$q(z;\phi) = \mathcal{N}(\phi_1, \phi_2)$</li>
+<li>variational parameter $\phi$ 의 집합을 통해 매개변수화될 것이다.</li>
+<li>이를 활용하여 <code>ELBO</code>를 활용하여 q와 p 모두 <strong>공동으로 최적화 하려고 한다.</strong></li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="12">
+<li>바로 이 내용이 <code>Varaiational Inference</code>이다. 반복해서 정리하자면, 우리가 알고있지만 <strong>계산하기 어려운</strong> <code>posterior 분포</code>를 대신하여 <code>추론 가능한 분포 q</code>를 도입하고 이를 <strong>최대한 가깝게 근사</strong>하게 시도하는 방법이다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture6/vae-1.png" height="50%" width="50%"> </div>
+<ol start="13">
+<li>좀 더 간단하게 시각화를 통하여 이해해보면, <code>파란색: p(z|x)</code> 분포가 있으면, 이것에 최대한 <code>비슷한 가우시안 분포</code>를 찾으려고 하는 것이다. 이걸 vae 관점으로 생각해보면 비슷한 가우시안 분포를 찾을 때 parameter $\phi$ 를 사용하여 최적화 하는 것이다.</li>
+</ol>
+<br>
+<ol start="14">
+<li>continue</li>
+</ol>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2025-07-26</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/cs236/lecture6/" data-title="[CS236] 6. Latent Variable Models-2" data-hashtags="Latent Variable Models,VAE,CS236"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/cs236/lecture6/" data-hashtag="Latent Variable Models"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/cs236/lecture6/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/cs236/lecture6/" data-title="[CS236] 6. Latent Variable Models-2"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/cs236/lecture6/" data-title="[CS236] 6. Latent Variable Models-2"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/cs236/lecture6/" data-title="[CS236] 6. Latent Variable Models-2"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/cs236/lecture6/" data-title="[CS236] 6. Latent Variable Models-2" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/latent-variable-models/">Latent Variable Models</a>,&nbsp;<a href="/tags/vae/">VAE</a>,&nbsp;<a href="/tags/cs236/">CS236</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/cs236/lecture5/" class="prev" rel="prev" title="[CS236] 5. Latent Variable Models"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS236] 5. Latent Variable Models</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
