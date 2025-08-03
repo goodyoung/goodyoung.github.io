@@ -31,7 +31,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture6\/"
-        },"genre": "posts","keywords": "Latent Variable Models, VAE, CS236","wordcount":  654 ,
+        },"genre": "posts","keywords": "Latent Variable Models, VAE, CS236","wordcount":  1510 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture6\/","datePublished": "2025-07-26T14:23:31+09:00","dateModified": "2025-07-26T14:23:31+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -73,8 +73,8 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS236] 6. Latent Variable Models-2</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a>&nbsp;<a href="/categories/deep-generative-models/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Deep Generative Models</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-07-26">2025-07-26</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;654 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;4 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-07-26">2025-07-26</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1510 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;8 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -85,6 +85,8 @@
     <li><a href="#개요">개요</a></li>
     <li><a href="#evidence-lower-boundelbo---2">Evidence Lower Bound(ELBO) - 2</a></li>
     <li><a href="#variational-inference">Variational Inference</a></li>
+    <li><a href="#stochastic-variational-inference">Stochastic Variational Inference</a></li>
+    <li><a href="#reparameterization-trick">Reparameterization Trick</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><!-- image format
@@ -189,10 +191,154 @@ $$</p>
 <ol start="13">
 <li>좀 더 간단하게 시각화를 통하여 이해해보면, <code>파란색: p(z|x)</code> 분포가 있으면, 이것에 최대한 <code>비슷한 가우시안 분포</code>를 찾으려고 하는 것이다. 이걸 vae 관점으로 생각해보면 비슷한 가우시안 분포를 찾을 때 parameter $\phi$ 를 사용하여 최적화 하는 것이다.</li>
 </ol>
-<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture6/elbo.png" height="50%" width="50%"> </div>
+<p>$$
+\begin{aligned}
+\log p(\mathbf{x}; \theta)
+&amp;\geq \sum_{z} q(z; \phi) \log p(z, \mathbf{x}; \theta) + H(q(z; \phi))
+= \mathcal{L}(\mathbf{x}; \theta, \phi) \quad \text{(ELBO)} \\
+\log p(\mathbf{x}; \theta)
+&amp;= \mathcal{L}(\mathbf{x}; \theta, \phi) + D_{KL}(q(z; \phi) \parallel p(z \mid \mathbf{x}; \theta))
+\end{aligned}
+$$</p>
 <ol start="14">
-<li>continue</li>
+<li>
+<p><code>Variational Inference</code>를 하면 p와 q의 공동의 조합으로 <code>ELBO</code>를 최적화를 할 것이다. 일단 위 수식을 살펴보면 $\log p(\mathbf{x}; \theta) $ 는 <code>ELBO</code>와 <code>KL-Divergence</code>의 합친 것으로 확인 할 수 있고 (<code>4번 수식 참고</code>) 따라서 $\theta$ 와 $\phi$ 으로 해당 표현식을 최적화 하는 것을 확인할 수 있다.</p>
+</li>
+<li>
+<p>지금까지는 <strong>단일 데이터셋 x에 대해서만 수식을 설명</strong>했다. 이제 모든 데이터셋 ($\mathcal{D}$)에 적용시켜 볼 것이다. 수식은 아래와 같다.</p>
+<ul>
+<li>수식을 확인하면 기존 $\log p$ 에 대하여 $\phi$ 를 사용하여 <code>ELBO</code>를 지정한 것을 확인할 수 있다.</li>
+</ul>
+</li>
 </ol>
+<p>$$\ell(\theta; \mathcal{D}) = \sum_{x^i \in \mathcal{D}} \log p(x^i; \theta) \geq \sum_{x^i \in \mathcal{D}} \mathcal{L}(x^i; \theta, \phi^i)$$</p>
+<p>$$\max_{\theta} \ \ell(\theta; \mathcal{D}) \ \geq \ \max_{\theta, \phi^1, \cdots, \phi^M} \ \sum_{x^i \in \mathcal{D}} \mathcal{L}(x^i; \theta, \phi^i)$$</p>
+<ol start="16">
+<li>이때 생각해야할 점이 있다. 전체 데이터셋이기 때문에, 각 데이터 포인트 ($x^i$) 마다 posterior($\log p$)가 <strong>다른 분포</strong>로 나타나야한다. 그렇기 때문에 식을 자세히 확인하면 $\phi^i$ 로 나타나있는 것을 확인할 수 있다.
+<ul>
+<li>$x^i$ 에 대해 가장 posterior에 근접한 elbo를 찾은 다음, 이 전체들을 공동으로 최적화한다.</li>
+<li>$\theta$ 가 모든 데이터 포인트에서 공통적이더라도, 추론하는 잠재 변수의 값은 달라야한다.
+<ul>
+<li>데이터 포인트 $x^i$ 마다 잠재 변수는 다를 것이기 때문이다.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="stochastic-variational-inference">Stochastic Variational Inference</h2>
+<ol start="17">
+<li>
+<p>그렇다면 이 $\mathcal{L}(\mathbf{x}^i; \theta, \phi^i)$ (<code>ELBO</code>)식을 이제 풀어볼 시간이 왔다.</p>
+</li>
+<li>
+<p>해당 목적식을 훈련때 최적화 하기 위해서, <strong>우리가 배운 방법 중 하나</strong>는 목적 함수(<code>ELBO</code>)에 대해 <code>gradient descent</code>을 하는 것이다. (참고: <a href="https://goodyoung.github.io/posts/cs236/lecture4/" target="_blank" rel="noopener noreffer ">lecture 4 17-19</a>)</p>
+</li>
+<li>
+<p>그렇다면 <code>gradient descent</code>의 순서를 보자.</p>
+<ul>
+<li>
+<p>$\theta,\phi^1, \phi^2, \cdots, \phi^M$: 랜덤 초기화</p>
+</li>
+<li>
+<p>$\mathbf{x}^i \sim \mathcal{D}$ 에서 데이터 포인트 무작위 선택</p>
+</li>
+<li>
+<p>$\mathcal{L}(\mathbf{x}^i; \theta, \phi^i)$ 식을 학습해 $\phi^i$ 를 $\phi^{i,*}$ 으로 <strong>최적화</strong> (이때 $\theta$ 는 고정):</p>
+<ul>
+<li>$\phi^i \leftarrow \phi^i + \eta \nabla_{\phi^i} \mathcal{L}(\mathbf{x}^i; \theta, \phi^i)$ 으로 gradient update</li>
+<li>위 과정을 반복하여 $\phi^{i,*} \approx \arg\max_{\phi} \mathcal{L}(\mathbf{x}^i; \theta, \phi)$ 로 수렴</li>
+</ul>
+</li>
+<li>
+<p>$\phi^{i,*}$ 를 가지고  $\theta$ 에 대해 최적화 (실제 decoder 최적화):</p>
+<ul>
+<li>$\nabla_\theta \mathcal{L}(\mathbf{x}^i; \theta, \phi^{i,})$ 으로 기울기 계산</li>
+<li>파라미터 업데이트: $\theta_{t+1} = \theta_t + \alpha_t \nabla_\theta \mathcal{L}(\mathbf{x}^i; \theta, \phi^{i,})$</li>
+<li>위 과정을 $t \to T$ 까지 반복하여 θ의 최적값에 수렴</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>$\phi$ 를 먼저 업데이트 하고 그다음 $\theta$ 에 대해서 업데이트를 한다. 그럼 이 <strong>기울기들을</strong> 어떻게 계산하는지 보기 위하여 목적 함수 ($\mathcal{L}(x^i; \theta, \phi^i)$) 를 조금 더 확장해보자.</p>
+<ul>
+<li>하지만 파라미터를 <strong>공동으로 최적화</strong> 하기 때문에, 만약 $\phi$의 최적화 방향이 안좋다면 <code>non-convex</code>하기 때문에 해당 <code>목적 함수</code>가 <strong>매우 나쁜 local minimum에</strong> 갇힐 위험은 있다.
+$$
+\begin{aligned}
+\mathcal{L}(x^i; \theta, \phi^i)
+&amp;= \sum_{z} q(z; \phi^i) \log p(z, x^i; \theta) + H(q(z; \phi^i)) \\
+&amp;= \mathbb{E}_{q(z; \phi^i)} \left[ \log p(z, x^i; \theta) - \log q(z; \phi^i) \right]
+\end{aligned}
+$$</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><code>Entropy 식(H)</code>을 풀고, $\sum$ 과 $q(z;\phi^i)$ 를 <code>Expectation</code>으로 묶으면 해당 식이 된다.</li>
+</ul>
+<ol start="21">
+<li>위 식을 보면 기울기를 계산하기 위하여 기대값과 기울기를 계산하는데 사용할 수 있는 표현식이 없다. 그렇기 때문에 다시 <code>Monte Carlo sampling</code>에 의존해야한다. 위 기대값을 <code>Monte Carlo</code>를 사용하면 $q(\mathbf{z}; \phi)$ 분포에서 $\mathbf{z}^1, \dots, \mathbf{z}^K$ 로 sampling을 하여 식을 <code>closed-form</code>으로 변경할 수 있다.</li>
+</ol>
+<ul>
+<li>K의 값이 증가할수록 값이 기대값에 가까워진다. 하지만 실제 VAE는 K의 값을 1로 선택을 했다.</li>
+</ul>
+<p>$$\mathbb{E}_{q(\mathbf{z}; \phi)}\left[ \log p(\mathbf{z}, \mathbf{x}; \theta) - \log q(\mathbf{z}; \phi) \right]
+\approx \frac{1}{K} \sum_k \left( \log p(\mathbf{z}^k, \mathbf{x}; \theta) - \log q(\mathbf{z}^k; \phi) \right)$$</p>
+<ul>
+<li>$\log q$ 에서 q의 확률을 평가하기 때문에 효율적으로 평가해야하는 모델이어야 한다. 따라서, q의 분포는 단순해야하는 가정이 있어야한다.</li>
+</ul>
+<ol start="22">
+<li>자, 이제 <code>gradient descent</code> 순서(19번)에서 2개의 gradient($\theta$, $\phi$)를 계산해보자. 먼저 $\theta$ 에 대해서 gradient를 해보면, <strong>이미 다 나온 값</strong>들이기 때문에 <code>Monte Carlo</code>를 이용하여 계산하기 쉽다. 이때, 이미 다 나온값의 의미에서 $\phi$ 도 <strong>이미 고정된 분포에서 sampling을 하기 때문에</strong> 우리가 알고있는 neural network의 gradient descent라고 생각하면 된다. 따라서 $\theta$ 의 식은 아래와 같다.</li>
+</ol>
+<p>$$
+\nabla_\theta \mathbb{E_{q(z; \phi)}} \left[ \log p(z, x; \theta) - \log q(z; \phi) \right]
+= \mathbb{E_{q(z; \phi)}} \left[ \nabla_\theta \log p(z, x; \theta) \right]
+\approx \frac{1}{K} \sum_k \nabla_\theta \log p(z^k, x; \theta)$$</p>
+<ul>
+<li>$\theta$ 에 대해서 기울기를 구하기 때문에 $\phi$ 는 미분하면 사라진다.</li>
+</ul>
+<ol start="23">
+<li>
+<p>하지만 $\phi$ 에 대해서 gradient를 계산해보려고 하면 $\phi^i$ 에 따라 달라지는 분포에서 표본을 추출하기 때문에 <strong>기울기를 구하는데 어려움이 있다.</strong></p>
+<ul>
+<li>$\theta$에 의존하는 분포에서 표본을 <strong>추출하지 않기 때문에</strong> $\theta$ 의 gradient는 구하기 쉽다.</li>
+<li>하지만, $\phi$를 변경하면 sampling 절차가 $\phi$에 따라서 어떻게 변할지 이해해야해서 어렵다.</li>
+<li>$\phi$ 에 대해서 gradient 계산이 어렵다는 이해를 돕기 위해 <code>pseudo code</code>가 있다.
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="n">theta</span> <span class="n">optimization</span>
+</span></span><span class="line"><span class="cl">      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">          <span class="n">phi</span> <span class="n">optimization</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">## Total Optimization Steps : N x M</span>
+</span></span></code></pre></div></li>
+<li>이 예시는 $\phi$를 최적화 하기 위해 매번 최적의 $\phi^{i,*}$ 를 구해야하는 복잡함을 단번에 이해할 수 있을 것이다.</li>
+</ul>
+</li>
+<li>
+<p>따라서, 이 문제를 해결하기 위하여 <code>Reparameterization Trick</code> 방법이 나오게 된다.</p>
+</li>
+</ol>
+<hr>
+<h2 id="reparameterization-trick">Reparameterization Trick</h2>
+<ol start="25">
+<li>이 방법을 사용하기 위한 제약사항이 있다. 이것은 잠재 변수 z가 <strong>연속</strong>일때만 작동한다.</li>
+</ol>
+<p>$$\mathbb{E_{q(z; \phi)}} \left[ r(\mathbf{z}) \right] = \int q(\mathbf{z}; \phi) , r(\mathbf{z}) , d\mathbf{z}$$</p>
+<ol start="26">
+<li>
+<p>그렇기 때문에 위 식을 보면 $\sum$ 이 아니라 <strong>적분으로 계산이 된다.</strong> 이제, 중요한 것은 $\phi$ 의 gradient 를 구할 때, 해당 식(ELBO)이 본질적으로 <strong>가능한 한 커지도록</strong> $\phi$ <strong>를 변경하는 방법을 알아내는 것</strong> 이기 때문에, 기대값 안의 식들을 $r$ 로 대체했다.</p>
+<ul>
+<li>이는 <code>강화학습</code>하고도 연관을 지을 수 있는데, z가 행동이라면 이 행동을 선택하는데 확률적인 정책(q)가 있어서 다른 행동(z)은 다른 정책(q)을 받을 수 있다.</li>
+<li>그래서 위 식을 다시 해석하면, 최대한 높은 보상(r or 기대값 전체)을 얻으려면 확률적으로 어떤 행동(z)을 선택해야 할까요? 라고 볼 수 있다.</li>
+</ul>
+</li>
+<li></li>
+</ol>
+<p>z를 최적화 매개변수에 의존하지 않는 고정된 난수 변수의 결정론적 변환으로 작성하기 때문에 reparameteration이다.</p>
+<p>파이를 변경했을 때 샘플이 어떻게 변하는지 알 수 있다.</p>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
