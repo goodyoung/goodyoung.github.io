@@ -9,11 +9,7 @@
     <pubDate>Thu, 07 Aug 2025 15:51:03 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/posts/cs236/lecture7/</guid>
-    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다.
-이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다.
-기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다.
-해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables formula Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다.
-연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
+    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다. 이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다. 기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다. 해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables formula Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다. 연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
 연속 확률 변수 기본 개념 X를 연속 확률 변수라고 하자.
 누적 분포 함수(Cumulative Distribution Function, CDF)는 다음과 같이 정의된다:
 $$F_X(a) = P(X \leq a)$$
@@ -23,10 +19,7 @@ CDF는 누적된 확률을 나타내는 함수이기 때문에, 특정 값에서
 Gaussian 분포 (정규분포): 확률 밀도 함수는 다음과 같다: $$X \sim \mathcal{N}(\mu, \sigma), \quad p_X(x) = \frac{1}{\sigma \sqrt{2\pi}} \exp\left( -\frac{(x - \mu)^2}{2\sigma^2} \right)$$ Uniform 분포 (균등분포): 확률 밀도 함수는 다음과 같다:$$X \sim \mathcal{U}(a, b), \quad p_X(x) = \frac{1}{b - a} \cdot \mathbf{1}[a \leq x \leq b] $$ X가 단일 스칼라 값이 아닌 연속 확률 벡터(즉, 다변량 확률 변수)인 경우에는, 공동 확률 밀도 함수(Joint Probability Density Function)를 사용한다.
 예를 들어, 다변량 정규분포(Multivariate Gaussian)의 경우 확률 밀도 함수는 다음과 같다:
 $$p_X(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left( -\frac{1}{2} (\mathbf{x} - \mu)^T \Sigma^{-1} (\mathbf{x} - \mu) \right)$$
-( \mu )는 평균 벡터 ( \Sigma )는 공분산 행렬 ( n )은 차원 수 만약 z가 [0,2] 구간에서 uniform random variable 이라고 가정하자. 이때 PDF는 $p_z$ 이다. 그렇다면 $p_z(1)$ 은 무엇일까?
-$p_z(1) = \frac{1}{2}$ 이다. (모르겠으면 위 기본 개념을 살펴보면 될 것 같다.) 이때 $x = 4z$ 라고 한다면 $p_x(4)$ 는 무엇일까?
-$p_x(4) = p(x = 4) = p(4z = 4) = p(z = 1) = p_z(1) = \frac{1}{2}$ 일까? 아니다. x는 [0,8] 구간에서 uniform random variable이므로, $p_x(4) = \frac{1}{8}$ 이다. 이는, 확률 밀도 함수(PDF)에서 단순히 값을 대입하는것이 아니라 변화율을 고려해야한다는 직관을 보여준다. 이를 해결하기 위하여 variable을 변경하는 공식을 대입해보자. 만약 $X= f(Z)$ 이고 f가 단조함수라면 $Z = f^{-1}(X) = h(X)$ 라고 표현할 수 있을 때 공식은 아래와 같다.
-$$p_X(x) = p_z(h(x))|h^{\prime}(x)|$$
+( \mu )는 평균 벡터 ( \Sigma )는 공분산 행렬 ( n )은 차원 수 만약 z가 [0,2] 구간에서 uniform random variable 이라고 가정하자. 이때 PDF는 $p_z$ 이다. 그렇다면 $p_z(1)$ 은 무엇일까? $p_z(1) = \frac{1}{2}$ 이다. (모르겠으면 위 기본 개념을 살펴보면 될 것 같다.) 이때 $x = 4z$ 라고 한다면 $p_x(4)$ 는 무엇일까? $p_x(4) = p(x = 4) = p(4z = 4) = p(z = 1) = p_z(1) = \frac{1}{2}$ 일까? 아니다. x는 [0,8] 구간에서 uniform random variable이므로, $p_x(4) = \frac{1}{8}$ 이다. 이는, 확률 밀도 함수(PDF)에서 단순히 값을 대입하는것이 아니라 변화율을 고려해야한다는 직관을 보여준다. 이를 해결하기 위하여 variable을 변경하는 공식을 대입해보자. 만약 $X= f(Z)$ 이고 f가 단조함수라면 $Z = f^{-1}(X) = h(X)$ 라고 표현할 수 있을 때 공식은 아래와 같다. $$p_X(x) = p_z(h(x))|h^{\prime}(x)|$$
 이게 확률 자체가 아니라 PDF이기 때문에 위의 공식을 적용해야한다. PDF는 &ldquo;면적을 길이당 확률로 나눈 값&quot;이라서, 변수 변환으로 길이가 늘어나면, 그 구간에 퍼진 확률은 같아야 하니까 밀도는 도함수만큼 줄어야 확률 질량이 보존된다.]]></description>
 </item>
 </channel>
