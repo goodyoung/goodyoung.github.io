@@ -14,7 +14,7 @@
 이제 Equality 부분을 설명할 것이다. KL 식을 전개하면 위와 같은 식을 얻을 수 있는데 오른쪽 항에서 $\log p(z, x; \theta)$ 만 남기고 다 넘기면 ELBO의 식과 동일해지는 것을 확인할 수 있다. 그렇다면 어떻게 전개를 하면 위와 같은 식이 나왔을까? KL의 값은 항상 0보다 크거나 같다의 성질을 이용한다. 그 후, 기존 KL의 식에서 $p(z \mid x; \theta)$ 을 Bayes 정리를 활용해서 $p(z \mid x; \theta) = \frac{p(x, z; \theta)}{p(x; \theta)}$ 로 변형하여 식 전개하면 위와 같은 식이 나온다. 그렇기 때문에 만약 $ q = p(z \mid x; \theta)$ 라면 KL의 값이 0이 되기 때문에 부등식이 등식이 되는 것이다. 하지만 우리는 $p(z|x;\theta)$가 계산이 불가능하다는 것을 안다. GMM (lecture 5 12-17)에서 심층 가우시안 분포를 사용해 $p_\theta(x|z)$ 는 z의 분포가 정해져 있었기 때문에 구할 수 있었다. (lecture 5 16) 하지만 $p(z|x;\theta) = \frac{p(z)p_\theta(x|z)}{p_\theta(x)}$ 이기 때문에, $p(x)$ 를 구할 수 없다.(lecture 5 23) 따라서 $p(z|x;\theta)$ 도 계산이 불가능하다. 사실 따지고 보면 만약 posterior가 계산이 가능했으면 위 ELBO식도 필요가 없다. 결국, q분포가 $p(z \mid x; \theta)$에 최대한 가까운 q를 선택해야 하는 것을 알 수 있다. 이는 앞으로 나올 Variational Inference의 이론적 도구로써 작용이 될 것이다. 정리하자면 추정이 불가능한 분포를 근사하는 q를 두어 이 분포를 최적화하여 가장 강력한 lower bound를 찾는 것이 최종 목표인 것이다. 따라서 q의 역할을 하는 별도의 신경망을 두고, p와 q를 공동으로 최적화하여 ELBO를 최대화 시킨다. 조금 더 나아가, VAE의 인코더는 q가 되고 디코더는 p가 된다. Variational Inference Variational Auto Encoder(VAE) 모델에서는 decoder인 $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 의 neural network가 있으면 이것을 뒤집은 encoder의 역할을 하는 $p(z|x;\theta)$ 를 계산하여 x가 주어지고 이 x를 생성할 가능성이 높은 z를 찾으려고 한다.]]></description>
 </item>
 <item>
-    <title>[CS236] 5. Latent Variable Models</title>
+    <title>[CS236] 5. Latent Variable Models-1</title>
     <link>https://goodyoung.github.io/posts/cs236/lecture5/</link>
     <pubDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</pubDate>
     <author>GoodYoung</author>

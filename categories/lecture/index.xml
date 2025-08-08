@@ -3,7 +3,33 @@
         <title>Lecture - Category - Good Young</title>
         <link>https://goodyoung.github.io/categories/lecture/</link>
         <description>Lecture - Category - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 26 Jul 2025 14:23:31 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/lecture/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 07 Aug 2025 15:51:03 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/lecture/" rel="self" type="application/rss+xml" /><item>
+    <title>[CS236] 7. Normalizing Flows - 1</title>
+    <link>https://goodyoung.github.io/posts/cs236/lecture7/</link>
+    <pubDate>Thu, 07 Aug 2025 15:51:03 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs236/lecture7/</guid>
+    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다.
+이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다.
+기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다.
+해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables formula Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다.
+연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
+연속 확률 변수 기본 개념 X를 연속 확률 변수라고 하자.
+누적 분포 함수(Cumulative Distribution Function, CDF)는 다음과 같이 정의된다:
+$$F_X(a) = P(X \leq a)$$
+확률 밀도 함수(Probability Density Function, pdf)는 누적 분포 함수의 도함수로 표현되며 다음과 같다:
+CDF는 누적된 확률을 나타내는 함수이기 때문에, 특정 값에서 값이 얼마나 자주 나오는지에 대한 정보를 직접적으로 알 수 없다. 따라서 CDF를 미분함으로써 변화율을 얻고, 특정 값 주변 구간에서 값이 얼마나 자주 발생하는지를 나타내는 확률 밀도 함수(pdf) 를 정의한다. $$p_X(a) = F&rsquo;_X(a) = \frac{dF_X(a)}{da}$$
+실제로는 특정한 분포 형태(parameterized densities)를 가정하고 사용하게 되며, 대표적으로는 다음과 같은 분포들이 있다:
+Gaussian 분포 (정규분포): 확률 밀도 함수는 다음과 같다: $$X \sim \mathcal{N}(\mu, \sigma), \quad p_X(x) = \frac{1}{\sigma \sqrt{2\pi}} \exp\left( -\frac{(x - \mu)^2}{2\sigma^2} \right)$$ Uniform 분포 (균등분포): 확률 밀도 함수는 다음과 같다:$$X \sim \mathcal{U}(a, b), \quad p_X(x) = \frac{1}{b - a} \cdot \mathbf{1}[a \leq x \leq b] $$ X가 단일 스칼라 값이 아닌 연속 확률 벡터(즉, 다변량 확률 변수)인 경우에는, 공동 확률 밀도 함수(Joint Probability Density Function)를 사용한다.
+예를 들어, 다변량 정규분포(Multivariate Gaussian)의 경우 확률 밀도 함수는 다음과 같다:
+$$p_X(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left( -\frac{1}{2} (\mathbf{x} - \mu)^T \Sigma^{-1} (\mathbf{x} - \mu) \right)$$
+( \mu )는 평균 벡터 ( \Sigma )는 공분산 행렬 ( n )은 차원 수 만약 z가 [0,2] 구간에서 uniform random variable 이라고 가정하자. 이때 PDF는 $p_z$ 이다. 그렇다면 $p_z(1)$ 은 무엇일까?
+$p_z(1) = \frac{1}{2}$ 이다. (모르겠으면 위 기본 개념을 살펴보면 될 것 같다.) 이때 $x = 4z$ 라고 한다면 $p_x(4)$ 는 무엇일까?
+$p_x(4) = p(x = 4) = p(4z = 4) = p(z = 1) = p_z(1) = \frac{1}{2}$ 일까? 아니다. x는 [0,8] 구간에서 uniform random variable이므로, $p_x(4) = \frac{1}{8}$ 이다. 이는, 확률 밀도 함수(PDF)에서 단순히 값을 대입하는것이 아니라 변화율을 고려해야한다는 직관을 보여준다. 이를 해결하기 위하여 variable을 변경하는 공식을 대입해보자. 만약 $X= f(Z)$ 이고 f가 단조함수라면 $Z = f^{-1}(X) = h(X)$ 라고 표현할 수 있을 때 공식은 아래와 같다.
+$$p_X(x) = p_z(h(x))|h^{\prime}(x)|$$
+이게 확률 자체가 아니라 PDF이기 때문에 위의 공식을 적용해야한다. PDF는 &ldquo;면적을 길이당 확률로 나눈 값&quot;이라서, 변수 변환으로 길이가 늘어나면, 그 구간에 퍼진 확률은 같아야 하니까 밀도는 도함수만큼 줄어야 확률 질량이 보존된다.]]></description>
+</item>
+<item>
     <title>[CS236] 6. Latent Variable Models-2</title>
     <link>https://goodyoung.github.io/posts/cs236/lecture6/</link>
     <pubDate>Sat, 26 Jul 2025 14:23:31 &#43;0900</pubDate>
@@ -14,7 +40,7 @@
 이제 Equality 부분을 설명할 것이다. KL 식을 전개하면 위와 같은 식을 얻을 수 있는데 오른쪽 항에서 $\log p(z, x; \theta)$ 만 남기고 다 넘기면 ELBO의 식과 동일해지는 것을 확인할 수 있다. 그렇다면 어떻게 전개를 하면 위와 같은 식이 나왔을까? KL의 값은 항상 0보다 크거나 같다의 성질을 이용한다. 그 후, 기존 KL의 식에서 $p(z \mid x; \theta)$ 을 Bayes 정리를 활용해서 $p(z \mid x; \theta) = \frac{p(x, z; \theta)}{p(x; \theta)}$ 로 변형하여 식 전개하면 위와 같은 식이 나온다. 그렇기 때문에 만약 $ q = p(z \mid x; \theta)$ 라면 KL의 값이 0이 되기 때문에 부등식이 등식이 되는 것이다. 하지만 우리는 $p(z|x;\theta)$가 계산이 불가능하다는 것을 안다. GMM (lecture 5 12-17)에서 심층 가우시안 분포를 사용해 $p_\theta(x|z)$ 는 z의 분포가 정해져 있었기 때문에 구할 수 있었다. (lecture 5 16) 하지만 $p(z|x;\theta) = \frac{p(z)p_\theta(x|z)}{p_\theta(x)}$ 이기 때문에, $p(x)$ 를 구할 수 없다.(lecture 5 23) 따라서 $p(z|x;\theta)$ 도 계산이 불가능하다. 사실 따지고 보면 만약 posterior가 계산이 가능했으면 위 ELBO식도 필요가 없다. 결국, q분포가 $p(z \mid x; \theta)$에 최대한 가까운 q를 선택해야 하는 것을 알 수 있다. 이는 앞으로 나올 Variational Inference의 이론적 도구로써 작용이 될 것이다. 정리하자면 추정이 불가능한 분포를 근사하는 q를 두어 이 분포를 최적화하여 가장 강력한 lower bound를 찾는 것이 최종 목표인 것이다. 따라서 q의 역할을 하는 별도의 신경망을 두고, p와 q를 공동으로 최적화하여 ELBO를 최대화 시킨다. 조금 더 나아가, VAE의 인코더는 q가 되고 디코더는 p가 된다. Variational Inference Variational Auto Encoder(VAE) 모델에서는 decoder인 $p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$ 의 neural network가 있으면 이것을 뒤집은 encoder의 역할을 하는 $p(z|x;\theta)$ 를 계산하여 x가 주어지고 이 x를 생성할 가능성이 높은 z를 찾으려고 한다.]]></description>
 </item>
 <item>
-    <title>[CS236] 5. Latent Variable Models</title>
+    <title>[CS236] 5. Latent Variable Models-1</title>
     <link>https://goodyoung.github.io/posts/cs236/lecture5/</link>
     <pubDate>Mon, 14 Jul 2025 17:24:25 &#43;0900</pubDate>
     <author>GoodYoung</author>
@@ -124,15 +150,6 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
 다음은 ReLU함수 이다. 이는 위 두 함수과 다르게 양수에서 경사도를 죽일 수 있는 문제를 해결 하였다. 또한 이 함수는 최대값만 계산하기 때문에 연산이 효율적이고 실제로 앞선 함수들과 비교하여 6배가 빠르다고 한다. 하지만 ReLU함수도 몇가지 문제점이 있다. Non-zero-center문제를 가지고 있고 또한 음수일 경우에는 경사도를 죽일 수 있는 문제가 발생할 수 있다. 따라서 W를 initialization하는 과정에서 잘못되었을 때 dead ReLU가 발생할 수 있다. 따라서 이런 dead ReLU를 피하기 위하여 초기화를 할 때 positive한 bias를 얻게 초기화를 하는 방법도 있지만 효과가 경미하다. 또한 learning rate를 크게 설정하는 대규모 훈련 시 W가 너무 크게 비약해서 학습이 안되는 상황이 발생할 수도 있다. 실제로 ReLU를 사용한 Network에서 10~20% 정도가 dead ReLU에 빠진다고 한다. 문제이긴 하지만 그럼에도 불구하고, train은 잘 된다고 한다. Leaky ReLU $$f(x) = max(0.01x,x)$$
 ReLU와 다르게 음수에도 음수 기울기를 주어 경사도를 죽일 수 있는 문제를 해결하고자 한다. ReLU와 같게 연산이 빠르다는 장점도 있다. PReLU $$f(x) = max(ax,x)$$
 PReLU는 음수 영역에 backpropagation에서의 파라미터로 기울기 값으로 유연성을 더해주어 조금 더 융통성을 가해 주었고 ELU 다음의 ELU는 평균 출력이 더욱 0에 가까워지게 만든 함수이다.]]></description>
-</item>
-<item>
-    <title>[CS231n] 05.Convolutional Neural Networks</title>
-    <link>https://goodyoung.github.io/posts/cs231n/lecture5/</link>
-    <pubDate>Fri, 12 Jul 2024 20:01:34 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/posts/cs231n/lecture5/</guid>
-    <description><![CDATA[개요 CS231n의 5강에 대한 내용을 정리 할 것이다. 저번 강에서는 W를 업데이트 하는 과정 Chain-Rule과 간단한 Neural Networks에 대해서 배웠는데 이번 강에서는 Convolutional Neural Networks에 대해서 배울 것이다. A bit of history 위 그림을 보면 Hubel &amp; Wiesel이 고양이 실험을 했는데 이때 시각 피질 안의 뉴런이 local receptive field를 가지게 된다는 것을 알게 되었다. 또한 이렇게 겹쳐지는 receptive field들이 전체 시야를 이루게 된다는 사실을 알게 되었다. 어떤 뉴런은 low level, 또 어떤 뉴런은 high level의 특징들을 포착하는 것의 조합으로 이루게 된다. 이러한 지식을 기반으로 image처리를 위해 98년에 Lenet, 2012년에 AlexNet이 등장하게 되었다. Convolutional Neural Networks 저번 시간에 node들이 linear하게 모두 연결되어 있는 층을 Fully Connected (FC)층이라고 한다. 또 이 FC층이 행렬의 내적 계산을 통한 아주 효율적인 계산을 할 수 있다고 배웠다. 따라서 위 그림을 보면 하나의 layer는 하나의 연산을 통해 계산을 하여 편의성을 더해주는 사실을 볼 수 있다. 하지만 이미지 처리를 할 땐 위의 FC층이 좋지 않다. 왜냐하면 이미지의 spatial(공간적)정보가 손실이 되기 때문이다. 이러한 문제점을 해결하기 위하여 Convolutional Neural Networks (CNN)이 등장하게 되었다. CNN에 대해 더 자세히 알아보면 위 그림과 같은 이미지가 있고 필터가 존재한다. 이 필터는 우리가 linear classification에서 배웠던 W의 역할을 한다. 이런 필터는 input image위를 아래와 같이 슬라이딩 하면서 요소별 곱을 하고 그것을 또 하나의 합으로 나타낸다.
-위 그림에선 3 * 3의 크기의 filter가 5 * 5의 크기의 image 위를 슬라이딩 하고 있다. 이 filter에 중요한 사실이 있다. 바로 filter의 depth 크기는 input volume의 depth랑 항상 같다는 점이다. 왜냐하면 우리가 시각적으로 보기에 image위를 슬라이딩 하는 것 처럼 보이지만 실제로의 연산은 $w^Tx$에서 image에서 filter가 겹쳐지는 부분만큼 가져온 후 1차원으로 늘린 연산이다. 따라서 위 그림과 같이 5*5*3의 크기인 filter연산은 곧 75-1D의 내적 연산(1차원)을 수행하는 것으로 이해하면 될 것 같다. 이렇게 연산을 수행하기 때문에 input volume의 depth랑 filter depth랑 같아야 filter의 내적 연산을 수행할 수 있게 된다. 이렇게 filter가 슬라이딩을 하여 연산을 한 번 모두 하면 위 그림과 같이 하나의 activation map이 나온다. 만약 필터가 6개가 있다면 앞서 말한 내적 연산을 6번 수행하여 ouput의 depth가 6인 activation map이 나오게 된다. 각 필터는 input volume에서 특정 유형의 템플릿이나 개념을 찾는다. 6개의 각각 다른 가중치를 지닌 activation map으로 생각하면 된다. 이런 layer들을 연속적으로 쌓아나가면 그것이 convolution network가 된다. 이런 convolution network에서는 처음에 low-level(edge 등등)의 특징을 추출하고 점점 깊어지면 high-level의 복잡하고 추상적인 개념들이 나타나게 된다. 이 정보들을 FC층에 넣고 각 class 수의 확률 연산을 하게되면 분류가 이루어진다. 왜 FC층이 필요하며, 어떻게 분류가 이루어지는지 의문을 가졌다. high-level features는 넓은 reception field를 가지고 있다. (점점 깊어질 수록 이미지의 resolution이 줄어들기 때문) 이러한 복잡하고 풍부한 정보를 포함하고 있는 feature들을 linear하게 놓고 모든 정보를 연결(Fully connected)을 하여 각각의 class별 weight를 계산을 하게 되면 해당 이미지가 class별 확률(softmax)이 나오게 될 것이다. 따라서 CNN으로 feature를 추출하고 FC 층에서 분류하는 이유는 이러한 과정을 통해 각 클래스별 확률을 효과적으로 계산할 수 있기 때문입니다. 이러한 방법들은 앞서 history에서 말한 인간의 인식 능력에서의 시각피질과 유사한 특징을 보이는 것을 알 수 있다. 픽셀은 항상 일관된 순서를 가지며, 서로 인접한 픽셀끼리 영향을 준다. 만약 모든 근처의 픽셀이 빨간색이라면 해당 픽셀도 빨간색일 가능성이 높다. 이렇게 픽셀은 주변 픽셀 값과 비교하여 정보를 추측할 수 있습니다. 이런 특성을 locality라고 합니다. 따라서 위 그림과 같이 sub sampling과정을 통해 image의 resolution을 줄이고 local feature들에 대한 연산을 통해 global feature(high-level)로 나아가 weight 변수를 줄이고 변화에 무관한 invariance를 얻게 되는 것이다.]]></description>
 </item>
 </channel>
 </rss>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[CS236] 7. Normalizing Flows - 1 - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS236] 7. Normalizing Flows - 1" />
+<meta property="og:description" content="개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다.
+이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다.
+기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다.
+해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables formula Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다.
+연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
+연속 확률 변수 기본 개념 X를 연속 확률 변수라고 하자.
+누적 분포 함수(Cumulative Distribution Function, CDF)는 다음과 같이 정의된다:
+$$F_X(a) = P(X \leq a)$$
+확률 밀도 함수(Probability Density Function, pdf)는 누적 분포 함수의 도함수로 표현되며 다음과 같다:
+CDF는 누적된 확률을 나타내는 함수이기 때문에, 특정 값에서 값이 얼마나 자주 나오는지에 대한 정보를 직접적으로 알 수 없다. 따라서 CDF를 미분함으로써 변화율을 얻고, 특정 값 주변 구간에서 값이 얼마나 자주 발생하는지를 나타내는 확률 밀도 함수(pdf) 를 정의한다. $$p_X(a) = F&rsquo;_X(a) = \frac{dF_X(a)}{da}$$
+실제로는 특정한 분포 형태(parameterized densities)를 가정하고 사용하게 되며, 대표적으로는 다음과 같은 분포들이 있다:
+Gaussian 분포 (정규분포): 확률 밀도 함수는 다음과 같다: $$X \sim \mathcal{N}(\mu, \sigma), \quad p_X(x) = \frac{1}{\sigma \sqrt{2\pi}} \exp\left( -\frac{(x - \mu)^2}{2\sigma^2} \right)$$ Uniform 분포 (균등분포): 확률 밀도 함수는 다음과 같다:$$X \sim \mathcal{U}(a, b), \quad p_X(x) = \frac{1}{b - a} \cdot \mathbf{1}[a \leq x \leq b] $$ X가 단일 스칼라 값이 아닌 연속 확률 벡터(즉, 다변량 확률 변수)인 경우에는, 공동 확률 밀도 함수(Joint Probability Density Function)를 사용한다.
+예를 들어, 다변량 정규분포(Multivariate Gaussian)의 경우 확률 밀도 함수는 다음과 같다:
+$$p_X(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left( -\frac{1}{2} (\mathbf{x} - \mu)^T \Sigma^{-1} (\mathbf{x} - \mu) \right)$$
+( \mu )는 평균 벡터 ( \Sigma )는 공분산 행렬 ( n )은 차원 수 만약 z가 [0,2] 구간에서 uniform random variable 이라고 가정하자. 이때 PDF는 $p_z$ 이다. 그렇다면 $p_z(1)$ 은 무엇일까?
+$p_z(1) = \frac{1}{2}$ 이다. (모르겠으면 위 기본 개념을 살펴보면 될 것 같다.) 이때 $x = 4z$ 라고 한다면 $p_x(4)$ 는 무엇일까?
+$p_x(4) = p(x = 4) = p(4z = 4) = p(z = 1) = p_z(1) = \frac{1}{2}$ 일까? 아니다. x는 [0,8] 구간에서 uniform random variable이므로, $p_x(4) = \frac{1}{8}$ 이다. 이는, 확률 밀도 함수(PDF)에서 단순히 값을 대입하는것이 아니라 변화율을 고려해야한다는 직관을 보여준다. 이를 해결하기 위하여 variable을 변경하는 공식을 대입해보자. 만약 $X= f(Z)$ 이고 f가 단조함수라면 $Z = f^{-1}(X) = h(X)$ 라고 표현할 수 있을 때 공식은 아래와 같다.
+$$p_X(x) = p_z(h(x))|h^{\prime}(x)|$$
+이게 확률 자체가 아니라 PDF이기 때문에 위의 공식을 적용해야한다. PDF는 &ldquo;면적을 길이당 확률로 나눈 값&quot;이라서, 변수 변환으로 길이가 늘어나면, 그 구간에 퍼진 확률은 같아야 하니까 밀도는 도함수만큼 줄어야 확률 질량이 보존된다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/cs236/lecture7/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-08-07T15:51:03+09:00" />
+<meta property="article:modified_time" content="2025-08-07T15:51:03+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS236] 7. Normalizing Flows - 1"/>
+<meta name="twitter:description" content="개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다.
+이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다.
+기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다.
+해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables formula Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다.
+연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
+연속 확률 변수 기본 개념 X를 연속 확률 변수라고 하자.
+누적 분포 함수(Cumulative Distribution Function, CDF)는 다음과 같이 정의된다:
+$$F_X(a) = P(X \leq a)$$
+확률 밀도 함수(Probability Density Function, pdf)는 누적 분포 함수의 도함수로 표현되며 다음과 같다:
+CDF는 누적된 확률을 나타내는 함수이기 때문에, 특정 값에서 값이 얼마나 자주 나오는지에 대한 정보를 직접적으로 알 수 없다. 따라서 CDF를 미분함으로써 변화율을 얻고, 특정 값 주변 구간에서 값이 얼마나 자주 발생하는지를 나타내는 확률 밀도 함수(pdf) 를 정의한다. $$p_X(a) = F&rsquo;_X(a) = \frac{dF_X(a)}{da}$$
+실제로는 특정한 분포 형태(parameterized densities)를 가정하고 사용하게 되며, 대표적으로는 다음과 같은 분포들이 있다:
+Gaussian 분포 (정규분포): 확률 밀도 함수는 다음과 같다: $$X \sim \mathcal{N}(\mu, \sigma), \quad p_X(x) = \frac{1}{\sigma \sqrt{2\pi}} \exp\left( -\frac{(x - \mu)^2}{2\sigma^2} \right)$$ Uniform 분포 (균등분포): 확률 밀도 함수는 다음과 같다:$$X \sim \mathcal{U}(a, b), \quad p_X(x) = \frac{1}{b - a} \cdot \mathbf{1}[a \leq x \leq b] $$ X가 단일 스칼라 값이 아닌 연속 확률 벡터(즉, 다변량 확률 변수)인 경우에는, 공동 확률 밀도 함수(Joint Probability Density Function)를 사용한다.
+예를 들어, 다변량 정규분포(Multivariate Gaussian)의 경우 확률 밀도 함수는 다음과 같다:
+$$p_X(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left( -\frac{1}{2} (\mathbf{x} - \mu)^T \Sigma^{-1} (\mathbf{x} - \mu) \right)$$
+( \mu )는 평균 벡터 ( \Sigma )는 공분산 행렬 ( n )은 차원 수 만약 z가 [0,2] 구간에서 uniform random variable 이라고 가정하자. 이때 PDF는 $p_z$ 이다. 그렇다면 $p_z(1)$ 은 무엇일까?
+$p_z(1) = \frac{1}{2}$ 이다. (모르겠으면 위 기본 개념을 살펴보면 될 것 같다.) 이때 $x = 4z$ 라고 한다면 $p_x(4)$ 는 무엇일까?
+$p_x(4) = p(x = 4) = p(4z = 4) = p(z = 1) = p_z(1) = \frac{1}{2}$ 일까? 아니다. x는 [0,8] 구간에서 uniform random variable이므로, $p_x(4) = \frac{1}{8}$ 이다. 이는, 확률 밀도 함수(PDF)에서 단순히 값을 대입하는것이 아니라 변화율을 고려해야한다는 직관을 보여준다. 이를 해결하기 위하여 variable을 변경하는 공식을 대입해보자. 만약 $X= f(Z)$ 이고 f가 단조함수라면 $Z = f^{-1}(X) = h(X)$ 라고 표현할 수 있을 때 공식은 아래와 같다.
+$$p_X(x) = p_z(h(x))|h^{\prime}(x)|$$
+이게 확률 자체가 아니라 PDF이기 때문에 위의 공식을 적용해야한다. PDF는 &ldquo;면적을 길이당 확률로 나눈 값&quot;이라서, 변수 변환으로 길이가 늘어나면, 그 구간에 퍼진 확률은 같아야 하니까 밀도는 도함수만큼 줄어야 확률 질량이 보존된다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs236/lecture7/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs236/lecture6/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[CS236] 7. Normalizing Flows - 1",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture7\/"
+        },"genre": "posts","keywords": "CS236, Normalizing Flows","wordcount":  606 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture7\/","datePublished": "2025-08-07T15:51:03+09:00","dateModified": "2025-08-07T15:51:03+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS236] 7. Normalizing Flows - 1</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a>&nbsp;<a href="/categories/deep-generative-models/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Deep Generative Models</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-08-07">2025-08-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;606 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;3 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#change-of-variables-formula">Change of Variables formula</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li>
+<p>이번 포스트에서는 <code>CS236</code> 강의의 <code>7강</code> 뒤부분을 설명한다.</p>
+</li>
+<li>
+<p>이전 포스트에서는 <code>Latent Variable Models</code> 중 <code>VAE</code>에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 <strong>모든 z에 대한 계산이 어렵다</strong>는 단점이 있다. (우리는 이 단점을 <code>ELBO</code>로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 <code>VAE</code> 말고 <code>latent variable z</code>를 사용한 다른 생성 모델을 살펴볼 것이다.</p>
+</li>
+<li>
+<p>기존 <code>VAE</code>는 <code>neural network</code> 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 <code>Latent Variable Models</code> 중 하나인 <code>Flow Model</code>은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 <strong>invertible 하고 결정론적인 함수를 도입</strong>한다.</p>
+<ul>
+<li>해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 <strong>모든 z에 대한 계산을 할 필요가 없어진다.</strong> (no enumeration)</li>
+<li>기존 <code>VAE</code>는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="change-of-variables-formula">Change of Variables formula</h2>
+<ol start="3">
+<li>
+<p><code>Flow Model</code>에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다.</p>
+</li>
+<li>
+<p>연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.</p>
+ <details>
+   <summary> 연속 확률 변수 기본 개념 </summary>
+<ul>
+<li>
+<p>X를 연속 확률 변수라고 하자.</p>
+<ul>
+<li>
+<p><code>누적 분포 함수(Cumulative Distribution Function, CDF)</code>는 다음과 같이 정의된다:</p>
+<p>$$F_X(a) = P(X \leq a)$$</p>
+</li>
+<li>
+<p><code>확률 밀도 함수(Probability Density Function, pdf)</code>는 누적 분포 함수의 <strong>도함수</strong>로 표현되며 다음과 같다:</p>
+<ul>
+<li><code>CDF</code>는 누적된 확률을 나타내는 함수이기 때문에, 특정 값에서 값이 얼마나 자주 나오는지에 대한 정보를 직접적으로 알 수 없다.</li>
+<li>따라서 <code>CDF</code>를 미분함으로써 변화율을 얻고, 특정 값 주변 구간에서 값이 얼마나 자주 발생하는지를 나타내는 <strong>확률 밀도 함수(pdf)</strong> 를 정의한다.</li>
+</ul>
+<p>$$p_X(a) = F&rsquo;_X(a) = \frac{dF_X(a)}{da}$$</p>
+</li>
+<li>
+<p>실제로는 특정한 분포 형태(parameterized densities)를 가정하고 사용하게 되며, 대표적으로는 다음과 같은 분포들이 있다:</p>
+<ul>
+<li><strong>Gaussian 분포 (정규분포)</strong>:
+확률 밀도 함수는 다음과 같다:
+$$X \sim \mathcal{N}(\mu, \sigma), \quad p_X(x) = \frac{1}{\sigma \sqrt{2\pi}} \exp\left( -\frac{(x - \mu)^2}{2\sigma^2} \right)$$</li>
+<li><strong>Uniform 분포 (균등분포)</strong>:
+확률 밀도 함수는 다음과 같다:$$X \sim \mathcal{U}(a, b), \quad p_X(x) = \frac{1}{b - a} \cdot \mathbf{1}[a \leq x \leq b] $$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>X가 단일 스칼라 값이 아닌 <strong>연속 확률 벡터</strong>(즉, 다변량 확률 변수)인 경우에는, 공동 확률 밀도 함수(Joint Probability Density Function)를 사용한다.</p>
+<ul>
+<li>
+<p>예를 들어, 다변량 정규분포(Multivariate Gaussian)의 경우 확률 밀도 함수는 다음과 같다:</p>
+<p>$$p_X(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left( -\frac{1}{2} (\mathbf{x} - \mu)^T \Sigma^{-1} (\mathbf{x} - \mu) \right)$$</p>
+<ul>
+<li>( \mu )는 평균 벡터</li>
+<li>( \Sigma )는 공분산 행렬</li>
+<li>( n )은 차원 수</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+ </details>
+</li>
+</ol>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture7/ud.png" height="50%" width="50%">
+</div>
+<ol start="5">
+<li>
+<p>만약 z가 [0,2] 구간에서 uniform random variable 이라고 가정하자. 이때 PDF는 $p_z$ 이다. 그렇다면 $p_z(1)$ 은 무엇일까?</p>
+<ul>
+<li>$p_z(1) = \frac{1}{2}$ 이다. (모르겠으면 위 기본 개념을 살펴보면 될 것 같다.)</li>
+</ul>
+</li>
+<li>
+<p>이때 $x = 4z$ 라고 한다면 $p_x(4)$ 는 무엇일까?</p>
+<ul>
+<li>$p_x(4) = p(x = 4) = p(4z = 4) = p(z = 1) = p_z(1) = \frac{1}{2}$ 일까? 아니다.</li>
+<li>x는 [0,8] 구간에서 uniform random variable이므로, $p_x(4) = \frac{1}{8}$ 이다.</li>
+<li>이는, <code>확률 밀도 함수(PDF)</code>에서 단순히 값을 대입하는것이 아니라 <strong>변화율을 고려해야한다는 직관</strong>을 보여준다.</li>
+<li>이를 해결하기 위하여 variable을 변경하는 공식을 대입해보자.</li>
+</ul>
+</li>
+<li>
+<p>만약 $X= f(Z)$ 이고 f가 단조함수라면 $Z = f^{-1}(X) = h(X)$ 라고 표현할 수 있을 때 공식은 아래와 같다.</p>
+</li>
+</ol>
+<p>$$p_X(x) = p_z(h(x))|h^{\prime}(x)|$$</p>
+<ol start="8">
+<li>
+<p>이게 확률 자체가 아니라 <code>PDF</code>이기 때문에 위의 공식을 적용해야한다. <code>PDF</code>는 &ldquo;면적을 길이당 확률로 나눈 값&quot;이라서, 변수 변환으로 길이가 늘어나면, 그 구간에 퍼진 확률은 같아야 하니까 밀도는 도함수만큼 줄어야 확률 질량이 보존된다. 따라서 $X = 4Z$ 의 문제는 위 공식으로 해결이 가능하다.</p>
+ <details>
+   <summary> 직관적인 개념과 증명 </summary>
+<ul>
+<li>
+<p>조금 더 직관적으로 이해하기 쉽게 풀어볼 것이다.</p>
+</li>
+<li>
+<p>우리는 X에 대한 $p_x(x)$ 를 구하고 싶다.</p>
+</li>
+<li>
+<p>하지만 지금 우리가 아는 분포(언어)는 Z이다. 따라서, 확률 밀도 Z에서 X에 대한 밀도 정보를 가져와보자.</p>
+<ul>
+<li>$Z = f^{-1}(X) = h(X)$ 처럼, 역함수를 사용하면 X를 Z의 언어로 바꾸어 표현이 가능하다.</li>
+<li>그럼 이것을 $p_Z(Z)$ 에 넣어 해당 정보를 얻을 수 있다.</li>
+</ul>
+</li>
+<li>
+<p>그리고 이것을 다시 X의 규모로 조정을 해야한다.</p>
+<ul>
+<li>$\frac{dz}{dx}$ , 즉, X가 변할 때 Z의 변화량을 곱하면서 스케일 조정이 가능하다.</li>
+</ul>
+</li>
+<li>
+<p>그렇다면, 정확한 증명은 아래 사진과 같다.</p>
+</li>
+</ul>
+ <div style="text-align:center;">
+ <img src="/images/cs236/lecture7/proof.png" height="70%" width="70%">
+ </div>
+ </details>
+</li>
+<li>
+<p>그럼 단순한 스칼라 값이 아니라 random vector일 떄를 살펴보겠다.</p>
+</li>
+</ol>
+<p>continue</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2025-08-07</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/cs236/lecture7/" data-title="[CS236] 7. Normalizing Flows - 1" data-hashtags="CS236,Normalizing Flows"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/cs236/lecture7/" data-hashtag="CS236"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/cs236/lecture7/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/cs236/lecture7/" data-title="[CS236] 7. Normalizing Flows - 1"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/cs236/lecture7/" data-title="[CS236] 7. Normalizing Flows - 1"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/cs236/lecture7/" data-title="[CS236] 7. Normalizing Flows - 1"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/cs236/lecture7/" data-title="[CS236] 7. Normalizing Flows - 1" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/cs236/">CS236</a>,&nbsp;<a href="/tags/normalizing-flows/">Normalizing Flows</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/cs236/lecture6/" class="prev" rel="prev" title="[CS236] 6. Latent Variable Models-2"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS236] 6. Latent Variable Models-2</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
