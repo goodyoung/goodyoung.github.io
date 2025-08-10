@@ -3,13 +3,31 @@
         <title>Lecture - Category - Good Young</title>
         <link>https://goodyoung.github.io/categories/lecture/</link>
         <description>Lecture - Category - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 07 Aug 2025 15:51:03 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/lecture/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 10 Aug 2025 22:59:41 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/categories/lecture/" rel="self" type="application/rss+xml" /><item>
+    <title>[CS236] 8. Normalizing Flows - 2</title>
+    <link>https://goodyoung.github.io/posts/cs236/lecture8/</link>
+    <pubDate>Sun, 10 Aug 2025 22:59:41 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs236/lecture8/</guid>
+    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 8강을 설명한다.
+이전 포스트에서는 change of variable 공식을 사용하여 공식을 선형적인 예시부터, 비선형적인 예시까지 확장해보았다.
+이번 포스트에서는 공식을 가지고 더 나아가보겠다.
+Normalizing Flow Models Flow Model은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 neural network 모델에 사용하려면 어떻게 할까? $$\mathbf{z}m = f\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}0) = f\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}0)))\big) \triangleq f\theta(\mathbf{z}_0)$$
+시작을 쉬운 분포 $z_0$ 으로 시작한다. 여러 간단한 invertible layer인 $f_\theta$ 를 여러 레이어로 쌓아서 $f_\theta(\mathbf{z}_0)$ 를 만든다. 그렇게 되면 매우 유연한 transform을 얻을 수 있다. 그리고 $x = z_m$ 이된다. 그럼 위 변환을 change of variable에 적용하게 되면 아래와 같은 수식을 얻을 수 있다. $$p_X(\mathbf{x};\theta) = p_Z\left( f_\theta^{-1}(\mathbf{x}) \right) \prod_{m=1}^{M}\left| \det\left( \frac{\partial (f_\theta^m)^{-1}(\mathbf{z}_m)}{\partial \mathbf{z}_m} \right) \right|$$
+각 개별 레이어의 야코비안 행렬식을 얻어 곱하면, 해당 행렬식을 얻을 수 있게 된다. 그리고 각 함수 $f$가 invertible 하기 때문에, $f^{-1}$ 을 계산할 수 있다. 여기서 각 개별 레이어마다 change of variable은 같지만 $\theta$ 는 다르다는 것을 유의해야한다. Learning and Inference 우리는 지금까지 Normalizing Flow 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까?
+우리는 VAE와는 달리 change of variable 공식 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, AutoRegreesive Model 처럼 특정 데이터 셋의 log-likelihood를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다.
+$$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)
+\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$ 양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다.
+만약 추론(inference)에서 sampling을 해야된다면 이는, VAE와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다. z도 latent variable이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. Normalizing Flow에서 z는 x와 차원이 같기 때문이다. continue
+이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다.]]></description>
+</item>
+<item>
     <title>[CS236] 7. Normalizing Flows - 1</title>
     <link>https://goodyoung.github.io/posts/cs236/lecture7/</link>
     <pubDate>Thu, 07 Aug 2025 15:51:03 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/posts/cs236/lecture7/</guid>
-    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다. 이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다. 기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다. 해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables formula Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다. 연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
+    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다. 이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다. 기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다. 해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables 공식 Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다. 연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
 연속 확률 변수 기본 개념 X를 연속 확률 변수라고 하자.
 누적 분포 함수(Cumulative Distribution Function, CDF)는 다음과 같이 정의된다:
 $$F_X(a) = P(X \leq a)$$
@@ -130,19 +148,6 @@ Nesterov momentum은 기존보다 정보를 더 혼합하는 것으로 생각할
 (Nesterov momentum 식 사진 )
 우리는 항상 동일한 지점에서 loss를 평가하고 싶다. 하지만 Nesterov momentum은 그것이 아니기 때문에 따라서 이 식을 조금 더 변형하면 아래의 식과 같이 항상 동일한 지점에서 손실과 기울기를 평가할 수 있게 된다.
 하단의 박스를 보면 현재 시점에서 $v_{t+1}$를 더하고 현재의 $v_{t+1}$와 이전 속도 $v_{t}$의 차이를 더해주면 항상 동일한 지점 $\tilde{x_t}$ 에서 평가하게 된다.]]></description>
-</item>
-<item>
-    <title>[CS231n] 06.Training Neural Networks I</title>
-    <link>https://goodyoung.github.io/posts/cs231n/lecture6/</link>
-    <pubDate>Thu, 18 Jul 2024 15:36:30 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/posts/cs231n/lecture6/</guid>
-    <description><![CDATA[개요 CS231n의 6강에 대한 내용을 정리 할 것이다. 저번 강에서는 Convolutional Neural Networks에 대해 배웠고 이번 강에서는 이 Neural Networks를 어떻게 하면 잘 학습시킬 수 있을지에 대해서 배울 것이다. Activation Function Deep Network에 비선형성을 부여하는 Activation Function의 종류들에 대해서 알아볼 것이다. Sigmoid $$\sigma(x) = \frac{1}{1 + e^{-x}}$$
-먼저 첫 번째로 Sigmoid이다. 함수의 모양은 위 그림과 같고 (0,1) 사이의 값을 가지게 된다.Sigmoid가 가지게 되는 몇가지 문제들이 있다. 첫 번째 문제는 경사도를 죽일 수 있는 문제이다.
-이는 입력으로 들어오는 x가 -10, 10이라면 global gradient(이전 노드의 기울기)는 0이 되고 이것이 역전파를 통해 다운스트림($global grdient * local gradient$) 되면 global gradient가 0이므로 아래 노드들은 0으로 수렴하게 되어 기울기가 소실이 된다. 이러한 기울기 소실로 인하여 W의 값을 더이상 update 하지 못하는 문제를 vanishing gradient라고 한다. 두 번째 문제는 output이 zero-center가 아닌 문제이다. 즉, Signmoid의 output이 항상 양수이기 때문에 0을 중심으로 있지 않는 문제가 발생하게 된다. ouput이 항상 양수 이라면 입력값 또한 양수인 것인데, 그렇게 된다면 back propagation에서 $\frac{dl}{df} * \frac{df}{wi}$ 로 W의 기울기를 chain-rule로 구하게 된다. 근데 우리가 이전 4강에서 배운 chain-rule의 pattern 중 mul gate(곱)일 때 grdient가 서로 전환이 된다고 배웠다. 따라서 $\frac{df}{wi}$ 이것이 바로 $x_i$인 것을 알 수 있게 된다. 이때 $x_i$가 이전 layer의 sigmoid 연산을 거친 output이기 때문에 무조건 양수이다. 입력값은 항상 양수라면 back propagation을 할 때 $\frac{dl}{df}$(global gradient이다.)의 부호를 따라가게 되어서 gradient의 부호는 항상 양수이거나 음수가 된다. 부가적으로 gradient의 부호는 다운 스트림으로 내려온 gradient의 부호와 같아진다고 생각하면 쉽다. 이렇게 부호가 모두 양수 또는 음수가 되어버리면 발생하는 문제는 gradient update를 할 때 나타난다. w1,w2가 있다면 gradient update시 항상 (+)(+) 이거나 (-)(-)가 된다. 따라서 위 그림과 같이 파란색 방향(최적의 gradient update)과는 다르게 비효율적으로 지그재그 방향으로 내려가게 되는 상황이 벌어지게 된다. 이를 해결할 수 있는 방법은 input값에 mean을 모두 빼버리면 zero-mean data가 된다. 그렇게 되면 X가 양수/음수를 모두 가지고 있는 상황을 만들 수 있게 된다. 마지막 세 번째 문제는 Sigmoid에서의 exp의 연산의 계산 비용이 많이 들어간다는 것이다. 따라서 위 세 가지의 문제로 잘 사용하지 않게 된다. tanh 다음은 tanh함수이다. 이는 범위를 (-1,1)까지 하여 Sigmoid의 단점인 non-zero-center문제를 해결하게 되었다. 하지만 여전히 그래프를 봐도 확인 할 수 있지만 경사도를 죽일 수 있는 문제는 해결되지 못하였다. 따라서 Network가 깊어지는 모델이 많아진 요즘 활성화 함수로 잘 사용하지 않게 된다. ReLU $$f(x) = max(0,x)$$
-다음은 ReLU함수 이다. 이는 위 두 함수과 다르게 양수에서 경사도를 죽일 수 있는 문제를 해결 하였다. 또한 이 함수는 최대값만 계산하기 때문에 연산이 효율적이고 실제로 앞선 함수들과 비교하여 6배가 빠르다고 한다. 하지만 ReLU함수도 몇가지 문제점이 있다. Non-zero-center문제를 가지고 있고 또한 음수일 경우에는 경사도를 죽일 수 있는 문제가 발생할 수 있다. 따라서 W를 initialization하는 과정에서 잘못되었을 때 dead ReLU가 발생할 수 있다. 따라서 이런 dead ReLU를 피하기 위하여 초기화를 할 때 positive한 bias를 얻게 초기화를 하는 방법도 있지만 효과가 경미하다. 또한 learning rate를 크게 설정하는 대규모 훈련 시 W가 너무 크게 비약해서 학습이 안되는 상황이 발생할 수도 있다. 실제로 ReLU를 사용한 Network에서 10~20% 정도가 dead ReLU에 빠진다고 한다. 문제이긴 하지만 그럼에도 불구하고, train은 잘 된다고 한다. Leaky ReLU $$f(x) = max(0.01x,x)$$
-ReLU와 다르게 음수에도 음수 기울기를 주어 경사도를 죽일 수 있는 문제를 해결하고자 한다. ReLU와 같게 연산이 빠르다는 장점도 있다. PReLU $$f(x) = max(ax,x)$$
-PReLU는 음수 영역에 backpropagation에서의 파라미터로 기울기 값으로 유연성을 더해주어 조금 더 융통성을 가해 주었고 ELU 다음의 ELU는 평균 출력이 더욱 0에 가까워지게 만든 함수이다.]]></description>
 </item>
 </channel>
 </rss>

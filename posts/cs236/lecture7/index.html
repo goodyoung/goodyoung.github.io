@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[CS236] 7. Normalizing Flows - 1 - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS236] 7. Normalizing Flows - 1" />
-<meta property="og:description" content="개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다. 이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다. 기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다. 해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables formula Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다. 연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
+<meta property="og:description" content="개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다. 이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다. 기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다. 해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables 공식 Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다. 연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
 연속 확률 변수 기본 개념 X를 연속 확률 변수라고 하자.
 누적 분포 함수(Cumulative Distribution Function, CDF)는 다음과 같이 정의된다:
 $$F_X(a) = P(X \leq a)$$
@@ -23,7 +23,7 @@ $$p_X(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left( -\frac{1}{2} (
 <meta property="article:modified_time" content="2025-08-07T15:51:03+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS236] 7. Normalizing Flows - 1"/>
-<meta name="twitter:description" content="개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다. 이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다. 기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다. 해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables formula Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다. 연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
+<meta name="twitter:description" content="개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다. 이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다. 기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다. 해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables 공식 Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다. 연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
 연속 확률 변수 기본 개념 X를 연속 확률 변수라고 하자.
 누적 분포 함수(Cumulative Distribution Function, CDF)는 다음과 같이 정의된다:
 $$F_X(a) = P(X \leq a)$$
@@ -38,7 +38,7 @@ $$p_X(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left( -\frac{1}{2} (
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs236/lecture7/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs236/lecture6/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs236/lecture7/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs236/lecture6/" /><link rel="next" href="https://goodyoung.github.io/posts/cs236/lecture8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -101,7 +101,7 @@ $$p_X(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left( -\frac{1}{2} (
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
     <li><a href="#개요">개요</a></li>
-    <li><a href="#change-of-variables-formula">Change of Variables formula</a>
+    <li><a href="#change-of-variables-공식">Change of Variables 공식</a>
       <ul>
         <li><a href="#자코비안-행렬">자코비안 행렬</a></li>
         <li><a href="#자코비안-행렬식">자코비안 행렬식</a></li>
@@ -132,7 +132,7 @@ $$p_X(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left( -\frac{1}{2} (
 </li>
 </ol>
 <hr>
-<h2 id="change-of-variables-formula">Change of Variables formula</h2>
+<h2 id="change-of-variables-공식">Change of Variables 공식</h2>
 <ol start="3">
 <li><code>Flow Model</code>에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다.</li>
 </ol>
@@ -395,7 +395,8 @@ $$</p>
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/cs236/lecture6/" class="prev" rel="prev" title="[CS236] 6. Latent Variable Models-2"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS236] 6. Latent Variable Models-2</a></div>
+    <div class="post-nav"><a href="/posts/cs236/lecture6/" class="prev" rel="prev" title="[CS236] 6. Latent Variable Models-2"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS236] 6. Latent Variable Models-2</a>
+            <a href="/posts/cs236/lecture8/" class="next" rel="next" title="[CS236] 8. Normalizing Flows - 2">[CS236] 8. Normalizing Flows - 2<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
 </div>
 <div id="comments"><div id="utterances" class="comment"></div><noscript>
                 Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.

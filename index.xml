@@ -3,15 +3,33 @@
         <title>Good Young</title>
         <link>https://goodyoung.github.io/</link>
         <description>This is my cool site</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 07 Aug 2025 15:51:03 &#43;0900</lastBuildDate>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 10 Aug 2025 22:59:41 &#43;0900</lastBuildDate>
             <atom:link href="https://goodyoung.github.io/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>[CS236] 8. Normalizing Flows - 2</title>
+    <link>https://goodyoung.github.io/posts/cs236/lecture8/</link>
+    <pubDate>Sun, 10 Aug 2025 22:59:41 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs236/lecture8/</guid>
+    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 8강을 설명한다.
+이전 포스트에서는 change of variable 공식을 사용하여 공식을 선형적인 예시부터, 비선형적인 예시까지 확장해보았다.
+이번 포스트에서는 공식을 가지고 더 나아가보겠다.
+Normalizing Flow Models Flow Model은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 neural network 모델에 사용하려면 어떻게 할까? $$\mathbf{z}m = f\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}0) = f\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}0)))\big) \triangleq f\theta(\mathbf{z}_0)$$
+시작을 쉬운 분포 $z_0$ 으로 시작한다. 여러 간단한 invertible layer인 $f_\theta$ 를 여러 레이어로 쌓아서 $f_\theta(\mathbf{z}_0)$ 를 만든다. 그렇게 되면 매우 유연한 transform을 얻을 수 있다. 그리고 $x = z_m$ 이된다. 그럼 위 변환을 change of variable에 적용하게 되면 아래와 같은 수식을 얻을 수 있다. $$p_X(\mathbf{x};\theta) = p_Z\left( f_\theta^{-1}(\mathbf{x}) \right) \prod_{m=1}^{M}\left| \det\left( \frac{\partial (f_\theta^m)^{-1}(\mathbf{z}_m)}{\partial \mathbf{z}_m} \right) \right|$$
+각 개별 레이어의 야코비안 행렬식을 얻어 곱하면, 해당 행렬식을 얻을 수 있게 된다. 그리고 각 함수 $f$가 invertible 하기 때문에, $f^{-1}$ 을 계산할 수 있다. 여기서 각 개별 레이어마다 change of variable은 같지만 $\theta$ 는 다르다는 것을 유의해야한다. Learning and Inference 우리는 지금까지 Normalizing Flow 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까?
+우리는 VAE와는 달리 change of variable 공식 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, AutoRegreesive Model 처럼 특정 데이터 셋의 log-likelihood를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다.
+$$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)
+\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$ 양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다.
+만약 추론(inference)에서 sampling을 해야된다면 이는, VAE와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다. z도 latent variable이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. Normalizing Flow에서 z는 x와 차원이 같기 때문이다. continue
+이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다.]]></description>
+</item>
+<item>
     <title>[CS236] 7. Normalizing Flows - 1</title>
     <link>https://goodyoung.github.io/posts/cs236/lecture7/</link>
     <pubDate>Thu, 07 Aug 2025 15:51:03 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/posts/cs236/lecture7/</guid>
-    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다. 이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다. 기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다. 해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables formula Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다. 연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
+    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 7강 뒤부분을 설명한다. 이전 포스트에서는 Latent Variable Models 중 VAE에 대한 내용을 배웠다. VAE는 $p_\theta(x) = \int p_\theta(x,z)dz$ 으로 모든 z에 대한 계산이 어렵다는 단점이 있다. (우리는 이 단점을 ELBO로 해결을 했었다.) 그렇기 때문에 이번 포스트에서는 VAE 말고 latent variable z를 사용한 다른 생성 모델을 살펴볼 것이다. 기존 VAE는 neural network 를 통해 x를 구했다. ($p(x|z) = \mathcal{N}(\mu_\theta(z), \Sigma_\theta(z))$) 하지만 이 방법은 확률론적이기 때문에, 같은 z여도 다른 x를 내놓을 수 있다. 하지만 Latent Variable Models 중 하나인 Flow Model은 $x = f_\theta(z), z = f_\theta^{-1}(x)$ 로 invertible 하고 결정론적인 함수를 도입한다. 해당 함수를 사용하면 x에 대응하는 오직 고유한 z가 있기 때문에, 더이상 모든 z에 대한 계산을 할 필요가 없어진다. (no enumeration) 기존 VAE는 모든 z를 계산할 수 없기 떄문에, 정보의 손실이 있을 수 있지만 Flow Model을 사용한다면, 고유한 z와 x가 있기 때문에 정보의 손실이 없다. Change of Variables 공식 Flow Model에 들어가기 앞서, 필요한 기본적인 개념들을 정리할 필요가 있다. 연속 확률 변수(Continuous Random Variable) X에 대한 기본 개념을 아래와 같이 정리할 수 있다.
 연속 확률 변수 기본 개념 X를 연속 확률 변수라고 하자.
 누적 분포 함수(Cumulative Distribution Function, CDF)는 다음과 같이 정의된다:
 $$F_X(a) = P(X \leq a)$$
@@ -105,21 +123,6 @@ Method Introduction에서도 설명이 되어있듯이, 기존 DM은 pixel space
     <description><![CDATA[개요 DDPM 이후 DDPM의 샘플링 속도를 개선하여 보다 빠른 생성이 가능한 DDIM에 대하여 논문 리뷰 할 것이다. Introduction Deep generative model은 여러 분야에서 높은 품질의 샘플을 생성할 능력을 보여준다. GAN은 다른 어떤 생성 모델보다 더 높은 품질의 샘플을 생성 할 수 있다. 그러나 GAN은 매우 특정한 최적화 기법과 네트워크 구조를 선택해야 돼서, data 분포가 여러 모드를 충분히 학습하지 못하는 현상이 발견된다. 따라서 최근 연구에선 DDPM 같은 생성 모델이 GAN과 유사한 성능을 생성할 수 있다. DDPM과 같은 모델들은 adversarial training을 하지 않고, gaussian noise가 다양한 정도로 추가된 샘플을 복원하도록 denoising autoencoder를 훈련하는 방식으로 동작한다. 샘플링 과정은 Markov chain 방식을 따르며, 처음에는 화이트 노이즈에서 시작하여 점점 denoising하여 이미지를 복원하는 방식으로 진행된다. 이는 Langevin dynamics와 forward diffusion과정을 역전시키는 두 가지 방식으로 구현이 된다. DDPM과 같은 모델들은 샘플을 생성하는데 많은 반복이 필요하다는 것이 문제점이다. 따라서 GAN에 비하여 속도가 매우 느리다. 또한 이미지의 크기가 커질수록 더욱 심각해진다. 따라서 본 논문은 DDPM과 GAN의 효율성 차이를 줄이기 위해 DDIMs을 제안한다. DDIM은 암시적 확률 모델(implicit probabilistic models)(Mohamed &amp; Lakshminarayanan, 2016)과 밀접한 관련이 있다. 암시적 확률 모델은 DDPM과 동일한 목적 함수로 훈련된다는 점에서 유사하다. 본 논문에서는 기존 DDPM의 Markov Chain 확산 과정을 Non-Markovian 확산 과정으로 일반화 한다. Non-Markov를 사용하면 짧은 마르코프 체인을 구성할 수 있게 된다. 이는, 샘플링 속도를 획기적으로 줄일 수 있게 된다. 따라서 동일한 신경망(목적 함수)를 사용하면서도, Markov가 아닌 다양한 확산 과정을 선택함으로써 더욱 넓은 범위의 생성 모델을 자유롭게 선택할 수 있다. 또한, DDIM은 DDPM과 비교하여 세 가지의 장점을 지닌다.
 샘플링 속도를 더욱 가속화 해도 DDPM과 비교하여 더 뛰어난 샘플 품질을 제공한다. DDIM에 일관성 속성이 있기 때문에 초기 latent variable에서 출발하여 높은 수준의 특징을 공유하게 된다. 초기 latent variable을 조작하여 의미적으로 유의미한 이미지 보간을 수행할 수 있다. Background 해당 부분에서는 DDPM의 전반적인 내용에 대해서 설명을 한다. 이는 이전의 글에 더 자세히 나와 있다. DDPM의 샘플링 속도가 너무 느려 이를 해결하기 위해 DDIM이 등장하여 속도를 개선한다. Variational Inference For Non-Markovian Forward Processes 생성 모델은 inference process의 역(reverse)을 추정하기 때문에, 많은 반복을 줄이기 위해 inference process에 대한 새로운 접근이 필요하다. DDPM의 핵심적인 관찰은 DDPM의 목적함수가 오직 marginal probability distribution(주변 확률 분포) $q(x_t \mid x_0)$에만 의존하고 joint distribution(공동 확률 분포) $q(x_\text{1:T}\mid x_0)$엔 직접적으로 의존하지 않는다는 점이다. 즉, 동일한 주변 확률 분포를 가지면서 다양한 공동 확률 분포가 존재하기 때문에, Markovian 특성을 갖지 않는 대체적인 생성 과정을 설계할 수 있다. Non-Markovian 추론 과정을 사용하더라도 DDPM과 동일한 대리 목적 함수를 유지할 수 있다. Non-Markovian Forward Porcesses 따라서 주변 확률 분포인 $q_\sigma(x_T|x_0)$ 는 $q_\sigma(x_T|x_0) = \mathcal{N}(\sqrt{\alpha_T}x_0, (1 - \alpha_T)I)$ 는 DDPM과 DDIM 둘 다 만족한다. 하지만 공동 확률 분포인 $q_\sigma(x_\text{1:T}|x_0)$에 대해서는 DDPM과 DDIM이 아래와 같이 다르게 표현되고 있다. $$ \begin{aligned} DDPM &amp;: q(x_\text{1:T} | x_0) := \prod_\text{t=1}^T q(x_t | x_\text{t-1}) \\ DDIM &amp;: q(x_\text{1:T} | x_0) := q_\sigma(x_T|x_0) \prod_\text{t=2}^T q_\sigma(x_\text{t-1} | x_t,x_0) \end{aligned} $$
 DDIM의 공동 확률 분포 증명 확인 각 시간 단계 $x_t$가 단순히 $x_\text{t-1}$에만 의존하는 것이 아니라, $x_0$에 대한 직접적인 정보도 포함하도록 식을 변형 하려고 한다. $$ \begin{aligned} q_{\sigma}(x_{1:T} | x_0) &amp;:= q(x_1 | x_0) q(x_2 | x_1, x_0) q(x_3 | x_2, x_0) \dots q(x_T | x_{T-1}, x_0) \\ &amp;:= \cancel{q(x_1 | x_0)} \frac{q(x_1 | x_2, x_0) \cancel{q(x_2 | x_0)}} {\cancel{q(x_1 | x_0)}} \frac{q(x_2 | x_3, x_0) \cancel{q(x_3 | x_0)}}{\cancel{q(x_2 | x_0)}} \dots \frac{q(x_{T-1} | x_T, x_0) q(x_T | x_0)}{\cancel{q(x_{T-1} | x_0)}} \\ &amp;(\therefore q(x_T | x_{T-1}, x_0) = \frac{q(x_{T-1} | x_T, x_0) q(x_T | x_0)}{q(x_{T-1} | x_0)} \text{From Bayes&rsquo; rule})\\ &amp;:= q_\sigma(x_T|x_0) \prod_\text{t=2}^T q_\sigma(x_\text{t-1} | x_t,x_0) \end{aligned} $$ 따라서 DDPM은 Markovian의 특성을 가지고 있지만, DDIM은 Non-Markovian의 특징을 가지고 있다는 것을 알 수 있다.]]></description>
-</item>
-<item>
-    <title>[Paper Review]Denoising Diffusion Probabilistic Models(DDPM)</title>
-    <link>https://goodyoung.github.io/posts/paper/ddpm/</link>
-    <pubDate>Wed, 15 Jan 2025 17:24:43 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/posts/paper/ddpm/</guid>
-    <description><![CDATA[개요 Diffusion의 기초인 DDPM에 대한 논문을 리뷰할 것이다. Introduction 최근 몇 년간 다양한 생성 모델(deep generative models) 이 높은 품질의 샘플을 생성하는 성과를 보였다. 에너지 기반 모델(Energy-Based Models) 및 Score Matching 기법도 GAN과 비슷한 수준의 이미지 품질을 생성하는 연구가 등장했다. 이 논문은 Diffusion Probabilistic Models의 발전이다. Diffusion Probabilistic Models (DPMs, 2015): Markov chain을 기반으로 데이터를 점진적으로 샘플링하는 모델 Markov Chain이란? - 어떤 시간에 특정 state에 도달하든, 그 이전에 어떤 state를 거쳐왔든 다음 state로 갈 확률은 항상 같다는 성질이다. DPMs는 변분 추론을 활용해 샘플을 생성하기 위해 **확산 과정(diffusion process)을 반전(reverse)**시키는 방법을 학습한다. 변분 추론(variational inference) : 확률 모델에서 복잡한 후행 확률 분포(posterior distribution)를 근사하는 방법 중 하나이다. 정확한 posterior를 계산하는 것은 intractable하여 $p(z|x)$를 계산하는 것 대신 $q_\theta(z|x)$로 근사하는 방법이다. 즉, 변분 추론을 통해 모델의 역방향 과정의 확률 분포( $p(x_\text{t-1} | x_t)$ )를 근사하여, $p_\theta(x_\text{t-1} | x_t)$ 를 통하여 정방향 과정에서 추가된 노이즈를 제거하는 방법을 학습 DPMs은 정의하기 쉽고 학습이 효율적이지만, 지금까지 고품질 샘플을 생성할 수 있다는 실증적인 연구가 부족했다. 하지만 이 논문(DDPM)에서 DPMs이 고품질 샘플을 생성하고, 때때로 다른 모델보다 더 좋은 성능을 보인다. DDPM을 특정 방식으로 파라미터화 하면 다중 노이즈 수준에서 Denoising Score Matching과 동일하며, Annealed Langevin Dynamics와도 유사한 샘플링 방식을 갖는다는 점을 발견 한다. 46번에서 자세하게 설명을 한다. DDPM도 샘플의 품질은 뛰어나지만, log-likelihood 기반 모델들과 비교했을 때 경쟁력 있는 성능이 존재하진 않는다. Loss 중 많은 부분이 눈에 보이지 않는 미세한 이미지 세부 정보를 설명하는데 사용이 된다. log-likelihood model : VAE, Normalizing Flows, Autoregressive Models log 가능도를 최대화 하는 모델들 Background 4번에서 DPMs는 정방향 과정에서 추가된 노이즈(destroy)를 제거하는 방법을 학습하는 과정을 수행한다고 설명하였다. 물리학적으로 미세한 세계에서는 destroy된 상태를 backward로 복원시키는 것이 가능하다. DDPM에서는 노이즈를 점차 추가하여 destroy하는 정방향 과정을 diffusion process이라고 한다. 또한, 노이즈를 제거(denoising)하여 다시 복원하는 확률 분포(노이즈)를 학습하는 과정을 reverse process라고 한다. Diffusion Process Diffusion Process에 대해서 먼저 간단한 설명을 해보려고 한다. $$ q(x_\text{1:T} | x_0) := \prod_\text{t=1}^T q(x_t | x_\text{t-1}), \quad q(x_t | x_\text{t-1}) := \mathcal{N}(x_t ; \sqrt{1 - \beta_t} x_\text{t-1}, \beta_t I) $$
-Diffusion Process의 근사 후행 확률은 $q(x_\text{1:T}|x_0)$ 으로 나타낼 수 있으며, 이는 마르코프 연쇄(Markov Chain)로 정의되어 이 과정에서 step마다 가우시안 노이즈를 추가하는 방식으로 작동한다. 이때 노이즈는 $\beta_1, &hellip; ,\beta_T$ 의 형태인 variance schedule에 따라 조절된다. $\beta_t$ 는 reparameterization trick에 의해서 학습이 될 수도 있고, 하이퍼파라미터로 고정될 수 있다. 다음은 $\beta_t$ 에 대하여 reparameterization trick을 적용한 것을 알아본 것이다.
-$\beta_t$에 대하여 reparameterization trick을 적용 한 경우 $\beta_t$ 를 gaussian 분포에서 샘플링하는 확률적 변수로 설정한다면:
-$\beta_t = \sigma(\tilde{\beta_t}),\qquad \tilde{\beta_t} \sim \mathcal{N}(\mu_\beta, \sigma_\beta^2) $
-$\tilde{\beta_t}$ : 가우시안 분포에서 샘플링 된 값 $\sigma(\cdot)$ : activation function을 활용하여 $\beta_t$가 양수임을 보장 $\mu_\beta, \sigma_\beta $ : 학습 가능한 파라미터 위 식의 $\tilde{\beta_t}$ 을 gaussian 분포에서 직접 샘플링 하기 때문에 이는 확률적 연산이 포함되므로 미분이 불가능해진다.
-미분이 불가능해지면 손실 함수의 그라디언트를 계산할 수 없게 된다. (학습 불가능) 그렇기 때문에 미분 가능해지기 위하여 $\beta_t$ 에 gaussian 분포에서 직접 샘플링하는 대신, 표준 정규 분포에서 샘플링한 후, 변형하는 방법인 reparametrization trick의 방법을 사용한다.
-해당 방법을 사용하면 다음과 같이 표현 될 수 있다: $\tilde{\beta_t} = \mu_\beta + \sigma_\beta \cdot \epsilon, \quad \epsilon \sim \mathcal{N}(0, 1)$
-이제 확률적 연산을 결정적 연산으로 변경하여 $\tilde{\beta_t}$ 를 샘플링하는 과정이 미분 가능해졌다.]]></description>
 </item>
 </channel>
 </rss>

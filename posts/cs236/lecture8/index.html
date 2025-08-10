@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>[CS236] 8. Normalizing Flows - 2 - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS236] 8. Normalizing Flows - 2" />
+<meta property="og:description" content="개요 이번 포스트에서는 CS236 강의의 8강을 설명한다.
+이전 포스트에서는 change of variable 공식을 사용하여 공식을 선형적인 예시부터, 비선형적인 예시까지 확장해보았다.
+이번 포스트에서는 공식을 가지고 더 나아가보겠다.
+Normalizing Flow Models Flow Model은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 neural network 모델에 사용하려면 어떻게 할까? $$\mathbf{z}m = f\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}0) = f\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}0)))\big) \triangleq f\theta(\mathbf{z}_0)$$
+시작을 쉬운 분포 $z_0$ 으로 시작한다. 여러 간단한 invertible layer인 $f_\theta$ 를 여러 레이어로 쌓아서 $f_\theta(\mathbf{z}_0)$ 를 만든다. 그렇게 되면 매우 유연한 transform을 얻을 수 있다. 그리고 $x = z_m$ 이된다. 그럼 위 변환을 change of variable에 적용하게 되면 아래와 같은 수식을 얻을 수 있다. $$p_X(\mathbf{x};\theta) = p_Z\left( f_\theta^{-1}(\mathbf{x}) \right) \prod_{m=1}^{M}\left| \det\left( \frac{\partial (f_\theta^m)^{-1}(\mathbf{z}_m)}{\partial \mathbf{z}_m} \right) \right|$$
+각 개별 레이어의 야코비안 행렬식을 얻어 곱하면, 해당 행렬식을 얻을 수 있게 된다. 그리고 각 함수 $f$가 invertible 하기 때문에, $f^{-1}$ 을 계산할 수 있다. 여기서 각 개별 레이어마다 change of variable은 같지만 $\theta$ 는 다르다는 것을 유의해야한다. Learning and Inference 우리는 지금까지 Normalizing Flow 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까?
+우리는 VAE와는 달리 change of variable 공식 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, AutoRegreesive Model 처럼 특정 데이터 셋의 log-likelihood를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다.
+$$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)
+\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$ 양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다.
+만약 추론(inference)에서 sampling을 해야된다면 이는, VAE와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다. z도 latent variable이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. Normalizing Flow에서 z는 x와 차원이 같기 때문이다. continue
+이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goodyoung.github.io/posts/cs236/lecture8/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-08-10T22:59:41+09:00" />
+<meta property="article:modified_time" content="2025-08-10T22:59:41+09:00" /><meta property="og:site_name" content="My cool site" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS236] 8. Normalizing Flows - 2"/>
+<meta name="twitter:description" content="개요 이번 포스트에서는 CS236 강의의 8강을 설명한다.
+이전 포스트에서는 change of variable 공식을 사용하여 공식을 선형적인 예시부터, 비선형적인 예시까지 확장해보았다.
+이번 포스트에서는 공식을 가지고 더 나아가보겠다.
+Normalizing Flow Models Flow Model은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 neural network 모델에 사용하려면 어떻게 할까? $$\mathbf{z}m = f\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}0) = f\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}0)))\big) \triangleq f\theta(\mathbf{z}_0)$$
+시작을 쉬운 분포 $z_0$ 으로 시작한다. 여러 간단한 invertible layer인 $f_\theta$ 를 여러 레이어로 쌓아서 $f_\theta(\mathbf{z}_0)$ 를 만든다. 그렇게 되면 매우 유연한 transform을 얻을 수 있다. 그리고 $x = z_m$ 이된다. 그럼 위 변환을 change of variable에 적용하게 되면 아래와 같은 수식을 얻을 수 있다. $$p_X(\mathbf{x};\theta) = p_Z\left( f_\theta^{-1}(\mathbf{x}) \right) \prod_{m=1}^{M}\left| \det\left( \frac{\partial (f_\theta^m)^{-1}(\mathbf{z}_m)}{\partial \mathbf{z}_m} \right) \right|$$
+각 개별 레이어의 야코비안 행렬식을 얻어 곱하면, 해당 행렬식을 얻을 수 있게 된다. 그리고 각 함수 $f$가 invertible 하기 때문에, $f^{-1}$ 을 계산할 수 있다. 여기서 각 개별 레이어마다 change of variable은 같지만 $\theta$ 는 다르다는 것을 유의해야한다. Learning and Inference 우리는 지금까지 Normalizing Flow 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까?
+우리는 VAE와는 달리 change of variable 공식 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, AutoRegreesive Model 처럼 특정 데이터 셋의 log-likelihood를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다.
+$$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)
+\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$ 양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다.
+만약 추론(inference)에서 sampling을 해야된다면 이는, VAE와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다. z도 latent variable이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. Normalizing Flow에서 z는 x와 차원이 같기 때문이다. continue
+이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다."/>
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs236/lecture8/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs236/lecture7/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "[CS236] 8. Normalizing Flows - 2",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture8\/"
+        },"genre": "posts","keywords": "Normalizing Flows, CS236","wordcount":  311 ,
+        "url": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture8\/","datePublished": "2025-08-10T22:59:41+09:00","dateModified": "2025-08-10T22:59:41+09:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "GoodYoung"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="auto" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Good Young">GoodYoung Dev Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS236] 8. Normalizing Flows - 2</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a>&nbsp;<a href="/categories/deep-generative-models/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Deep Generative Models</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-08-10">2025-08-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;311 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;2 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#normalizing-flow-models">Normalizing Flow Models</a></li>
+    <li><a href="#learning-and-inference">Learning and Inference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><!-- image format
+<div style="text-align:center;">
+<img src="/images/cs231n/lecture4/back-1.png" height="100%" width="80%"> </div>
+ -->
+<h2 id="개요">개요</h2>
+<ol start="0">
+<li>
+<p>이번 포스트에서는 <code>CS236</code> 강의의 <code>8강</code>을 설명한다.</p>
+</li>
+<li>
+<p>이전 포스트에서는 <code>change of variable 공식</code>을 사용하여 공식을 <code>선형적인 예시</code>부터, <code>비선형적인 예시</code>까지 확장해보았다.</p>
+</li>
+<li>
+<p>이번 포스트에서는 공식을 가지고 더 나아가보겠다.</p>
+</li>
+</ol>
+<h2 id="normalizing-flow-models">Normalizing Flow Models</h2>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture8/flowmodel.png" height="50%" width="50%">
+</div>
+<ol start="3">
+<li><code>Flow Model</code>은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 <code>neural network</code> 모델에 사용하려면 어떻게 할까?</li>
+</ol>
+<p>$$\mathbf{z}<em>m = f</em>\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}<em>0)
+= f</em>\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}<em>0)))\big) \triangleq f</em>\theta(\mathbf{z}_0)$$</p>
+<ul>
+<li>시작을 쉬운 분포 $z_0$ 으로 시작한다.</li>
+</ul>
+<ol start="4">
+<li>여러 간단한 <code>invertible layer</code>인 $f_\theta$ 를 여러 레이어로 쌓아서 $f_\theta(\mathbf{z}_0)$ 를 만든다. 그렇게 되면 매우 유연한 transform을 얻을 수 있다. 그리고 $x = z_m$ 이된다. 그럼 위 변환을 <code>change of variable</code>에 적용하게 되면 아래와 같은 수식을 얻을 수 있다.</li>
+</ol>
+<p>$$p_X(\mathbf{x};\theta) = p_Z\left( f_\theta^{-1}(\mathbf{x}) \right)
+\prod_{m=1}^{M}\left| \det\left( \frac{\partial (f_\theta^m)^{-1}(\mathbf{z}_m)}{\partial \mathbf{z}_m} \right) \right|$$</p>
+<ol start="5">
+<li>각 개별 레이어의 야코비안 행렬식을 얻어 곱하면, 해당 행렬식을 얻을 수 있게 된다. 그리고 각 함수 $f$가 invertible 하기 때문에, $f^{-1}$ 을 계산할 수 있다. 여기서 각 개별 레이어마다 change of variable은 같지만 $\theta$ 는 다르다는 것을 유의해야한다.</li>
+</ol>
+<hr>
+<h2 id="learning-and-inference">Learning and Inference</h2>
+<ol start="6">
+<li>
+<p>우리는 지금까지 <code>Normalizing Flow</code> 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까?</p>
+</li>
+<li>
+<p>우리는 <code>VAE</code>와는 달리 <code>change of variable 공식</code> 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, <code>AutoRegreesive Model</code> 처럼 특정 데이터 셋의 <code>log-likelihood</code>를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다.</p>
+</li>
+</ol>
+<p>$$\max_{\theta} \log p_X(\mathcal{D}; \theta)
+= \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)</p>
+<ul>
+<li>\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$</li>
+</ul>
+<ol start="8">
+<li>
+<p>양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다.</p>
+<ul>
+<li>만약 <code>추론(inference)</code>에서 sampling을 해야된다면 이는, <code>VAE</code>와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다.</li>
+<li>z도 <code>latent variable</code>이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. <code>Normalizing Flow</code>에서 <strong>z는 x와 차원이 같기 때문이다.</strong></li>
+</ul>
+</li>
+<li>
+<p>continue</p>
+</li>
+</ol>
+<p>이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다.</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2025-08-10</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://goodyoung.github.io/posts/cs236/lecture8/" data-title="[CS236] 8. Normalizing Flows - 2" data-hashtags="Normalizing Flows,CS236"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://goodyoung.github.io/posts/cs236/lecture8/" data-hashtag="Normalizing Flows"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="https://goodyoung.github.io/posts/cs236/lecture8/"><i class="fab fa-linkedin fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://goodyoung.github.io/posts/cs236/lecture8/" data-title="[CS236] 8. Normalizing Flows - 2"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://goodyoung.github.io/posts/cs236/lecture8/" data-title="[CS236] 8. Normalizing Flows - 2"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://goodyoung.github.io/posts/cs236/lecture8/" data-title="[CS236] 8. Normalizing Flows - 2"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://goodyoung.github.io/posts/cs236/lecture8/" data-title="[CS236] 8. Normalizing Flows - 2" data-description=""><i class="fab fa-blogger fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/normalizing-flows/">Normalizing Flows</a>,&nbsp;<a href="/tags/cs236/">CS236</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/cs236/lecture7/" class="prev" rel="prev" title="[CS236] 7. Normalizing Flows - 1"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS236] 7. Normalizing Flows - 1</a></div>
+</div>
+<div id="comments"><div id="utterances" class="comment"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+  
+</footer>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+          ]
+      });
+  });
+</script></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":500},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"Comment","lightTheme":"github-light","repo":"goodylung/blog-comment"}},"lightgallery":true};</script><script type="text/javascript" src="/js/theme.min.js"></script><script type="text/javascript">
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());
+            gtag('config', 'UA-86432198-1', { 'anonymize_ip': true });
+        </script><script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-86432198-1" async></script></body>
+</html>
