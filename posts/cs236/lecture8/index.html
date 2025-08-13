@@ -5,34 +5,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>[CS236] 8. Normalizing Flows - 2 - Good Young</title><meta name="Description" content="This is my cool site"><meta property="og:title" content="[CS236] 8. Normalizing Flows - 2" />
-<meta property="og:description" content="개요 이번 포스트에서는 CS236 강의의 8강을 설명한다.
-이전 포스트에서는 change of variable 공식을 사용하여 공식을 선형적인 예시부터, 비선형적인 예시까지 확장해보았다.
-이번 포스트에서는 공식을 가지고 더 나아가보겠다.
-Normalizing Flow Models Flow Model은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 neural network 모델에 사용하려면 어떻게 할까? $$\mathbf{z}m = f\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}0) = f\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}0)))\big) \triangleq f\theta(\mathbf{z}_0)$$
+<meta property="og:description" content="개요 이번 포스트에서는 CS236 강의의 8강을 설명한다. 이전 포스트에서는 change of variable 공식을 사용하여 공식을 선형적인 예시부터, 비선형적인 예시까지 확장해보았다. 이번 포스트에서는 공식을 가지고 더 나아가보겠다. Normalizing Flow Models Flow Model은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 neural network 모델에 사용하려면 어떻게 할까? $$\mathbf{z}m = f\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}0) = f\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}0)))\big) \triangleq f\theta(\mathbf{z}_0)$$
 시작을 쉬운 분포 $z_0$ 으로 시작한다. 여러 간단한 invertible layer인 $f_\theta$ 를 여러 레이어로 쌓아서 $f_\theta(\mathbf{z}_0)$ 를 만든다. 그렇게 되면 매우 유연한 transform을 얻을 수 있다. 그리고 $x = z_m$ 이된다. 그럼 위 변환을 change of variable에 적용하게 되면 아래와 같은 수식을 얻을 수 있다. $$p_X(\mathbf{x};\theta) = p_Z\left( f_\theta^{-1}(\mathbf{x}) \right) \prod_{m=1}^{M}\left| \det\left( \frac{\partial (f_\theta^m)^{-1}(\mathbf{z}_m)}{\partial \mathbf{z}_m} \right) \right|$$
-각 개별 레이어의 야코비안 행렬식을 얻어 곱하면, 해당 행렬식을 얻을 수 있게 된다. 그리고 각 함수 $f$가 invertible 하기 때문에, $f^{-1}$ 을 계산할 수 있다. 여기서 각 개별 레이어마다 change of variable은 같지만 $\theta$ 는 다르다는 것을 유의해야한다. Learning and Inference 우리는 지금까지 Normalizing Flow 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까?
-우리는 VAE와는 달리 change of variable 공식 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, AutoRegreesive Model 처럼 특정 데이터 셋의 log-likelihood를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다.
-$$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)
-\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$ 양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다.
-만약 추론(inference)에서 sampling을 해야된다면 이는, VAE와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다. z도 latent variable이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. Normalizing Flow에서 z는 x와 차원이 같기 때문이다. continue
-이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다." />
+각 개별 레이어의 야코비안 행렬식을 얻어 곱하면, 해당 행렬식을 얻을 수 있게 된다. 그리고 각 함수 $f$가 invertible 하기 때문에, $f^{-1}$ 을 계산할 수 있다. 여기서 각 개별 레이어마다 change of variable은 같지만 $\theta$ 는 다르다는 것을 유의해야한다. Learning and Inference 우리는 지금까지 Normalizing Flow 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까? 우리는 VAE와는 달리 change of variable 공식 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, AutoRegreesive Model 처럼 특정 데이터 셋의 log-likelihood를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다. $$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)
+\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$ 양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다. 만약 추론(inference)에서 sampling을 해야된다면 이는, VAE와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다. z도 latent variable이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. Normalizing Flow에서 z는 x와 차원이 같기 때문이다. 이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다. (여러 모델들을 보면서 어떻게 parameterized가 되는지 살펴볼 것이다.) Triangular Jacobian 자, 그럼 지금까지 배운 flow model의 조건들에 대해서 살펴보겠다. p(z) 는 샘플링과, likelihood 계산이 효율적으로 가능한 분포를 선택해야한다. 또한 tractable한 Invertible transformation 을 해야한다. 자코비안 행렬식 계산이 빨라야한다. 기존의 자코비안 행렬식은 nXn 행렬이다. 이는 $O(n^3)$ 의 시간복잡도를 지니고 있다. 따라서 이를 해결하기 위하여 행렬식의 구조를 변형해야한다. 기존 자코비안 행렬식에 시간복잡도가 오래걸린다는 단점을 해결하기 위하여, 기존의 자코비안 행렬식을 먼저 봐보자. 아래의 식과 같다. $$ x = (x_1, \cdots, x_n) = f(z) = (f_1(z), \cdots, f_n(z)) $$
+$$ J = \frac{\partial f}{\partial z} = \begin{pmatrix} \frac{\partial f_1}{\partial z_1} &amp; \cdots &amp; \frac{\partial f_1}{\partial z_n} \\ \vdots &amp; \ddots &amp; \vdots \\ \frac{\partial f_n}{\partial z_1} &amp; \cdots &amp; \frac{\partial f_n}{\partial z_n} \end{pmatrix} $$
+위 식에서 우리는 해당 행렬을 상삼각, 하삼각 행렬을 만들면 행렬식의 계산이 $O(n)$ 으로 빨라지게 된다. 그렇게 하기 위해서 가정이 필요하다. 바로 $x_i = f_i(z)$ 가 $z_1, &hellip;, z_i$ 까지만 의존하게 된다면 위 행렬식은 하삼각 행렬이 된다. 하삼각 행렬의 determinant는 대각선 원소들의 곱이기 때문에 $O(n)$ 으로 계산이 된다. $x_2 = f_2(z_1, z_2) \quad \Rightarrow \quad \frac{\partial x_2}{\partial z_3} = 0$ 만약 상삼각 행렬을 만들고 싶다면 $z_i, &hellip;, z_n$ 까지 의존하게 하면 된다." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://goodyoung.github.io/posts/cs236/lecture8/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2025-08-10T22:59:41+09:00" />
 <meta property="article:modified_time" content="2025-08-10T22:59:41+09:00" /><meta property="og:site_name" content="My cool site" />
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="[CS236] 8. Normalizing Flows - 2"/>
-<meta name="twitter:description" content="개요 이번 포스트에서는 CS236 강의의 8강을 설명한다.
-이전 포스트에서는 change of variable 공식을 사용하여 공식을 선형적인 예시부터, 비선형적인 예시까지 확장해보았다.
-이번 포스트에서는 공식을 가지고 더 나아가보겠다.
-Normalizing Flow Models Flow Model은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 neural network 모델에 사용하려면 어떻게 할까? $$\mathbf{z}m = f\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}0) = f\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}0)))\big) \triangleq f\theta(\mathbf{z}_0)$$
+<meta name="twitter:description" content="개요 이번 포스트에서는 CS236 강의의 8강을 설명한다. 이전 포스트에서는 change of variable 공식을 사용하여 공식을 선형적인 예시부터, 비선형적인 예시까지 확장해보았다. 이번 포스트에서는 공식을 가지고 더 나아가보겠다. Normalizing Flow Models Flow Model은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 neural network 모델에 사용하려면 어떻게 할까? $$\mathbf{z}m = f\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}0) = f\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}0)))\big) \triangleq f\theta(\mathbf{z}_0)$$
 시작을 쉬운 분포 $z_0$ 으로 시작한다. 여러 간단한 invertible layer인 $f_\theta$ 를 여러 레이어로 쌓아서 $f_\theta(\mathbf{z}_0)$ 를 만든다. 그렇게 되면 매우 유연한 transform을 얻을 수 있다. 그리고 $x = z_m$ 이된다. 그럼 위 변환을 change of variable에 적용하게 되면 아래와 같은 수식을 얻을 수 있다. $$p_X(\mathbf{x};\theta) = p_Z\left( f_\theta^{-1}(\mathbf{x}) \right) \prod_{m=1}^{M}\left| \det\left( \frac{\partial (f_\theta^m)^{-1}(\mathbf{z}_m)}{\partial \mathbf{z}_m} \right) \right|$$
-각 개별 레이어의 야코비안 행렬식을 얻어 곱하면, 해당 행렬식을 얻을 수 있게 된다. 그리고 각 함수 $f$가 invertible 하기 때문에, $f^{-1}$ 을 계산할 수 있다. 여기서 각 개별 레이어마다 change of variable은 같지만 $\theta$ 는 다르다는 것을 유의해야한다. Learning and Inference 우리는 지금까지 Normalizing Flow 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까?
-우리는 VAE와는 달리 change of variable 공식 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, AutoRegreesive Model 처럼 특정 데이터 셋의 log-likelihood를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다.
-$$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)
-\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$ 양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다.
-만약 추론(inference)에서 sampling을 해야된다면 이는, VAE와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다. z도 latent variable이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. Normalizing Flow에서 z는 x와 차원이 같기 때문이다. continue
-이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다."/>
+각 개별 레이어의 야코비안 행렬식을 얻어 곱하면, 해당 행렬식을 얻을 수 있게 된다. 그리고 각 함수 $f$가 invertible 하기 때문에, $f^{-1}$ 을 계산할 수 있다. 여기서 각 개별 레이어마다 change of variable은 같지만 $\theta$ 는 다르다는 것을 유의해야한다. Learning and Inference 우리는 지금까지 Normalizing Flow 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까? 우리는 VAE와는 달리 change of variable 공식 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, AutoRegreesive Model 처럼 특정 데이터 셋의 log-likelihood를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다. $$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)
+\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$ 양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다. 만약 추론(inference)에서 sampling을 해야된다면 이는, VAE와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다. z도 latent variable이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. Normalizing Flow에서 z는 x와 차원이 같기 때문이다. 이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다. (여러 모델들을 보면서 어떻게 parameterized가 되는지 살펴볼 것이다.) Triangular Jacobian 자, 그럼 지금까지 배운 flow model의 조건들에 대해서 살펴보겠다. p(z) 는 샘플링과, likelihood 계산이 효율적으로 가능한 분포를 선택해야한다. 또한 tractable한 Invertible transformation 을 해야한다. 자코비안 행렬식 계산이 빨라야한다. 기존의 자코비안 행렬식은 nXn 행렬이다. 이는 $O(n^3)$ 의 시간복잡도를 지니고 있다. 따라서 이를 해결하기 위하여 행렬식의 구조를 변형해야한다. 기존 자코비안 행렬식에 시간복잡도가 오래걸린다는 단점을 해결하기 위하여, 기존의 자코비안 행렬식을 먼저 봐보자. 아래의 식과 같다. $$ x = (x_1, \cdots, x_n) = f(z) = (f_1(z), \cdots, f_n(z)) $$
+$$ J = \frac{\partial f}{\partial z} = \begin{pmatrix} \frac{\partial f_1}{\partial z_1} &amp; \cdots &amp; \frac{\partial f_1}{\partial z_n} \\ \vdots &amp; \ddots &amp; \vdots \\ \frac{\partial f_n}{\partial z_1} &amp; \cdots &amp; \frac{\partial f_n}{\partial z_n} \end{pmatrix} $$
+위 식에서 우리는 해당 행렬을 상삼각, 하삼각 행렬을 만들면 행렬식의 계산이 $O(n)$ 으로 빨라지게 된다. 그렇게 하기 위해서 가정이 필요하다. 바로 $x_i = f_i(z)$ 가 $z_1, &hellip;, z_i$ 까지만 의존하게 된다면 위 행렬식은 하삼각 행렬이 된다. 하삼각 행렬의 determinant는 대각선 원소들의 곱이기 때문에 $O(n)$ 으로 계산이 된다. $x_2 = f_2(z_1, z_2) \quad \Rightarrow \quad \frac{\partial x_2}{\partial z_3} = 0$ 만약 상삼각 행렬을 만들고 싶다면 $z_i, &hellip;, z_n$ 까지 의존하게 하면 된다."/>
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -47,7 +37,7 @@ $$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture8\/"
-        },"genre": "posts","keywords": "Normalizing Flows, CS236","wordcount":  311 ,
+        },"genre": "posts","keywords": "Normalizing Flows, CS236","wordcount":  994 ,
         "url": "https:\/\/goodyoung.github.io\/posts\/cs236\/lecture8\/","datePublished": "2025-08-10T22:59:41+09:00","dateModified": "2025-08-10T22:59:41+09:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -89,8 +79,8 @@ $$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[CS236] 8. Normalizing Flows - 2</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://goodyoung.github.io" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>GoodYoung</a></span>&nbsp;<span class="post-category">included in <a href="/categories/dl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>DL</a>&nbsp;<a href="/categories/theory/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Theory</a>&nbsp;<a href="/categories/lecture/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Lecture</a>&nbsp;<a href="/categories/deep-generative-models/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Deep Generative Models</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-08-10">2025-08-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;311 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;2 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-08-10">2025-08-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;994 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -101,6 +91,14 @@ $$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_
     <li><a href="#개요">개요</a></li>
     <li><a href="#normalizing-flow-models">Normalizing Flow Models</a></li>
     <li><a href="#learning-and-inference">Learning and Inference</a></li>
+    <li><a href="#triangular-jacobian">Triangular Jacobian</a></li>
+    <li><a href="#nonlinear-independent-components-estimationnice">Nonlinear Independent Components Estimation(NICE)</a>
+      <ul>
+        <li><a href="#additive-coupling-layers">Additive Coupling layers</a></li>
+        <li><a href="#rescaling-layers">Rescaling Layers</a></li>
+      </ul>
+    </li>
+    <li><a href="#non-volume-preserving-extension-of-nice-real-nvp">Non-volume preserving extension of NICE (Real-NVP)</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><!-- image format
@@ -109,16 +107,17 @@ $$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_
  -->
 <h2 id="개요">개요</h2>
 <ol start="0">
-<li>
-<p>이번 포스트에서는 <code>CS236</code> 강의의 <code>8강</code>을 설명한다.</p>
-</li>
-<li>
-<p>이전 포스트에서는 <code>change of variable 공식</code>을 사용하여 공식을 <code>선형적인 예시</code>부터, <code>비선형적인 예시</code>까지 확장해보았다.</p>
-</li>
-<li>
-<p>이번 포스트에서는 공식을 가지고 더 나아가보겠다.</p>
-</li>
+<li>이번 포스트에서는 <code>CS236</code> 강의의 <code>8강</code>을 설명한다.</li>
 </ol>
+<br>
+<ol>
+<li>이전 포스트에서는 <code>change of variable 공식</code>을 사용하여 공식을 <code>선형적인 예시</code>부터, <code>비선형적인 예시</code>까지 확장해보았다.</li>
+</ol>
+<br>
+<ol start="2">
+<li>이번 포스트에서는 공식을 가지고 더 나아가보겠다.</li>
+</ol>
+<hr>
 <h2 id="normalizing-flow-models">Normalizing Flow Models</h2>
 <div style="text-align:center;">
 <img src="/images/cs236/lecture8/flowmodel.png" height="50%" width="50%">
@@ -126,6 +125,7 @@ $$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_
 <ol start="3">
 <li><code>Flow Model</code>은 위와 같이 결정적인 함수 식에 의하여 정해진다. 우리는 이에 대해서 배웠고 관련 공식도 배웠다. 이를 실제 <code>neural network</code> 모델에 사용하려면 어떻게 할까?</li>
 </ol>
+<br>
 <p>$$\mathbf{z}<em>m = f</em>\theta^{m} \circ \cdots \circ f_\theta^{1}(\mathbf{z}<em>0)
 = f</em>\theta^{m}\big(f_\theta^{m-1}(\cdots(f_\theta^{1}(\mathbf{z}<em>0)))\big) \triangleq f</em>\theta(\mathbf{z}_0)$$</p>
 <ul>
@@ -134,6 +134,7 @@ $$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_
 <ol start="4">
 <li>여러 간단한 <code>invertible layer</code>인 $f_\theta$ 를 여러 레이어로 쌓아서 $f_\theta(\mathbf{z}_0)$ 를 만든다. 그렇게 되면 매우 유연한 transform을 얻을 수 있다. 그리고 $x = z_m$ 이된다. 그럼 위 변환을 <code>change of variable</code>에 적용하게 되면 아래와 같은 수식을 얻을 수 있다.</li>
 </ol>
+<br>
 <p>$$p_X(\mathbf{x};\theta) = p_Z\left( f_\theta^{-1}(\mathbf{x}) \right)
 \prod_{m=1}^{M}\left| \det\left( \frac{\partial (f_\theta^m)^{-1}(\mathbf{z}_m)}{\partial \mathbf{z}_m} \right) \right|$$</p>
 <ol start="5">
@@ -142,31 +143,214 @@ $$\max_{\theta} \log p_X(\mathcal{D}; \theta) = \sum_{x \in \mathcal{D}} \log p_
 <hr>
 <h2 id="learning-and-inference">Learning and Inference</h2>
 <ol start="6">
-<li>
-<p>우리는 지금까지 <code>Normalizing Flow</code> 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까?</p>
-</li>
-<li>
-<p>우리는 <code>VAE</code>와는 달리 <code>change of variable 공식</code> 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, <code>AutoRegreesive Model</code> 처럼 특정 데이터 셋의 <code>log-likelihood</code>를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다.</p>
-</li>
+<li>우리는 지금까지 <code>Normalizing Flow</code> 가 어떻게 생겼는지에 대해서 알아왔다. 그럼 어떻게 각 데이터 셋마다 $\theta$ 를 최적화 시킬까? 즉, 학습을 어떻게 할까?</li>
 </ol>
+<br>
+<ol start="7">
+<li>우리는 <code>VAE</code>와는 달리 <code>change of variable 공식</code> 떄문에 $p_\theta$ 에 직접 접근할 수 있기 때문에, <code>AutoRegreesive Model</code> 처럼 특정 데이터 셋의 <code>log-likelihood</code>를 최대화 하는 $\theta$ 를 찾으면 된다. 그래서 log-likelihood의 식은 아래와 같게 표현이 될 수 있다.</li>
+</ol>
+<br>
 <p>$$\max_{\theta} \log p_X(\mathcal{D}; \theta)
 = \sum_{x \in \mathcal{D}} \log p_Z \big( f_\theta^{-1}(x) \big)</p>
 <ul>
 <li>\log \left| \det \left( \frac{\partial f_\theta^{-1}(x)}{\partial x} \right) \right|$$</li>
 </ul>
 <ol start="8">
-<li>
-<p>양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다.</p>
+<li>양쪽 항 다 미분이 가능하기 때문에, gradient인 $\nabla_\theta \log p_X(x;\theta)$ 는 구할 수 있어서 최적화 또한 문제없다.
 <ul>
 <li>만약 <code>추론(inference)</code>에서 sampling을 해야된다면 이는, <code>VAE</code>와 같게 $z \sim p_Z(z) \quad x = f_\theta(z)$ 으로 구할 수 있다.</li>
 <li>z도 <code>latent variable</code>이긴 하지만, VAE의 z와 같은 역할을 한다고 볼 수는 없다. <code>Normalizing Flow</code>에서 <strong>z는 x와 차원이 같기 때문이다.</strong></li>
+<li>이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다. (여러 모델들을 보면서 어떻게 parameterized가 되는지 살펴볼 것이다.)</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="triangular-jacobian">Triangular Jacobian</h2>
+<ol start="9">
+<li>자, 그럼 지금까지 배운 <code>flow model</code>의 조건들에 대해서 살펴보겠다.
+<ul>
+<li>p(z) 는 샘플링과, likelihood 계산이 효율적으로 가능한 분포를 선택해야한다.</li>
+<li>또한 tractable한 <code>Invertible transformation</code> 을 해야한다.</li>
+<li>자코비안 행렬식 계산이 빨라야한다.
+<ul>
+<li>기존의 자코비안 행렬식은 nXn 행렬이다. 이는 $O(n^3)$ 의 시간복잡도를 지니고 있다.</li>
+<li>따라서 이를 해결하기 위하여 <strong>행렬식의 구조를 변형해야한다.</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="10">
+<li>기존 자코비안 행렬식에 시간복잡도가 오래걸린다는 단점을 해결하기 위하여, 기존의 자코비안 행렬식을 먼저 봐보자. 아래의 식과 같다.</li>
+</ol>
+<br>
+<p>$$
+x = (x_1, \cdots, x_n) = f(z) = (f_1(z), \cdots, f_n(z))
+$$</p>
+<p>$$
+J = \frac{\partial f}{\partial z} =
+\begin{pmatrix}
+\frac{\partial f_1}{\partial z_1} &amp; \cdots &amp; \frac{\partial f_1}{\partial z_n} \\
+\vdots &amp; \ddots &amp; \vdots \\
+\frac{\partial f_n}{\partial z_1} &amp; \cdots &amp; \frac{\partial f_n}{\partial z_n}
+\end{pmatrix}
+$$</p>
+<ol start="11">
+<li>위 식에서 우리는 해당 행렬을 <code>상삼각</code>, <code>하삼각 행렬</code>을 만들면 행렬식의 계산이 $O(n)$ 으로 빨라지게 된다. 그렇게 하기 위해서 <strong>가정이 필요하다.</strong> 바로 $x_i = f_i(z)$ 가 $z_1, &hellip;, z_i$ 까지만 의존하게 된다면 위 행렬식은 <code>하삼각 행렬</code>이 된다.
+<ul>
+<li><code>하삼각 행렬</code>의 determinant는 대각선 원소들의 곱이기 때문에 $O(n)$ 으로 <strong>계산이 된다.</strong></li>
+<li>$x_2 = f_2(z_1, z_2) \quad \Rightarrow \quad \frac{\partial x_2}{\partial z_3} = 0$</li>
+<li>만약 상삼각 행렬을 만들고 싶다면 $z_i, &hellip;, z_n$ 까지 의존하게 하면 된다.</li>
+</ul>
+</li>
+</ol>
+<p>$$
+J = \frac{\partial f}{\partial z} =
+\begin{pmatrix}
+\frac{\partial f_1}{\partial z_1} &amp; \cdots &amp; 0 \\
+\vdots &amp; \ddots &amp; \vdots \\
+\frac{\partial f_n}{\partial z_1} &amp; \cdots &amp; \frac{\partial f_n}{\partial z_n}
+\end{pmatrix}
+$$</p>
+<hr>
+<h2 id="nonlinear-independent-components-estimationnice">Nonlinear Independent Components Estimation(NICE)</h2>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture8/nice.png" height="50%" width="50%">
+</div>
+<ol start="12">
+<li>우리는 <code>Normalizing Flow Model</code>의 기본적인 개념에 대해서 알아봤고, 이제 이 개념이 실제 neural network에서 어떻게 쓰이는지 알아볼 것이다. 그 예시 중 첫 번째로 <code>Nonlinear Independent Components Estimation(NICE)</code>에 대해서 알아볼 것이다.</li>
+</ol>
+<br>
+<ol start="13">
+<li><code>NICE</code>에는 두 가지 기능이 있는데, 이 두 가지 기능에 대해서 살펴볼 것이다.</li>
+</ol>
+<br>
+<h3 id="additive-coupling-layers">Additive Coupling layers</h3>
+<ol start="14">
+<li>첫 번째는 <code>Additive Coupling layers</code>이다. 이는 $f_\theta$ 에 <strong>비선형성을 부여하기 위한</strong> 기능이다. 이 기능은 z를 $\mathbf{z_{1:d}}, \mathbf{z_{d+1:n}}$ 로 2가지의 group으로 나눈다.
+<ul>
+<li>이때 $1 \leq d &lt; n$ 이고, d는 임의로 지정되는 인자이다.</li>
+<li>각 neural network layer마다 d가 다르다.그러</li>
+</ul>
+</li>
+</ol>
+<br>
+<ol start="15">
+<li>그럼 이때 우리가 계속 배웠던 <code>Forward Mapping(z-&gt;x)</code> 과 <code>Inverse Mapping(x-&gt;z)</code>을 살펴보겠다.</li>
+</ol>
+<ul>
+<li>
+<p><strong>Forward Mapping</strong></p>
+<ul>
+<li>앞부분은 그대로 두어  $ \mathbf{x_{1:{d}}} = \mathbf{z_{1:{d}}} $  (Identity Transformation)</li>
+<li>뒷부분은 앞부분을 이용해 변환<br>
+$$ \mathbf{x_{d+1:{n}}} = \mathbf{z_{d+1:{n}}} + m_\theta(\mathbf{z_{1:{d}}}) $$<br>
+여기서 $m_\theta(\cdot)$는 파라미터 $\theta$를 가진 신경망이며, 입력 차원은 $d$, 출력 차원은 $n-d$이다.
+<ul>
+<li>$m$ 을 <strong>하나의 layer로 이루어진 MLP라고 생각하면 쉽다.</strong></li>
+<li>이로 인해 <strong>비선형성</strong>이 주어진다.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
-<p>continue</p>
+<p><strong>Inverse Mapping</strong></p>
+<ul>
+<li><code>Forward Mapping</code>에서 <strong>덧셈을</strong> 사용하였기 때문에, 그 역은 <strong>뺄셈만</strong> 사용하여 invertible이 쉽게 되는 것을 확인할 수 있다.</li>
+<li>앞부분은 그대로 복원  $ \mathbf{z_{1:{d}}} = \mathbf{x_{1:{d}}} $  (Identity Transformation)</li>
+<li>뒷부분은 앞부분을 이용해 복원<br>
+$$ \mathbf{z_{d+1:{n}}} = \mathbf{x_{d+1:{n}}} - m_\theta(\mathbf{x_{1:{d}}}) $$</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="16">
+<li>앞선 과정을 거치면 Jacobian 행렬식의 계산이 <strong>쉬워지게 된다.</strong> Jacobian 식은 다음과 같이 표현될 수 있다. 이유가 궁금하다면 하단의 toggle을 확인하면 좋을 것 같다.</li>
+</ol>
+<p>$$
+J = \frac{\partial \mathbf{x}}{\partial \mathbf{z}} =
+\begin{pmatrix}
+I_d &amp; 0 \\
+\frac{\partial m_\theta(\mathbf{z_{1:{d}}})}{\partial \mathbf{z_{1:{d}}}} &amp; I_{n-d}
+\end{pmatrix}
+$$</p>
+  <details>
+  <summary> 자코비안 행렬식 이유 </summary>
+<ul>
+<li>
+<p><strong>(위-왼쪽 블록)</strong><br>
+$$ \frac{\partial \mathbf{x_{1:{d}}}}{\partial \mathbf{z_{1:{d}}}} = I_d $$<br>
+(앞부분을 <strong>그대로</strong> 복사하므로 항등 행렬)</p>
+</li>
+<li>
+<p><strong>(위-오른쪽 블록)</strong><br>
+$$ \frac{\partial \mathbf{x_{1:{d}}}}{\partial \mathbf{z_{d+1:{n}}}} = 0 $$
+(앞부분 $\mathbf{x}$는 뒷부분 $\mathbf{z}$에 의존하지 않음)</p>
+</li>
+<li>
+<p><strong>(아래-왼쪽 블록)</strong><br>
+$$ \frac{\partial \mathbf{x_{d+1:{n}}}}{\partial \mathbf{z_{1:{d}}}} = \frac{\partial m_\theta(\mathbf{z_{1:{d}}})}{\partial \mathbf{z_{1:{d}}}} $$
+(앞부분 $\mathbf{z}$가 $m_\theta$에 <strong>들어가므로</strong> 뒷부분 $\mathbf{x}$에 영향을 줌)</p>
+</li>
+<li>
+<p><strong>(아래-오른쪽 블록)</strong><br>
+$$ \frac{\partial \mathbf{x_{d+1:{n}}}}{\partial \mathbf{z_{d+1:{n}}}} = I_{n-d} $$<br>
+(뒷부분 $\mathbf{z}$가 <strong>그대로</strong> 더해졌으므로 미분하면 항등 행렬)</p>
+</li>
+</ul>
+  </details>
+<br>
+<ol start="17">
+<li>이 행렬은 <strong>하삼각 행렬</strong>이므로 행렬식은 $\det(J) = \det(I_d) \cdot \det(I_{n-d}) = 1$ 이다.
+<ul>
+<li>따라서 이 변환은 <strong>Volume Preserving Transformation</strong> 이다.
+<ul>
+<li>초입방체를 축소하거나 확장하지 않고, 그저 확률 질량만 이동한다.</li>
+</ul>
+</li>
+<li>또한 7번의 maximize log-likelihood 를 떠올려 보면 자코비안 항이 $\log 1 = 0 $ 으로 여러 <code>coupling layer</code>를 쌓아도 <strong>상관이 없다는 것을 확인할 수 있다.</strong></li>
+</ul>
 </li>
 </ol>
-<p>이 과정을 하기 위해서는 $f_\theta$ 를 invertible하고 jacobian 행렬 계산이 용이하도록 parameterized 해야한다.</p>
+<br>
+<h3 id="rescaling-layers">Rescaling Layers</h3>
+<ol start="18">
+<li>여러 Addiitive Coupling Layer가 쌓여서 하나의 NICE를 구성할 것이다. 이때 마지막 layer에서 Rescaling 을 하여 정규화를 한다. 아래는 Rescaling Layer의 <code>Forward Mapping(z-&gt;x)</code> 과 <code>Inverse Mapping(x-&gt;z)</code>을 나타낸 것이다.</li>
+</ol>
+<ul>
+<li><strong>Forward Mapping</strong>
+<ul>
+<li>각 차원 $i$에 대해 스케일 $s_i &gt; 0$을 곱해준다. $x_i = s_i z_i$
+<ul>
+<li>여기서 $s_i$는 $i$-번째 차원의 scaling factor.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Inverse Mapping</strong>
+<ul>
+<li>Forward Mapping의 역변환은 나눗셈으로 하면 된다. $z_i = \frac{x_i}{s_i}$</li>
+</ul>
+</li>
+<li><strong>자코비안 행렬</strong>
+<ul>
+<li>자코비안 행렬은 대각선에만 $s_i$ 가 있고 나머지는 0인 대각 행렬이 된다. ($x_i = s_i z_i$ 이기 때문에)</li>
+<li>$J = \mathrm{diag}(s)$, $\det(J) = \prod_{i=1}^n s_i$ 이다.</li>
+</ul>
+</li>
+</ul>
+<br>
+<ol start="19">
+<li><code>NICE</code> 모델은 간단하다고 생각할 수 있지만, 실험 결과는 생각보다 좋다. 하지만 z가 x와 같은 차원이다보니 연산량이 많은 모델이기도 하다.</li>
+</ol>
+<br>
+<div style="text-align:center;">
+<img src="/images/cs236/lecture8/nice-1.png" height="80%" width="80%">
+</div>
+<hr>
+<h2 id="non-volume-preserving-extension-of-nice-real-nvp">Non-volume preserving extension of NICE (Real-NVP)</h2>
+<p>continue</p>
 </div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
