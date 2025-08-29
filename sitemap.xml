@@ -2,17 +2,19 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
+            <loc>https://goodyoung.github.io/posts/cs236/lecture9/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/cs236/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/deep-generative-models/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/dl/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/gan/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/lecture/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/posts/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/tags/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://goodyoung.github.io/categories/theory/</loc><lastmod>2025-08-27T19:15:17&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/cs236/lecture8/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/cs236/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/deep-generative-models/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/dl/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/lecture/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/normalizing-flows/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/posts/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/categories/theory/</loc><lastmod>2025-08-10T22:59:41&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/cs236/lecture7/</loc><lastmod>2025-08-07T15:51:03&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/cs236/lecture6/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/latent-variable-models/</loc><lastmod>2025-07-26T14:23:31&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
@@ -43,7 +45,6 @@
             <loc>https://goodyoung.github.io/tags/dcgan/</loc><lastmod>2024-09-13T18:49:11&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/generative/</loc><lastmod>2024-09-13T18:49:11&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/paper/gan/</loc><lastmod>2024-09-02T14:52:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://goodyoung.github.io/tags/gan/</loc><lastmod>2024-09-02T14:52:43&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/posts/paper/multimodal-survey/</loc><lastmod>2024-08-29T18:37:03&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/tags/multi-modal-learning/</loc><lastmod>2024-08-29T18:37:03&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://goodyoung.github.io/categories/survey/</loc><lastmod>2024-08-29T18:37:03&#43;09:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>

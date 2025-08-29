@@ -26,7 +26,7 @@ $$ J = \frac{\partial f}{\partial z} = \begin{pmatrix} \frac{\partial f_1}{\part
 <meta name="application-name" content="My cool site">
 <meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs236/lecture8/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs236/lecture7/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://goodyoung.github.io/posts/cs236/lecture8/" /><link rel="prev" href="https://goodyoung.github.io/posts/cs236/lecture7/" /><link rel="next" href="https://goodyoung.github.io/posts/cs236/lecture9/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -577,10 +577,10 @@ $$p(x_i \mid \mathbf{x_{&lt;i}}) = \mathcal{N}\big(\mu_i(x_1, \cdots, x_{i-1}), 
 <ol start="33">
 <li>그렇다면 <code>MAF</code>와 <code>IAF</code>의 장점을 <strong>모두 사용할 수 있는 방법은 없을까?</strong> 이 질문에 대한 방법은 있다. 바로 교사 모델은 <code>MAF</code>로 <code>훈련하여 효율적인 훈련</code>을 하고, 그 모델을 distillation하고, 학생 모델을 <code>IAF</code> 구조로 하여 학생 모델으로 <code>sampling을 진행하면</code> 매우 효율적인 프레임워크를 얻을 수 있다. 이것이 <code>Parallel Wavenet</code>이다.</li>
 </ol>
+<br>
 <p>$$D_{KL}(s, t) = \mathbb{E_{x \sim s}}\left[ \log s(x) - \log t(x) \right]$$</p>
 <ol start="34">
-<li>
-<p>위 식은 <code>Parallel Wavenet</code>의 목적식인데, <code>s-&gt;t</code>로 진행하면서 많은 이점을 얻을 수 있게 된다. 해당 목적 함수로 최적화를 진행할 때, 많은 sampling 과정을 거쳐야하는데 student 모델은 sampling이 teacher 보다 수월하기 때문에 효율적이다. 따라서 해당 목적식을 거치면 학생 모델의 분포가 <strong>교사 모델의 분포를 닮게 된다.</strong></p>
+<li>위 식은 <code>Parallel Wavenet</code>의 목적식인데, <code>s-&gt;t</code>로 진행하면서 많은 이점을 얻을 수 있게 된다. 해당 목적 함수로 최적화를 진행할 때, 많은 sampling 과정을 거쳐야하는데 student 모델은 sampling이 teacher 보다 수월하기 때문에 효율적이다. 따라서 해당 목적식을 거치면 학생 모델의 분포가 <strong>교사 모델의 분포를 닮게 된다.</strong>
 <ul>
 <li>아래는 <code>Parallel Wavenet</code>의 전체 흐름이다.
 <ul>
@@ -599,9 +599,10 @@ $$p(x_i \mid \mathbf{x_{&lt;i}}) = \mathcal{N}\big(\mu_i(x_1, \cdots, x_{i-1}), 
 </li>
 </ul>
 </li>
-<li>
-<p>그 다음 <code>Normalizing Flow</code>의 여러 모델들을 간단히 살펴 보았는데, <code>MintNet</code>, <code>Gaussianization Flows</code> 을 살펴보았다. 자세한건 논문을 살펴보면 될 것 같고, <code>Gaussianization Flows</code>에서 사용된 <code>Inverse CDF Trick</code>이 중요해보여서 아래 사이트에서 참고하여 공부하면 좋을 것 같다.</p>
-</li>
+</ol>
+<br>
+<ol start="35">
+<li>그 다음 <code>Normalizing Flow</code>의 여러 모델들을 간단히 살펴 보았는데, <code>MintNet</code>, <code>Gaussianization Flows</code> 을 살펴보았다. 자세한건 논문을 살펴보면 될 것 같고, <code>Gaussianization Flows</code>에서 사용된 <code>Inverse CDF Trick</code>이 중요해보여서 아래 사이트에서 참고하여 공부하면 좋을 것 같다.</li>
 </ol>
 <ul>
 <li><code>Inverse CDF Trick</code>이란 <code>Uniform 분포</code>에서 <code>특정한 분포</code>(예: Gaussian)로 변환이 되는 분포이다.
@@ -640,7 +641,8 @@ $$p(x_i \mid \mathbf{x_{&lt;i}}) = \mathcal{N}\big(\mu_i(x_1, \cdots, x_{i-1}), 
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/cs236/lecture7/" class="prev" rel="prev" title="[CS236] 7. Normalizing Flows - 1"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS236] 7. Normalizing Flows - 1</a></div>
+    <div class="post-nav"><a href="/posts/cs236/lecture7/" class="prev" rel="prev" title="[CS236] 7. Normalizing Flows - 1"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>[CS236] 7. Normalizing Flows - 1</a>
+            <a href="/posts/cs236/lecture9/" class="next" rel="next" title="[CS236] 9. GANs - 1">[CS236] 9. GANs - 1<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
 </div>
 <div id="comments"><div id="utterances" class="comment"></div><noscript>
                 Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">utterances</a>.

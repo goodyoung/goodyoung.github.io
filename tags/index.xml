@@ -3,12 +3,20 @@
         <title>Tags - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/</link>
         <description>Tags - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 10 Aug 2025 22:59:41 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 27 Aug 2025 19:15:17 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/" rel="self" type="application/rss+xml" /><item>
     <title>CS236</title>
     <link>https://goodyoung.github.io/tags/cs236/</link>
-    <pubDate>Sun, 10 Aug 2025 22:59:41 &#43;0900</pubDate>
+    <pubDate>Wed, 27 Aug 2025 19:15:17 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/cs236/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>GAN</title>
+    <link>https://goodyoung.github.io/tags/gan/</link>
+    <pubDate>Wed, 27 Aug 2025 19:15:17 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/tags/gan/</guid>
     <description><![CDATA[]]></description>
 </item>
 <item>
@@ -73,14 +81,6 @@
     <pubDate>Fri, 28 Feb 2025 16:42:40 &#43;0900</pubDate>
     <author>GoodYoung</author>
     <guid>https://goodyoung.github.io/tags/computer-vision/</guid>
-    <description><![CDATA[]]></description>
-</item>
-<item>
-    <title>Diffusion</title>
-    <link>https://goodyoung.github.io/tags/diffusion/</link>
-    <pubDate>Fri, 28 Feb 2025 16:42:40 &#43;0900</pubDate>
-    <author>GoodYoung</author>
-    <guid>https://goodyoung.github.io/tags/diffusion/</guid>
     <description><![CDATA[]]></description>
 </item>
 </channel>

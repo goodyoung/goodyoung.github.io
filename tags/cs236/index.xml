@@ -3,7 +3,21 @@
         <title>CS236 - Tag - Good Young</title>
         <link>https://goodyoung.github.io/tags/cs236/</link>
         <description>CS236 - Tag - Good Young</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 10 Aug 2025 22:59:41 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/cs236/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 27 Aug 2025 19:15:17 &#43;0900</lastBuildDate><atom:link href="https://goodyoung.github.io/tags/cs236/" rel="self" type="application/rss+xml" /><item>
+    <title>[CS236] 9. GANs - 1</title>
+    <link>https://goodyoung.github.io/posts/cs236/lecture9/</link>
+    <pubDate>Wed, 27 Aug 2025 19:15:17 &#43;0900</pubDate>
+    <author>GoodYoung</author>
+    <guid>https://goodyoung.github.io/posts/cs236/lecture9/</guid>
+    <description><![CDATA[개요 이번 포스트에서는 CS236 강의의 8강을 설명한다. 우리는 지금까지 여러 생성 모델들을 배웠다. AutoRegreesive Model, Variational Autoencoder, Normalizing Flow. 이들은 모두 실제 데이터 분포 $p_\text{data}$ 에 제일 가까운 $p_\theta$ 를 찾으려고 했다. 가장 가까운 $\theta$ 를 찾기 위하여 Maximum log-likelihood(MLE)를 학습 목표로 삼았다. 그렇다면, 높은 log-likelihood가 무조건 좋은 품질의 생성을 의미할까? 아니다. likelihood가 낮더라도 sampling의 품질은 꽤 좋을 수 있다. 그래서 이번 lecture에서는 MLE에 기반하지 않는 다양한 종류의 훈련 목적 함수를 알아볼 것이다. 높은 likelihood -&gt; 나쁜 품질은 어떻게 하면 될까? 자세한 내용은 아래 toggle을 확인하면 된다.
+높은 likelihood -> 나쁜 품질 예시 아래의 슬라이드를 보면, 99퍼센트의 noise를 추출하는 $p_\theta$ 이지만 높은 차원으로 갈 수록이 모델은 실제 $p_\text{data}$ 를 나타내는 예시를 볼 수 있다. 그렇게 되면 이 모델은 MLE는 매우 좋을 것이며, 샘플의 품질은 매우 나쁠 것이다. 그렇다면 낮은 likelihood -&gt; 좋은 품질은 어떻게 하면 될까? 그 방법은 모델을 overfitting을 하면 된다.
+결론적으로 기존과 달리, 우리는 위 그림의 $d(p_\text{data}||p_\theta)$ 의 다른 대안을 알아볼 것이다. Two-Sample Test 그렇다면 어떤 다른 방법이 있을까. 바로 두 개의 분포에서 생성한 결과를 가지고 그 생성한 결과가 서로 같다면 귀무가설(두 분포가 같다)을 받아드리고, 다르다면 기각하는 방식으로 MLE 없이 두 개의 분포 유사도를 측정할 수 있는 Two-Sample Test 방식이 있다. 두 분포가 같음을 측정할 때 만약 두 분포의 평균만 사용한다면, 우리는 분포의 확률조차도 구할 필요가 없는 것이다.
+하지만, 통계적으로 고차원의 데이터에서 단지 평균만으로 측정한다면, 올바른 측정이 어렵다. 위와 같이 생각해야할 것들이 많기 때문이다. (단지, 평균만 같아도 두 분포가 같다고 할 수 없는 것(왼쪽 첫번째 그림) 처럼)
+그렇다면 자동적으로 이 두 분포의 차이를 어떻게 알까? 방법은 분류기를 학습하는 것이다. (GAN에서 Discriminator 역할) 본질적으로는, 우리가 딥러닝 분류기의 역할은 두(여러) 그룹의 샘플을 구별하고 구분할 수 있는 특징을 자동적으로 분류하는 것이다. 이를 Two-Sample Test에 적용시키겠다는 것이다. Generative Adversarial Network (GAN) Discriminator 1일 때 real, 0일 때 fake 를 구별하는 2진 분류기가 있다고 하자. 그렇게 되면 우리가 사용할 통계량은 이 분류기의 loss일 것이다.(loss가 적으면 잘 구별한다는 것이고, 높으면 구별하기 어렵다는 것으로 해석할 수 있다.) 땨라서 이 분류기의 목표는 이 통계량을 최대화하거나 loss를 최소화하는 것이다. $$ \begin{aligned} \max_{D_\phi} V(p_\theta, D_\phi) &amp;= \mathbb{E_{x \sim p_{\text{data}}}}[\log D_\phi(x)] + \mathbb{E_{x \sim p_\theta}}[\log(1 - D_\phi(x))] \\ &amp;\approx \sum_{x \in S_1} \log D_\phi(x) + \sum_{x \in S_2} \log(1 - D_\phi(x)) \end{aligned} $$
+$p_\theta$: Fixed generative model $p_\text{data}$: 데이터 셋 $D_\phi(x)$: Discriminator 이것은 고정된 생성 모델이 있을 때, 분류기의 목적 함수이다. 따라서 오직 분류기의 최적화 관점만 생각해야한다. 이 분류기는 $S1$에 대해서 1(real, 진짜로 인식)로 , $S2$에 대해서 0(fake, 가짜로 인식)로 잘 분류할 수 있게 학습하도록 한다. 이렇기 때문에 $D_\phi(x)$ 의 값은 샘플 $x$ 가 실제 데이터 분포에 속할 확률을 나타내는 것으로 해석할 수 있다. (데이터 분포와 유사하면 1, 아니면 0이기 때문이다.) $$ D_\theta^*(x) = \frac{p_{\text{data}}(x)}{p_{\text{data}}(x) + p_\theta(x)} $$
+그래서 위의 Discriminator 식을 최적화 한다면 위와 같은 식으로 표현할 수 있는데, 이는 x가 Discriminator에 들어왔을 때 전체 분포의 확률 중에 실제 데이터 분포일 확률을 나타낸다. 따라서, 만약 $p_\text{data} = p_\theta$ 라면($p_\text{data}$와 $p_\theta$의 분포가 같다면) 값은 1/2이 나올 것이다. Generator 그렇다면 Discriminator를 속이기 위해 Generator ($p_\theta$)를 최적화 하는 방법을 정의해보자. Flow-model 처럼 유사하게 동작하지만, 역변환은 필요 없다. 쉬운 분포 p(z)에서 z를 뽑고 $G_\theta$ 에 넣어 x를 생성하는 것에 초점이 맞춰져 있다.]]></description>
+</item>
+<item>
     <title>[CS236] 8. Normalizing Flows - 2</title>
     <link>https://goodyoung.github.io/posts/cs236/lecture8/</link>
     <pubDate>Sun, 10 Aug 2025 22:59:41 &#43;0900</pubDate>
